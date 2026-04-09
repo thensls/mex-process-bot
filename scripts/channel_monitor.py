@@ -298,6 +298,37 @@ def _load_common_context():
     return sections
 
 
+IS_QUESTION_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "is_question": {"type": "boolean"},
+    },
+    "required": ["is_question"],
+    "additionalProperties": False,
+}
+
+
+def is_question(text, api_key):
+    """Returns True if the message is a genuine process question worth answering."""
+    system = (
+        "You are filtering Slack messages for a MEX process bot. "
+        "Return is_question: true ONLY if the message is a genuine question asking for help, "
+        "guidance, or information about a process, policy, or procedure. "
+        "Return is_question: false for: general announcements, greetings, celebrations, "
+        "status updates, acknowledgements, chitchat, reactions, or anything that is not "
+        "actually asking for help or information."
+    )
+    try:
+        result = claude_request(
+            CLAUDE_CLASSIFIER, system, text[:500], api_key,
+            max_tokens=50, json_schema=IS_QUESTION_SCHEMA,
+        )
+        return json.loads(result)["is_question"]
+    except Exception as e:
+        logging.warning("Question detection failed, defaulting to respond: %s", e)
+        return True
+
+
 def classify_issue(issue_text, api_key):
     """Cheap Haiku call to classify a question into a KB category (~50 tokens output)."""
     categories_str = ", ".join(KB_CATEGORIES + ["other"])
@@ -587,6 +618,18 @@ def process_new_threads(state, slack_token, anthropic_key, airtable_key, base_id
                 f"- {slack_get_user_info(slack_token, r.get('user', ''))}: {r.get('text', '')}"
                 for r in non_reviewer[:5]
             )
+
+        # Gate: only respond to questions, not general chat or announcements
+        if not is_question(issue_text, anthropic_key):
+            logging.info("Skipping non-question message in thread %s", ts)
+            state["processed_threads"][ts] = {
+                "reporter": reporter_name,
+                "bot_response": None,
+                "comparison_scored": "skipped",
+                "processed_at": datetime.now().isoformat(),
+            }
+            save_state(state)
+            continue
 
         # Two-pass: classify with Haiku, load targeted KB
         category = classify_issue(issue_text, anthropic_key)
