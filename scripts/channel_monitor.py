@@ -96,8 +96,9 @@ def load_state():
         with open(STATE_FILE) as f:
             state = json.load(f)
     else:
+        # Start from now — don't process historical messages on first run
         state = {
-            "last_processed_ts": "0",
+            "last_processed_ts": str(time.time()),
             "processed_threads": {},
         }
     return state
