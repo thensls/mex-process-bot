@@ -585,9 +585,6 @@ def process_new_threads(state, slack_token, anthropic_key, airtable_key, base_id
             continue
 
         reporter_id = msg.get("user", "unknown")
-        if reporter_id == REVIEWER_USER_ID:
-            logging.debug("Skipping reviewer's own thread: %s", ts)
-            continue
         if _bot_user_id and reporter_id == _bot_user_id:
             logging.debug("Skipping bot's own message: %s", ts)
             continue
