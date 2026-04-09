@@ -33,10 +33,12 @@ If a shop question does not match a known process, escalate to the MEX reviewer.
 **What the warranty covers:**
 - Lost, stolen, or damaged packages during transit
 - Up to one complete order replacement
+- Valid only within **30 days** of the purchase date
 
 **What the warranty does NOT cover:**
 - Packages sent back to NSLS
 - Items not selected for warranty at checkout
+- Orders where warranty was only purchased on one of multiple orders — only that specific order is covered
 - Warranty is non-refundable once the item has shipped (may be refunded if order is cancelled before shipping)
 
 **Pre-check — always verify before taking action:**
@@ -47,18 +49,31 @@ If a shop question does not match a known process, escalate to the MEX reviewer.
 5. **Multiple orders** — member may have placed orders under different emails; check all
 6. **Confirm shipping address** — to avoid further delivery issues
 
+**Pre-check before doing anything — always verify:**
+
+| Check | What to confirm |
+|---|---|
+| Where purchased? | Was it from Feather enrollment or the NSLS Shop? |
+| Item type | Is it non-refundable? (Graduation, induction, personalized items, gift cards) |
+| Order number | Get the 6-digit Shop order number; check warranty coverage |
+| Order date | Must be within 30 days for refund/exchange eligibility |
+| Multiple orders | Member may have ordered under different emails — check all; verify which order had warranty |
+| Shipping address | Confirm address to avoid further delivery issues |
+| No tracking received | Search by name, email, or phone number for the order |
+
 **Steps when warranty claim is submitted:**
 
-1. **Verify warranty coverage:** Confirm the member selected the warranty at checkout for this specific order
+1. **Verify warranty coverage:** Confirm the member selected the warranty at checkout for this specific order — and that the order is within 30 days of purchase
 
 2. **Have the member contact the carrier first:**
    - They should reach out to USPS, UPS, etc. to inquire about the lost/damaged package
    - They should file a claim with the carrier
 
-3. **Confirm non-delivery:** Verify that either:
-   - The tracking number shows no delivery, OR
-   - No delivery date is listed, OR
-   - A reasonable timeframe has passed with no delivery
+3. **Confirm non-delivery:** Verify that the tracking shows one of the following:
+   - Delivered to invalid/insufficient address
+   - Returned to sender
+   - No delivery date listed
+   - 3+ weeks have passed with no delivery
 
 4. **If warranty confirmed and claim filed:** A replacement can be sent. Escalate to Shop Team per the Communication with Shop SOP.
 
