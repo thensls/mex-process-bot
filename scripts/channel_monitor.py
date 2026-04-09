@@ -96,9 +96,9 @@ def load_state():
         with open(STATE_FILE) as f:
             state = json.load(f)
     else:
-        # Start from now — don't process historical messages on first run
+        # Start from 5 minutes ago so each cron run picks up the last interval
         state = {
-            "last_processed_ts": str(time.time()),
+            "last_processed_ts": str(time.time() - 300),
             "processed_threads": {},
         }
     return state
