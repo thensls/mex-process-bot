@@ -1,22 +1,18 @@
 #!/usr/bin/env python3
 """
-MEX Process Bot: Channel Monitor.
+MEX Process Bot — Coach Max: Channel Monitor.
 
-Polls the MEX process questions channel every 10 minutes via Railway cron.
-For new threads: generates a sourced process response and posts to the test channel.
-For threads with new responses since bot's draft: runs comparison scoring.
-
-Shadow mode: the bot never posts to the live channel.
-It generates draft responses in the test channel for reviewer comparison.
+Polls #mex-sos-test every 10 minutes via Railway cron.
+For new threads: generates a sourced process response and replies directly in the thread.
+For threads the reviewer has replied to: runs comparison scoring and logs to Airtable.
 
 State tracked in context/state.json.
 
 Environment variables:
     MEX_BOT_SLACK_BOT_TOKEN
     ANTHROPIC_API_KEY
-    AIRTABLE_API_KEY
-    MEX_BOT_AIRTABLE_BASE_ID
-    MEX_BOT_TEST_CHANNEL_ID
+    AIRTABLE_API_KEY          (optional — scores won't be stored if missing)
+    MEX_BOT_AIRTABLE_BASE_ID  (optional — scores won't be stored if missing)
 """
 
 import json
@@ -103,11 +99,7 @@ def load_state():
         state = {
             "last_processed_ts": "0",
             "processed_threads": {},
-            "test_channel_id": None,
         }
-    env_channel = os.environ.get("MEX_BOT_TEST_CHANNEL_ID")
-    if env_channel and not state.get("test_channel_id"):
-        state["test_channel_id"] = env_channel
     return state
 
 
@@ -516,13 +508,28 @@ Provide chain-of-thought reasoning in scoring_notes BEFORE assigning numeric sco
 # Main processing
 # ---------------------------------------------------------------------------
 
-def process_new_threads(state, slack_token, anthropic_key, airtable_key, base_id):
-    """Check for new threads and generate bot responses."""
-    test_channel = state["test_channel_id"]
+def get_bot_user_id(slack_token):
+    """Fetch the bot's own Slack user ID so we can skip its own messages."""
+    url = f"{SLACK_API_BASE}/auth.test"
+    headers = {"Authorization": f"Bearer {slack_token}"}
+    req = urllib.request.Request(url, headers=headers, method="GET")
+    try:
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            result = json.loads(resp.read().decode("utf-8"))
+            return result.get("user_id")
+    except Exception as e:
+        logging.warning("Could not fetch bot user ID: %s", e)
+        return None
 
-    if not test_channel:
-        logging.error("test_channel_id not set in state.json")
-        return
+
+_bot_user_id = None
+
+
+def process_new_threads(state, slack_token, anthropic_key, airtable_key, base_id):
+    """Check for new threads and post responses directly in the live channel."""
+    global _bot_user_id
+    if not _bot_user_id:
+        _bot_user_id = get_bot_user_id(slack_token)
 
     params = {
         "channel": LIVE_CHANNEL_ID,
@@ -548,6 +555,9 @@ def process_new_threads(state, slack_token, anthropic_key, airtable_key, base_id
         reporter_id = msg.get("user", "unknown")
         if reporter_id == REVIEWER_USER_ID:
             logging.debug("Skipping reviewer's own thread: %s", ts)
+            continue
+        if _bot_user_id and reporter_id == _bot_user_id:
+            logging.debug("Skipping bot's own message: %s", ts)
             continue
 
         reporter_name = slack_get_user_info(slack_token, reporter_id)
@@ -591,29 +601,15 @@ def process_new_threads(state, slack_token, anthropic_key, airtable_key, base_id
             logging.error("Failed to generate response for %s: %s", ts, e)
             continue
 
-        # Build test channel message
-        permalink = f"https://thensls.slack.com/archives/{LIVE_CHANNEL_ID}/p{ts.replace('.', '')}"
-        test_msg = (
-            f"*New question detected*\n"
-            f"*From:* {reporter_name}\n"
-            f"*Thread:* {permalink}\n\n"
-            f"*Question:*\n> {issue_text[:500]}\n\n"
-            f"---\n"
-            f"*Bot's Draft Response:*\n{bot_result['response']}\n\n"
-            f"---\n"
-            f"*Priority:* {bot_result['priority']} — {bot_result['priority_rationale']}\n"
-            f"*Category:* {bot_result['category']}\n"
-            f"*Sources:* {bot_result.get('source_references', 'None')}\n"
-        )
-        if bot_result.get("knowledge_gaps"):
-            test_msg += f"*Knowledge Gaps:* {bot_result['knowledge_gaps']}\n"
+        # Post response directly in the live channel thread
+        reply_msg = bot_result["response"]
         if bot_result.get("is_undocumented"):
-            test_msg += "*\u26a0\ufe0f Process not documented — needs human answer and KB update*\n"
+            reply_msg += "\n\n⚠️ _I don't have this in my SOP — flagging for the team._"
 
         try:
-            test_msg_ts = slack_post_message(slack_token, test_channel, test_msg)
+            slack_post_message(slack_token, LIVE_CHANNEL_ID, reply_msg, thread_ts=ts)
         except Exception as e:
-            logging.error("Failed to post to test channel: %s", e)
+            logging.error("Failed to post response to live channel: %s", e)
             continue
 
         # Track state
@@ -624,7 +620,6 @@ def process_new_threads(state, slack_token, anthropic_key, airtable_key, base_id
             "bot_category": bot_result["category"],
             "source_references": bot_result.get("source_references", ""),
             "is_undocumented": bot_result.get("is_undocumented", False),
-            "test_msg_ts": test_msg_ts,
             "comparison_scored": False,
             "processed_at": datetime.now().isoformat(),
         }
@@ -646,8 +641,7 @@ THREAD_EXPIRY_DAYS = 14
 
 
 def check_comparison_responses(state, slack_token, anthropic_key, airtable_key, base_id):
-    """Check if the reviewer has responded to threads we've already processed."""
-    test_channel = state["test_channel_id"]
+    """Check if the reviewer has responded — score silently and log to Airtable."""
     now = datetime.now()
 
     for thread_ts, thread_data in list(state["processed_threads"].items()):
@@ -710,31 +704,6 @@ def check_comparison_responses(state, slack_token, anthropic_key, airtable_key, 
              + scores["priority_alignment"] * 20
              + scores["source_quality"] * 20) / 5
         )
-
-        # Build score message for test channel
-        score_msg = (
-            f"*Comparison Score for thread {thread_ts}*\n\n"
-            f"*Reviewer's Response:*\n> {reviewer_text[:500]}\n\n"
-            f"---\n"
-            f"*Response Scores:*\n"
-            f"Content Accuracy: {scores['content_accuracy']}/5\n"
-            f"Completeness: {scores['completeness']}/5\n"
-            f"Tone Match: {scores['tone_match']}/5\n"
-            f"Priority Alignment: {scores['priority_alignment']}/5\n"
-            f"Source Quality: {scores['source_quality']}/5\n"
-            f"*Overall: {scores['overall_score']}/100*\n\n"
-            f"*Notes:* {scores['scoring_notes']}\n"
-        )
-        if scores.get("knowledge_gaps"):
-            score_msg += f"*Knowledge Gaps:* {scores['knowledge_gaps']}\n"
-
-        try:
-            slack_post_message(
-                slack_token, test_channel, score_msg,
-                thread_ts=thread_data.get("test_msg_ts"),
-            )
-        except Exception as e:
-            logging.error("Failed to post score: %s", e)
 
         # Write to Airtable
         if base_id:
