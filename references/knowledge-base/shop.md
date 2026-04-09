@@ -82,6 +82,16 @@ If a shop question does not match a known process, escalate to the MEX reviewer.
 - Items must be returned within 30 days of purchase
 - Items must be unused and in undamaged condition
 - **Non-refundable items:** Graduation items, induction items, personalized items, gift cards
+- **Credit card payments:** Refunded to the original card only — no cash refunds
+- NSLS does not refund shipping expenses or shipping warranties
+
+**Returns/exchanges mailing address:**
+> The National Society of Leadership and Success
+> Returns/Exchanges
+> 1233 Findlay Street
+> Cincinnati, OH 45214
+
+Use HubSpot snippet: **`shop return/exchange - Email`** when sending return instructions to a member.
 
 **How to say it:**
 - Be empathetic: *"I understand it's frustrating when a package is lost. Let's first confirm you purchased the Protection Warranty — if so, we can replace your order as long as the tracking shows no delivery."*
@@ -140,9 +150,10 @@ If a shop question does not match a known process, escalate to the MEX reviewer.
 | Contact | Role |
 |---|---|
 | shop@nsls.org | Primary shop inquiries (no existing order) |
-| Alex Kliman | E-commerce Specialist (escalated issues) — always CC shop@nsls.org |
-| Derald Dryman | Marketing Manager — third point of contact |
+| Michael Adamian | Marketing Coordinator — escalated issues; always CC shop@nsls.org |
+| Derald Dryman | Sr. Manager of Brand & Community Engagement — third point of contact |
 | Rebecca Hebert | Third-party warehouse contact at Underground Sports Shop (NOT an NSLS employee) |
+| Alex Kliman | Available for Printful print-on-demand tracking — tag in Shopify |
 
 **Step 1 — Choose the right contact method:**
 
@@ -165,6 +176,14 @@ If a shop question does not match a known process, escalate to the MEX reviewer.
 **Step 3 — Locating a new tracking number:**
 - If an order was reshipped, the new tracking number will appear in the order timeline
 - Look for the post: **"ShipStation added a note to this order"** → expand it to find the tracking number
+
+**Step 3a — Printify print-on-demand tracking:**
+- Sometimes a Printify item will incorrectly share a tracking number with a warehouse item
+- To find the correct tracking number: search for the order inside the **Printify App** directly
+- See the Loom video in the Communications SOP for a walkthrough
+
+**Step 3b — Printful print-on-demand tracking:**
+- If a Printful item has no tracking number, tag **@Shop Team** and **@Alex Kliman** in Shopify — he will retrieve it
 
 **Step 4 — Address changes before the order ships:**
 - MEX can manually edit the shipping address in Shopify before the order ships
