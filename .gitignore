@@ -1,0 +1,13 @@
+# Raw extracted data (contains PII from Slack messages)
+data/
+
+# Runtime state (contains employee names, bot responses)
+context/state.json
+context/state.json.tmp
+
+# Log files (local dev only -- Railway captures stdout/stderr)
+*.log
+
+# Python bytecode
+__pycache__/
+*.pyc
