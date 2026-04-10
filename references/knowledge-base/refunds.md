@@ -42,32 +42,38 @@ If a refund question does not match a known process, escalate to the MEX reviewe
 - Document the member's response in the HubSpot ticket
 - If FOL-related: also log in the **MEx FOL Saves Rate Tracker**
 
-**Step 3 — Determine eligibility:**
-- **Within 30 days:** Refund can be issued — but still attempt a save first
-- **Outside 30 days:** Clearly explain refunds are no longer available; offer to disable their account; reinforce the value of lifetime membership access
+**Step 3 — Tailor the save attempt to the member's specific situation:**
 
-**Step 4 — Attempt to save:**
-Every member deserves a CARE-based save attempt, regardless of eligibility. Include:
-- Celebrate their nomination
-- Ask what challenges they're facing and offer solutions
-- Share benefits relevant to their situation (scholarships, career tools, speaker broadcasts)
-- Reinforce: "This is a one-time membership with lifetime access"
+Every member deserves a CARE-based save — and the approach should match *why* they're upset, not a script. Discover the root cause first, then respond to it directly:
 
-**Step 5 — Hold firm or escalate:**
+- **"I don't have time to complete the steps"** → Discuss online chapter options that fit their schedule; reinforce flexibility of the program
+- **"I'm not sure about the value"** → Walk through specific benefits relevant to their goals: scholarships, career tools, discounts, speaker broadcasts, lifetime access
+- **"I had a bad experience"** → Acknowledge it, investigate, take ownership of what you can fix
+- **"I can't afford it"** → Reinforce this is a one-time fee with lifetime access; highlight the scholarship and career tools that can offset cost
+- **All saves:** Celebrate their nomination, ask open-ended questions, document everything in HubSpot
 
-**Do NOT escalate if:**
-- Member is outside the refund window and has received a complete save attempt and policy explanation
-- Member is upset but hasn't presented a qualifying hardship or conduct concern
-- Member threatens a review or BBB complaint before a save attempt has been made
+The policy is firm — we hold to the 30-day window — but the save attempt always comes before any policy explanation. Focus the conversation on the member's needs, not the refund.
 
-**DO escalate when:**
+**Step 4 — Prevent the escalation:**
+
+Your goal is to de-escalate and resolve *before* the member demands a transfer. Guide the conversation with CARE:
+- Stay calm and empathetic even if the member is upset
+- Don't volunteer policy limits unprompted — address the *problem* first
+- If the member asks directly about a refund outside 30 days: acknowledge the policy exists, then redirect to what you *can* do ("What I want to make sure is that we explore every option available to you before we get there")
+- Document your save attempt in HubSpot as you go
+
+**Step 5 — If escalation occurs:**
+
+If the member cannot be de-escalated after a full save attempt, hand off to a **Team Lead or specially trained SOS agent**. Do not promise a resolution or refund outcome before the handoff.
+
+**Escalation triggers:**
 - Member shares a **severe documented hardship** (illness, death in family, military deployment) and is willing to provide documentation
-- Request involves a **discontinued product** (e.g., L2L Alumni Program — member can't access what they paid for)
-- Member reports a **serious conduct concern** (discrimination, harassment) — escalate to SOS; do NOT promise a refund or resolution; advise follow-up within 24–48 business hours
-- Request was already escalated once, exception was reviewed but denied, and member is reaching out again — escalate to SOS for Director-level decision
-- Member **demands escalation** after receiving a full documented save attempt and clear policy explanation
+- Request involves a **discontinued product** (e.g., L2L Alumni Program)
+- Member reports a **serious conduct concern** (discrimination, harassment)
+- Member demands escalation after a complete, documented save attempt
+- Request was previously escalated and denied — route to SOS for Director-level decision
 
-*If unsure:* Use the SOS channel for coaching, not as automatic escalation.
+*If unsure whether to escalate:* Post in the SOS channel for coaching first.
 
 **Step 6 — Final processing:**
 - If refund is approved (within policy or documented exception): process per the Refund SOP; log all notes in HubSpot
@@ -96,10 +102,14 @@ Save attempts must be documented in HubSpot (and FOL Saves Tracker when applicab
 
 ---
 
-**Examples of holding firm with CARE:**
-> *"I totally understand your frustration, and I want to support you as much as possible. While we're past the refund window, the great news is that your membership is still active and includes lifetime access to exclusive tools, discounts, and scholarships."*
+**Examples of save language (CARE-based, tailored):**
+> *"I'm really glad you reached out — let's figure out what's going on. Can you tell me a little more about what's made this feel like it's not the right fit?"*
 
-> *"Thanks so much for your honesty. I've reviewed your account and, since it's past the 30-day period, we aren't able to process a refund. But your membership still includes career-building resources and leadership tools you can access at any time."*
+> *"I hear you, and I want to make sure we explore everything available before we make any decisions. Based on what you're describing, here's what I think could really help you..."*
+
+> *"Your membership includes lifetime access — even if things are busy right now, it'll be there when you're ready. Let me show you what's available in an online chapter that might fit your schedule better."*
+
+> *"I totally understand — let me walk you through some of the benefits you may not have had a chance to explore yet. A lot of members find the scholarships and career tools are what make it click for them."*
 
 ---
 
