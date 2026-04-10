@@ -18,6 +18,7 @@ Environment variables:
 import json
 import logging
 import os
+import re
 import sys
 import time
 import urllib.error
@@ -312,12 +313,15 @@ IS_QUESTION_SCHEMA = {
 def is_question(text, api_key):
     """Returns True if the message is a genuine process question worth answering."""
     system = (
-        "You are filtering Slack messages for a MEX process bot. "
-        "Return is_question: true ONLY if the message is a genuine question asking for help, "
-        "guidance, or information about a process, policy, or procedure. "
-        "Return is_question: false for: general announcements, greetings, celebrations, "
-        "status updates, acknowledgements, chitchat, reactions, or anything that is not "
-        "actually asking for help or information."
+        "You are filtering Slack messages for a MEX (Member Experience) support team bot. "
+        "Return is_question: true if the message contains a genuine question asking for help, "
+        "guidance, or information about a process, policy, or procedure — even if the message "
+        "also contains links, ticket references, member profile URLs (Feather/HubSpot), or "
+        "context about a specific member situation. "
+        "Team members often paste HubSpot ticket details (with Feather URLs, HubSpot URLs, "
+        "member info) alongside their question — treat these as valid process questions. "
+        "Return is_question: false ONLY for: general announcements, greetings, celebrations, "
+        "status updates, acknowledgements, chitchat, reactions, or messages with no question at all."
     )
     try:
         result = claude_request(
@@ -585,15 +589,29 @@ def process_new_threads(state, slack_token, anthropic_key, airtable_key, base_id
             continue
 
         reporter_id = msg.get("user", "unknown")
-        if reporter_id == REVIEWER_USER_ID:
-            logging.debug("Skipping reviewer's own thread: %s", ts)
-            continue
         if _bot_user_id and reporter_id == _bot_user_id:
             logging.debug("Skipping bot's own message: %s", ts)
             continue
 
         reporter_name = slack_get_user_info(slack_token, reporter_id)
         issue_text = msg.get("text", "")
+
+        # Skip messages directed at a specific person (e.g. "@Kimberly can you check this?")
+        # Slack encodes mentions as <@UXXXXXXX>. If the message opens with a mention of
+        # someone who is NOT the bot, it's a direct ask to that person — not for Coach Max.
+        _directed_match = re.match(r"^\s*<@([A-Z0-9]+)>", issue_text)
+        if _directed_match:
+            mentioned_id = _directed_match.group(1)
+            if mentioned_id != (_bot_user_id or ""):
+                logging.info("Skipping message directed at another user (%s): %s", mentioned_id, ts)
+                state["processed_threads"][ts] = {
+                    "reporter": reporter_name,
+                    "bot_response": None,
+                    "comparison_scored": "skipped",
+                    "processed_at": datetime.now().isoformat(),
+                }
+                save_state(state)
+                continue
 
         attachments = msg.get("files", [])
         if attachments:
