@@ -15,6 +15,7 @@ If a kit question is not covered, escalate to the MEX reviewer.
 
 - MEX_SOP_International Kits (Online Chapters)
 - SOP- Induction Kits Processing & Shipment
+- MEX_JobAid_Induction Pricing List
 
 ---
 
@@ -66,6 +67,10 @@ If a kit question is not covered, escalate to the MEX reviewer.
 > Miami, Florida 33137
 >
 > Please also email me back with your full mailing address (including phone number) so that we can forward your induction kit there once you complete your steps. Thank you!
+
+**Resources:**
+- [International — Handbook](https://docs.google.com/document/d/1h0Er14wjCEYHYAILOBGSrDM4xaMUP1EdhlrdOouFIdw/edit#heading=h.754iorrgw285)
+- HubSpot Snippets: [`International SNHU`](https://app.hubspot.com/snippets/5345251/?page=1&q=international%20), [`International Walden`](https://app.hubspot.com/snippets/5345251/edit/952741?page=1&q=international%20), [`International Northcentral`](https://app.hubspot.com/snippets/5345251/edit/966528?page=1&q=international%20), [`International Online`](https://app.hubspot.com/snippets/5345251/edit/1478860?page=1&q=international%20)
 
 **Last updated:** June 25, 2025 — Written by Atrayu Polhemus
 
@@ -127,3 +132,68 @@ If a kit question is not covered, escalate to the MEX reviewer.
 **Last updated:** June 24, 2025 — Written by Atrayu Polhemus
 
 **Source:** SOP- Induction Kits Processing & Shipment
+
+---
+
+## Process: Induction Pricing — Replacement & Additional Items
+
+**When this comes up:** A member contacts MEX wanting a replacement or additional induction item (kit, certificate, or t-shirt) and needs to be charged.
+
+**⚠️ Critical rules:**
+- Always confirm the member's shipping address before processing payment
+- If the original kit was shipped in the wrong size or there was an error on NSLS's end, **do not charge the member** — use snippet `#shop return/exchange-Email` to request a fix
+- Use judgment and consult your Team Lead or SOS if unsure whether to charge
+
+**Pricing:**
+
+| Item | Price | When to charge |
+|---|---|---|
+| Kit Replacement (within 12 months) | **$10.00** | Member cannot receive kit due to mailing issues, multiple failed delivery attempts, OR a standard chapter member wants kit shipped to home address |
+| Kit Replacement (over 12 months) | **$60.00** | Original kit was mailed over 12 months ago, or member is requesting an additional kit |
+| Certificate only | **$10.00** | Member wants a replacement certificate (also offer a free PDF copy as an alternative) |
+| Induction Exclusive T-shirt | **$24.99** | Member wants to purchase a new/second shirt (not for wrong-size or error replacements) |
+
+**Steps:**
+
+1. **Determine item and fee** — Ask the member which item(s) they want, when they originally received their kit, and how long since the original shipment
+   - If **less than 12 months**: member can file a claim for a replacement ($10 fee)
+   - If **more than 12 months**: full kit replacement is $60; a $10 kit fee is possible (see exceptions below)
+   - Certificate: $10 fee, or offer a free PDF copy
+   - T-shirt: $24.99
+
+2. **Process charge in Authorize** — Follow the How/When to Charge a Card in Authorize SOP. Use "Authorize (manual)" as the payment method in Feather. Always confirm the address before processing.
+
+3. **Email the Inductions Team** — Use the `#inductions` HubSpot snippet to email inductions@nsls.org:
+   - Member's Name
+   - Member's Chapter
+   - Feather link
+   - Issue/Situation
+   - Send the member an email with the receipt or payment confirmation
+
+**Exceptions — do NOT charge:**
+- **Wrong size / shipping errors:** If the kit or t-shirt was shipped incorrectly, do not charge. Use snippet `#shop return/exchange-Email` to request a fix
+- **Missing/returned packages not due to member error:** Use judgment and consult Team Lead or SOS if unsure
+
+**Common questions:**
+
+*Package sent to old address and is unobtainable?*
+- Charge the $10 replacement fee in Authorize, confirm the correct address, update the address in Feather, then email the Inductions Team.
+
+*Member only wants a replacement t-shirt, not a whole kit?*
+- Charge the $24.99 fee in Authorize, confirm their current shipping address, then email the Inductions Team.
+
+*Item was never received but tracking says delivered?*
+- Confirm if the member contacted the carrier. If the issue was not due to the member's error, grant the $10 replacement fee. If over 12 months have passed, charge $60 for full kit replacement — or offer a free PDF certificate copy, $10 to ship certificate alone, or $24.99 for the t-shirt.
+
+**Required tools:** Authorize, Feather, HubSpot
+
+**Resources:**
+- [Induction Pricing List](https://docs.google.com/document/d/1eV016T2bQprSkDZiRcRiAp5psQkQ9HYPVTMNteKCJ2Y/edit?usp=sharing)
+- Related SOP: How/When to Charge a Card in Authorize
+- Inductions email: inductions@nsls.org
+
+**Escalation:** `#mex-sos-escalations` Slack channel or mex@nsls.org
+
+**Last updated:** June 25, 2025 — Written by Atrayu Polhemus
+
+**Source:** MEX_JobAid_Induction Pricing List

@@ -18,7 +18,10 @@ If a general question is not covered, say so and escalate.
 - MEX_SOP_How_When to Charge a Card in Authorize
 - MEX_SOP_Ignite MEx Support Plan
 - MEX_SOP_Unsubscribe a Contact
-- SOP- SNHU Fall 2025
+- MEX_SOP_SNHU Spring 2026
+- MEX_FAQ_Handling Calls About Former OA Advisors
+- External Pricing Guide — Costs for Members
+- MEX_JobAid_Bot Created Issues
 - Member Experience Specialist Handbook - Updated August 2025
 - Team Code Of Honor (fully documented below)
 - CARE Philosophy (fully documented below)
@@ -32,6 +35,8 @@ If a general question is not covered, say so and escalate.
 **Context:** NSLS partnered with NSC for secure transcript delivery. Official transcripts are processed by NSC; unofficial transcripts are emailed directly to the member. NSLS does not fulfill transcript requests manually — members must use the process in their dashboard.
 
 **Eligibility:** Member must have completed both the certificate course AND the credit-recommended course.
+
+**Etiquette:** Be warm and clear in tone when assisting members. Reinforce the value of their achievement and next steps. Share the member-facing PDF: [How to request a transcript: Credentials Hub](https://drive.google.com/file/d/1-zFPyoyzp57pZyRJjGzembZBJnLNMMHI/view?usp=sharing)
 
 **Steps:**
 1. Share the member-facing guide: *How to request a transcript: Credentials Hub*
@@ -78,6 +83,9 @@ If a general question is not covered, say so and escalate.
 
 *Can the NSLS transcript be used for college credit?*
 - Depends on the receiving institution's credit policy. Direct the member to their registrar's office.
+
+*When should I reach out to the registrar?*
+- Credit reciprocity questions, legacy program inquiries (e.g., someone from 2019 reaches out and courses/credits may have changed), or eligibility questions. Internal reference: [Transcripts-NSC-MEx FAQ](https://docs.google.com/document/d/1iz1Gn-qbNwuIO5ljCUX65zKx8aooFa-AYmGLOGTkDXk/edit?usp=sharing)
 
 **Troubleshooting:**
 
@@ -348,35 +356,278 @@ For any out-of-scope question: send a summary email to the member, CC Kevin, and
 
 ---
 
-## Process: SNHU Partnership — Fall 2025
+## Process: SNHU Partnership — Spring 2026
 
-**When this comes up:** Any question about SNHU members, enrollment, induction kits, transfers, or the SNHU chapter timeline for Fall 2025.
+**When this comes up:** Any question about SNHU members, enrollment, induction kits, transfers, graduation sets, or the SNHU chapter timeline for Spring 2026.
 
-**Fall 2025 Timeline:**
-- **July 2** — Invitation Queue Date (registration opens in the system; do NOT allow joins or transfers until July 23rd)
-- **July 23** — Official Invitation & Full Comms Send from SNHU
-- **August 18** — Soft Close & Extension Email from SNHU
-- **August 22 at 11:59 PM** — Hard Close ⚠️ No new member joins or transfers after this date. No exceptions until Spring 2026 cycle opens in late January.
+**⚠️ Critical policy:** No new member joins or transfers after the hard close on March 6, 2026. No exceptions until the Fall 2026 cycle opens in late July.
 
-**Available snippets:** `International SNHU`, `SNHU Transfer- Chat`, `SNHU Financial Hardship 2025 -CLOSED`, `SNHU Invitation Has Closed`, `SNHU Fee Waiver Deadline Passed`
+**Spring 2026 Timeline:**
+- **January 28** — Official Invitation & Full Communications Send
+- **January 28 – February 18** — SNHU Financial Hardship Waiver application window (apply at: https://snhu.qualtrics.com/jfe/form/SV_0dE4V9Q6AiCMwei)
+- **February 18 at 11:59 PM ET** — Financial Hardship Waiver deadline
+- **February 27** — Waiver applicants notified of results
+- **March 2** — Soft Close & Extension Email from SNHU
+- **March 6 at 11:59 PM** — Hard Close ⚠️ No new joins or transfers after this date
+
+**To check the deadline:** Open the Chapter Information on Feather → view the **Analytics Tab**. The top date is the mailed date; the bottom date is the deadline.
+
+**Date-based messaging:**
+
+| Date Range | Topic | Response |
+|---|---|---|
+| 1/28 – 2/18/26 | Financial Hardship Waiver (open) | Direct member to apply at the Qualtrics link by 2/18/26 at 11:59 PM ET. Application is not a guarantee — limited waivers available. Results on or before 2/27/26. |
+| 2/19 – 3/6/26 | Financial Hardship Waiver (closed) | Waiver deadline has passed. If invited in a future cycle, they may be eligible to apply again. Invitations are sent typically twice per year if GPA/eligibility criteria are met. |
+| 3/6/26 onwards | SNHU cycle closed | Spring 2026 cycle closed 3/6/26 at 11:59 PM ET. Next cycle later in 2026. Direct to mySNHU Honor Societies page for dates and eligibility. |
+
+**Available snippets:** [`International SNHU`](https://app.hubspot.com/snippets/5345251/edit/1478813?q=snhu&page=1), [`SNHU Transfer- Chat`](https://app.hubspot.com/snippets/5345251/edit/808896?q=snhu&page=1), [`SNHU NSLS Cycle now closed - Spring 2026`](https://app.hubspot.com/snippets/5345251/edit/4876759?page=1&q=spring), [`SNHU Financial Hardship Waiver (closed) - Spring 2026`](https://app.hubspot.com/snippets/5345251/edit/4876747?page=1&q=spring), [`SNHU Financial Hardship Waiver (open) - Spring 2026`](https://app.hubspot.com/snippets/5345251/edit/4876744?page=1&q=spring), [`SNHU KIT and Grad Set Items (Nancy)`](https://app.hubspot.com/snippets/5345251/edit/4399341?q=SNHU&page=1)
+
+---
 
 **Enrollment Changes (effective January 17, 2025):**
-- **New SNHU members:** Induction kits now include cords. No longer have the option to select a t-shirt.
-- **Existing SNHU members** (enrolled before Jan 17, 2025): Still have the option to select between a t-shirt or cords until inducted.
-- **Transferring members:** Always have the option to select between a t-shirt or cords regardless of original enrollment date.
+
+**Induction Kit contents (NOT the Graduation Set):**
+- **New SNHU members:** Induction kits include cords (no t-shirt option). SNHU induction kit contains: Foundations of Leadership certificate, insignia pin, car decal, two honor cords
+- **Existing SNHU members** (enrolled before Jan 17, 2025): Still have the option to select between t-shirt or cords until inducted
+- **Transferring members:** Always have the option to select between t-shirt or cords regardless of original enrollment date
+
+**SNHU Graduation Set (purchased at enrollment):**
+- SNHU is the only chapter with this specific Grad Set Pack
+- The new SNHU Grad Set Pack does **NOT** include cords (to avoid duplicates with the induction kit). Instead it includes a **tassel charm**
+- SNHU Graduation Set contains: "Follow the Leader" t-shirt, medallion, silk stole, tassel charm
+- Can be shipped early with **free standard delivery** (10–14 business days)
+- **Expedited shipping** available for an additional fee (varies by speed)
 
 **Key details:**
-- MEX Specialists can still masquerade as members to update induction item preferences (cord vs. t-shirt) for members enrolled before January 17, 2025.
-- Always verify whether a chapter is currently accepting members before initiating a transfer.
-- Existing SNHU members who purchased a Grad Set Pack before the change will receive the version they purchased (which includes cords). The new Grad Set Pack does NOT include cords — it includes a tassel charm to avoid duplicates. SNHU is the only chapter with this specific Grad Set Pack.
+- MEX Specialists can still masquerade as members to update induction item preferences (cord vs. t-shirt) for members enrolled before January 17, 2025
+- Always verify whether a chapter is currently accepting members before initiating a transfer
 
 **Etiquette:**
-- If a member wants cords but did not opt for them in their induction kit, direct them to purchase cords from the shop and provide code **MEx10**.
-- If a member wants to purchase the induction T-shirt, charge in Authorize and submit the request to Inductions based on the pricing guide.
+- If a member wants cords but did not opt for them in their induction kit, direct them to [purchase cords from the shop](https://shop.nsls.org/collections/graduation/products/nsls-graduation-cords) and provide code **MEx10**
+- If a member wants to purchase the induction T-shirt, charge in Authorize and submit the request to Inductions based on the [pricing guide](https://docs.google.com/document/d/1eV016T2bQprSkDZiRcRiAp5psQkQ9HYPVTMNteKCJ2Y/edit?tab=t.0)
 
-**Last updated:** July 2, 2025 — Revised by KK
+**Resources:**
+- [MEX_SOP_Refund Exception MEx Policy](https://drive.google.com/open?id=12e4FKyr2IeoXq-SN1XKuR7GaY4lNQF6D818stU0erTw&usp=drive_copy)
+- [MEX_SOP_Enrollment Graduation Set-Early Shipping](https://drive.google.com/open?id=1WYubR6u82cdpivy8VjJvX61qdbkrTCAEvv9uc7ElaIw&usp=drive_copy)
+- [MEX_SOP_Chapter Transfer](https://drive.google.com/open?id=1X59UUF2Megg_ERmK3DwAuUpKHP60VZA_Yu7mbe0pwcg&usp=drive_copy)
+- [MEX_JobAid_Induction Pricing List](https://drive.google.com/open?id=1XVXlFfukESKw7IoWX7EI_0LLuWOo0yV8XwDc1Xoq3ko&usp=drive_copy)
 
-**Source:** SOP- SNHU Fall 2025
+**Last updated:** Spring 2026 — Revised by KK
+
+**Source:** MEX_SOP_SNHU Spring 2026
+
+---
+
+## Process: Handling Calls About Former OA Advisors
+
+**When this comes up:** A member calls asking about a former Online Advisor by name, asking for their contact info, or asking about the advising transition. This also applies when a member says they emailed their advisor and never heard back.
+
+**Context:** As of 3/16/2026, former Online Advisor positions were transitioned. Two emails were sent to members on 3/16 explaining the change. Agents must know which email applies to the caller's chapter.
+
+**⚠️ Critical rules:**
+- Do NOT provide any former advisor's personal contact information
+- Do NOT speculate about why advisors left — say only that the advising team has "recently transitioned" and the advisor "is no longer with the organization"
+- Always route members to advising@nsls.org (or kimberlyjcampbell@nsls.org for whale schools)
+
+**Definitions:**
+- **Whale School** — Large strategic online chapter (formerly managed by Stacy, the Senior Online Advisor). Gets Email 2 language and kimberlyjcampbell@nsls.org as direct contact.
+- **General Online Chapter** — All other online chapters. Gets Email 1 language and advising@nsls.org as contact.
+
+**Two emails sent on 3/16 — know which one applies:**
+
+| Detail | Email 1 — General Online Chapters | Email 2 — Whale Schools Only |
+|---|---|---|
+| Subject line | "NSLS Online Advising — Here's What's New" | "An Upgrade to Your Chapter Support — Here's What's New" |
+| Sent to | All online chapter advisors, student presidents, and VPs (excluding whale schools) | Large strategic online chapter partners (formerly managed by Stacy) |
+| From | clientservices@nsls.org | clientservices@nsls.org |
+| Key message | Chapter now supported by the full MEX Advising Team. Reach us at advising@nsls.org | Chapter now has direct access to Kimberly Campbell, Director of MEX, backed by her full advising team. Reach Kimberly at kimberlyjcampbell@nsls.org or the team at advising@nsls.org |
+
+If unsure whether a caller is from a whale school, check the Whale School list (ask MEL for access) or default to Email 1 language.
+
+**Prerequisites:**
+- Know that two different emails went out on 3/16 (general vs. whale schools)
+- Know where to find the Whale School list (ask MEL if you don't have it)
+- Know that former OA advisors are no longer with the organization — do not offer their contact info
+- Know that advising@nsls.org is the new home for all online advising support
+
+**Call Scripts — use as a guide, not word-for-word:**
+
+**Scenario 1: "I'd like to speak to [advisor name]."**
+
+"I completely understand — [name] was great to work with. I do want to let you know that our advising team has recently transitioned and [name] is no longer with the organization. The great news is that your chapter is now supported by our entire Member Experience Advising Team, so you have a full team in your corner rather than one person. You should have received an email about this on Monday — the subject line was [use Email 1 or Email 2 subject line based on chapter type]. I'm happy to help you today, or you can reach us anytime at advising@nsls.org."
+
+**Scenario 2: "Can I get [advisor's] contact information?"**
+
+"I'm not able to provide personal contact information, but I want to make sure you're taken care of. Everything that was handled by your former advisor is now handled by our Member Experience team. You can reach us at advising@nsls.org and we'll get back to you within 24 to 48 hours. Is there something I can help you with right now?"
+
+**Scenario 3: "Why did my advisor change? Nobody told me."**
+
+"We did send a communication to chapter leaders on Monday about this change — the subject line was [use Email 1 or Email 2 subject line based on chapter type]. It may have landed in spam — worth checking. Your chapter advisement is now supported by our full Member Experience Advising Team. It's actually an upgrade in terms of availability and response time. I'm sorry if the timing felt abrupt. Is there something specific I can help you with today?"
+
+**Scenario 4: "I've been working with [advisor name] on my FOL steps. Will my progress be lost?"**
+
+"Your progress is completely safe — everything is tracked in your member profile and nothing has been lost. Our team has full visibility into where you are in the program. I can pick up right where you left off. Can you tell me which step you're currently working on?"
+
+**Scenario 5: "I emailed my advisor and never heard back."**
+
+"I apologize for any gap in communication during this transition. Our team is now handling all online chapter advising and we want to make sure you get the support you need. Can you tell me what you reached out about? I'm happy to help you right now, or if it's more involved I'll make sure the right person follows up with you today."
+
+If the member then asks a general advising question about FOL steps, program, or membership — handle it. Use the MEx Advising Snippets as your guide. If on a live call and you don't know the answer, say: "Great question — let me make sure I get you the right information. Can I follow up with you via email at advising@nsls.org within 24 hours?"
+
+**Rollout status (as of 3/18/2026):**
+- Inform meetings held 3/16–3/18 (complete)
+- MEX Leadership/Workforce training and oversight of Advising pipeline began 3/17 (complete)
+- Oversight of Online System Submission Approval System (SAS) for steps to induction and Online Chapter Self-nominations began 3/18/2026 (in progress)
+- Training of 1–2 MEx Specialists to support Advising pipeline (TBD)
+- Department handbook updates and SOP updates (in development)
+- SAS MEX Leadership assignment (to be determined)
+
+**Resources:**
+- [Online Chapters spreadsheet](https://docs.google.com/spreadsheets/d/1LjGgC7nJFCzdkd8VA10oqJ1P5pAiOjbV/edit?gid=283916696#gid=283916696)
+- advising@nsls.org — HubSpot Advising Pipeline
+- [Automatic emails from Advising](https://docs.google.com/document/d/1tWEofmvDE0QfhhKmuOXQIk_rfwt_Fofvnv2TyUEiX9U/edit?tab=t.0)
+- [Online Chapter FOL Emails](https://docs.google.com/spreadsheets/d/1Zt49--oyenn_-fpr3P9_IFBkXnYVmsmq/edit)
+- [MEx Copy of Strategic Account Support Info](https://docs.google.com/spreadsheets/d/1D5NAfBJOK9ZDQR9lyUhyeDa94FlCtmHM-WiXJWEUQCw/edit?gid=1095646281#gid=1095646281) (helpful info on Whale Chapters)
+- [Snippets — Work in Progress](https://docs.google.com/document/d/1iqZJ-s1eH7jc7f1jrYrVcAOrRLxrezeJEy1bugpizT8/edit?tab=t.vxyugdmggb1#heading=h.nzakajca8jc0) (will be loaded into HubSpot soon)
+
+**Escalation:** If a member is upset or the situation escalates beyond what the call scripts cover, route to MEX Leadership.
+
+**Last updated:** March 18, 2026
+
+**Source:** MEX_FAQ_Handling Calls About Former OA Advisors
+
+---
+
+## Process: Bot-Created Issues in HubSpot
+
+**When this comes up:** A MEX Specialist is assigned a Bot-Created Issue ticket in HubSpot. These automated tickets are generated when a visitor interacts with the NSLS chatbot but doesn't resolve their issue. Some include identifiable member info and require full support; others may be anonymous ("Unknown Visitor") and can be closed quickly.
+
+**⚠️ Critical rules:**
+- Always review Bot-created tickets, even if vague — this helps refine the system
+- Only mark as Non Support/Junk if there is no contact information at all
+- Review and process these daily to stay within response time expectations
+- Regular cleanup prevents ticket backlogs and improves reporting accuracy
+
+**Steps:**
+
+1. **Review the assigned ticket** — The ticket will note "Bot-created issue" as the source and usually has limited info in the subject
+
+2. **If there IS member information attached:**
+   - Work the ticket like any other inquiry
+   - Take over the ticket by assigning it to yourself
+   - Rename the ticket: "Name Issue - Member Name"
+   - Add the category and other details as needed
+   - If the member's inquiry is clear from the bot conversation, assist them directly
+   - If the inquiry is unclear or missing, use the [`#Bot Response`](https://app.hubspot.com/snippets/5345251/edit/4038318?q=bot&page=1) snippet to start the interaction
+
+3. **If there is NO member information ("Unknown Visitor"):**
+   - This happens when the visitor didn't provide any identifying details (name or email)
+   - Rename the ticket to "Bot - No Contact Info"
+   - Set the **Category** to "Non Support/Junk"
+   - Close the ticket — no follow-up required
+
+**Checklist:**
+- [ ] Reviewed ticket type
+- [ ] Renamed appropriately
+- [ ] Updated category
+- [ ] Assigned to self (if member info exists)
+- [ ] Responded using snippets if needed
+- [ ] Closed if anonymous/Unknown Visitor/no contact info
+
+**Fixing errors:**
+- If a ticket was mislabeled or miscategorized: rename with the correct format, update the category, reassign if needed
+- Log any patterns or confusion in Slack or to your Team Lead
+- Team Leads and WFS periodically review Junk-tagged tickets
+
+**Tone guidance:**
+- "Thanks for reaching out! I'd love to help."
+- "I'm happy to look into this for you."
+- If unsure how to proceed, check with your Team Lead or post in SOS Slack
+
+**Resources:**
+- [Bot Response — HubSpot Snippet](https://app.hubspot.com/snippets/5345251/edit/4038318?q=bot&page=1)
+- [SOP: Uncategorized Tickets](https://docs.google.com/document/d/1MgEd_dgCoprTmJ_QyOXWQAATLDZe-h-uI-oMrpBFYjI/edit?usp=sharing)
+- MEx Handbook references: Tickets In Chat, Snippets/Scripts/How Tos, How to find a member on Feather
+
+**Escalation:** Post in `#mex-sos-escalations` or check with your Team Lead
+
+**Last updated:** July 8, 2025 — Written by KK
+
+**Source:** MEX_JobAid_Bot Created Issues
+
+---
+
+## Reference: External Pricing Guide — Costs for Members
+
+**When this comes up:** A member asks about pricing for enrollment, courses, add-ons, shop items, or post-enrollment purchases. This is the authoritative external-facing pricing reference.
+
+**⚠️ Critical rule:** Only quote prices listed below. Do not invent or estimate pricing for items not documented here.
+
+---
+
+### Initial Enrollment Pricing
+
+Initial enrollment is when members sign up for the **Foundations of Leadership (FOL)** certificate course and become NSLS members. Optional add-ons may be purchased at this time, including the **Advanced and Executive (A&E) Leadership courses**.
+
+**Base Membership:**
+
+| Item | Description | Price |
+|---|---|---|
+| Foundations of Leadership (FOL) | Base membership course all members enroll in | $95 |
+| Induction Kit Fee (IKF) | Fee charged by some chapters for mailing induction kits to members' home addresses. Turned on/off at the chapter level; auto-added to cart if enabled. | $5.99 |
+
+**Optional Enrollment Add-Ons:**
+
+| Item | Description | Price |
+|---|---|---|
+| A&E Leadership Bundle | Certificate + credit-recommended courses for Advanced and Executive Leadership, plus credit-recommended FOL. Up to 9 transferable credits depending on school policy. | $190 |
+| Parent Package | For parents/guardians — includes free DISC assessment, speaker broadcast archives, partner benefits, Motivational Monday podcasts, and the Success Collection | $25 (1 parent), $35 (2 parents) |
+| Certificate Frame | Frame for induction certificate, shipped after completing Steps to Induction | $45 (at enrollment) |
+| Graduation Set | Graduation cord, stole, medallion, plus NSLS t-shirt. Shipped after Steps to Induction are complete. | $63 (standard medallion), $73 (personalized medallion) |
+| FOL Credit-Recommended Pathway | For chapters that have disabled A&E — gives members access to the credit-recommended FOL course | $75 |
+
+---
+
+### Post-Enrollment Pricing
+
+Available for purchase at any time after initial enrollment through the Members Area or NSLS Shop.
+
+**Standalone Certificates:**
+
+| Item | Description | Price |
+|---|---|---|
+| A&E Leadership Bundle (Non-Credit Certificate) | Both Advanced and Executive Leadership certificate programs, no credits | $165 |
+| A&E Leadership Bundle (Credit-Recommended) | Upgrade to earn credits for an additional $150 on top of the certificate bundle | $315 |
+
+**NSLS Shop Items:**
+
+| Item | Description | Price |
+|---|---|---|
+| Certificate Frame | Frame for induction certificate (post-enrollment purchase) | $55 |
+| Induction & Graduation Items | Stoles, cords, lapel pins, tassel charm | Varies |
+| Apparel | Shirts, polos, knit and baseball hats, mystery pack with NSLS pennant | Varies |
+| Accessories | Pins and patches, glasses, backpacks, folders, decals, keyrings/lanyards, pennant | Varies |
+| E-Board Member Items | Lapel pins, table tent, name tags, pens, water bottles, frisbee, notepads | Varies |
+| Miscellaneous | Gift cards | Varies |
+
+---
+
+### Quick Price Reference (Most Common Questions)
+
+| Question | Answer |
+|---|---|
+| How much is enrollment? | $95 for FOL |
+| How much is A&E at enrollment? | $190 (certificate + credits bundle) |
+| How much is A&E after enrollment? | $165 (certificates only) or $315 (certificates + credits) |
+| How much is the graduation set? | $63 (standard) or $73 (personalized medallion) |
+| How much is a certificate frame? | $45 at enrollment, $55 from the Shop |
+| What's the induction kit fee? | $5.99 (chapter-dependent) |
+| How much is the FOL credit pathway? | $75 |
+| How much is the parent package? | $25 for 1, $35 for 2 parents/guardians |
+
+**Last updated:** March 13, 2025 — Written by Marketing
+
+**Source:** External Pricing Guide — Costs for Members
 
 ---
 

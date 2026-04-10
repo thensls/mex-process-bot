@@ -102,9 +102,13 @@ If a Feather question does not match a known process, say so and escalate.
 - No. As of August 22, 2025, all payments must be made by debit/credit card, PayPal, Google Pay, or manually via Authorize. No checks, money orders, or paper applications.
 
 **Related resources:**
-- SOP: How/When to Charge a Card in Authorize
-- MEX_SOP_Chapter Transfer
-- MEX_JobAid_Induction Pricing List
+- [SOP: How/When to Charge a Card in Authorize](https://drive.google.com/open?id=1v4iXjhyH-qXQs-EwFsMhavUaQpJF8EkHJkDO_78FsN4&usp=drive_copy)
+- [MEX_SOP_Chapter Transfer](https://drive.google.com/open?id=1X59UUF2Megg_ERmK3DwAuUpKHP60VZA_Yu7mbe0pwcg&usp=drive_copy)
+- [MEX_JobAid_Induction Pricing List](https://drive.google.com/open?id=1XVXlFfukESKw7IoWX7EI_0LLuWOo0yV8XwDc1Xoq3ko&usp=drive_copy)
+- [Quick Reference: Regular FOL 101 vs Pilot Program](https://docs.google.com/document/d/1dGWGZhUeOKGhq6hprCvTFTkhrQ6oV-p2kslNMN2Rtpk/edit?tab=t.0)
+- MEx Handbook: [Confirm a Free Waiver Code](https://docs.google.com/document/d/191vWVbIOXKX7ga82AOwCxYN5aaFto61tnXV9HQhQTJA/edit?tab=t.16bm2qkrc28w#bookmark=id.6hde6v22r8on)
+
+**Authorized to create Feather profiles:** MEL, MEX Workforce Specialist, and Member Experience Specialists.
 
 **Last updated:** July 27, 2025 — Written by Nancy Castillo
 
@@ -250,6 +254,14 @@ If a Feather question does not match a known process, say so and escalate.
 *Video works when I masquerade but not for the member — what do I do?*
 - Have the member try a different browser or device (Chrome or Firefox, latest version). Ask them to take screenshots and share them in the MEx Tech Issue Tab.
 
+*When should I escalate in #sos-escalation vs the Tech Issue Track / Help Desk?*
+- Use **`#sos-escalation`** if you're unsure about how to proceed or want advice from a peer or Team Lead
+- Use **`#help-desk`** / **Tech Issue spreadsheet** only when you need the **Tech Team** to create or review a ticket
+
+**Resources:**
+- [SOP-MEx Tech Issue Submission Process 2025](https://drive.google.com/open?id=19NgEWXFvb4f873SqBrNXSnd1RAfXy19iDi69yEZOVJQ&usp=drive_copy)
+- MEx Handbook: [How to MASQUERADE](https://docs.google.com/document/d/191vWVbIOXKX7ga82AOwCxYN5aaFto61tnXV9HQhQTJA/edit?tab=t.16bm2qkrc28w#bookmark=id.pcwc9x8fd8o5)
+
 **Escalation:** After completing all troubleshooting steps, submit via SOP-MEx Tech Issue Submission Process 2025. Post on `#sos-escalation` or `#help-desk` as appropriate.
 
 **Last updated:** June 24, 2025 — Written by Atrayu Polhemus
@@ -308,6 +320,10 @@ If a Feather question does not match a known process, say so and escalate.
 
 *Can we restore an old account after several days?*
 - Only if the refund is from the same day and approved for voiding. Otherwise, they must rejoin as a new member with a new email.
+
+**Resources:**
+- [SOP_SOS Escalations to MEX Leadership](https://docs.google.com/document/d/1WOX8wyuc54wqtmonIXmE4_Z4gccmCx1thcNuUFodhz4/edit?usp=sharing)
+- MEX Refund SOP (for void processing steps)
 
 **Escalation:** Void requests require manager or senior MEX specialist approval — always notify via DM before proceeding.
 

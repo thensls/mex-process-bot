@@ -98,7 +98,24 @@ If a benefits question is not covered, say so and escalate.
    > "While we're happy to help upload the LOR, we may not be able to fulfill the request if the form requires us to answer personal questions about traits or character. If we cannot skip or enter N/A for those fields, we may need to decline. We recommend working with an advisor, mentor, or supervisor who can speak to your personal experiences."
 5. Once submitted, send the member a confirmation email or screenshot of the successful upload
 
-**Step 4 — Post-submission in HubSpot:**
+**Step 4 — Special Cases (approved by KC/MEL only, usually a CS request):**
+
+If a school insists on contacting NSLS directly for the member's LOR:
+- The admissions office may reach out to NSLS via:
+  - Email: support@nsls.org
+  - Phone: (201) 222-6544 or Toll-Free (800) 601-6248
+  - Live Chat or Text: (551) 249-0282 (Monday–Friday, 9 a.m. – 7 p.m. ET)
+- If the student's contact information is provided, a MEX Specialist will reach out to:
+  - Confirm the member's written permission for NSLS to provide the letter to their school
+  - Walk them through what details are needed to create or finalize the letter
+- Once permission and details are received, the Specialist prepares the letter and sends it to the admissions office on the member's behalf
+- ⚠️ This is an **exception process** — not standard SOP. It requires MEL approval.
+
+**Snippets:**
+- [`LOR -Letter Only`](https://app.hubspot.com/snippets/5345251/edit/728316?page=1&q=LOR%20-Letter%20Only)
+- [`MEX LOR Submission Request (Nancy)`](https://app.hubspot.com/snippets/5345251/edit/4491883?page=1)
+
+**Step 5 — Post-submission in HubSpot:**
 1. Log a note or pin the email sent to the third party
 2. Update the subject or internal note: `LOR Submission Request – [Member Name]`
 3. Set Category: **Member Benefits → LOR → MEX Submitting on Behalf**

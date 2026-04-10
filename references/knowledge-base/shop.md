@@ -17,6 +17,7 @@ If a shop question does not match a known process, escalate to the MEX reviewer.
 - MEX_Job Aid_Shop Warranty
 - MEX_SOP_Shop Return Label
 - MEX_SOP_Communication with Shop
+- Shop Shipping FAQs
 
 ---
 
@@ -210,3 +211,46 @@ Use HubSpot snippet: **`shop return/exchange - Email`** when sending return inst
 **Last updated:** July 9, 2025 — Written by Atrayu Polhemus
 
 **Source:** MEX_SOP_Communication with Shop
+
+---
+
+## Reference: Shop Shipping FAQs
+
+**When this comes up:** A member asks about shipping timelines, expedited shipping, order processing times, or guaranteed delivery dates for Shop orders.
+
+**Ground shipping:**
+- Most orders arrive within **3–5 business days**; delivery may be faster depending on location
+- Ground shipments do **not** have guaranteed delivery dates
+
+**Expedited shipping:**
+- Any shipping method faster than standard ground
+- Guaranteed arrival dates are **only** possible when the member pays for expedited shipping
+- Carriers typically pick up between **3:00–3:30 p.m. ET**; ideally request expedited by **12 p.m. ET**
+- If the warehouse cannot accommodate a late request, the order ships expedited the next business day
+
+**Order processing (Monday–Friday only):**
+
+| Order Type | Cutoff Time | Same-Day Ship? |
+|---|---|---|
+| Personalized orders | By 9:30 a.m. ET | Yes — created and shipped same day |
+| Personalized orders (after 9:30 a.m. ET) | After 9:30 a.m. ET | No — ships next business day |
+| Non-personalized orders | By 12:00 p.m. ET | Yes — typically ships same day |
+| Expedited + personalized (by 9:30 a.m. ET) | By 9:30 a.m. ET | Yes — ships expedited same day |
+| Expedited + personalized (after 9:30 a.m. ET) | After 9:30 a.m. ET | No — ships expedited next business day |
+
+**Shopify comments for arrival dates:**
+- Only add a Shopify comment for a requested arrival date when a member **pays for or receives a waiver for** expedited shipping
+- Always tag **Shop Team** and **Rebecca Herbert** on the order timeline
+
+**Common questions:**
+
+*When will my order arrive?*
+- Ground orders typically arrive within 3–5 business days. We cannot guarantee a specific delivery date with ground shipping.
+
+*Can I get my order by a specific date?*
+- Guaranteed arrivals require paying for expedited shipping. If you need it by a certain date, we can look at expedited options.
+
+*I placed my order — has it shipped yet?*
+- Orders are processed Monday–Friday. Personalized items submitted by 9:30 a.m. ET ship the same day; non-personalized items submitted by 12 p.m. ET typically ship same day.
+
+**Source:** Shop Shipping FAQs
