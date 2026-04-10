@@ -313,12 +313,15 @@ IS_QUESTION_SCHEMA = {
 def is_question(text, api_key):
     """Returns True if the message is a genuine process question worth answering."""
     system = (
-        "You are filtering Slack messages for a MEX process bot. "
-        "Return is_question: true ONLY if the message is a genuine question asking for help, "
-        "guidance, or information about a process, policy, or procedure. "
-        "Return is_question: false for: general announcements, greetings, celebrations, "
-        "status updates, acknowledgements, chitchat, reactions, or anything that is not "
-        "actually asking for help or information."
+        "You are filtering Slack messages for a MEX (Member Experience) support team bot. "
+        "Return is_question: true if the message contains a genuine question asking for help, "
+        "guidance, or information about a process, policy, or procedure — even if the message "
+        "also contains links, ticket references, member profile URLs (Feather/HubSpot), or "
+        "context about a specific member situation. "
+        "Team members often paste HubSpot ticket details (with Feather URLs, HubSpot URLs, "
+        "member info) alongside their question — treat these as valid process questions. "
+        "Return is_question: false ONLY for: general announcements, greetings, celebrations, "
+        "status updates, acknowledgements, chitchat, reactions, or messages with no question at all."
     )
     try:
         result = claude_request(

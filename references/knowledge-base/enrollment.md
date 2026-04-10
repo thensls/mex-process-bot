@@ -14,6 +14,39 @@ If an enrollment question is not covered, say so and escalate.
 ## Documents in This Category
 
 - MeX SOP Enrollment Graduation Set
+- A&E Add-On After Enrollment (Technical Failure)
+
+---
+
+## Process: Adding A&E After Enrollment Due to Technical Issue
+
+**When this comes up:** A member enrolled but could not add the A&E (Advanced & Executive) courses during enrollment because the system froze, errored out, or timed out. They want to add it now at the enrollment price.
+
+**What to do:** This qualifies for a manual charge via Authorize.net. Follow these steps:
+
+**Step 1 — Confirm consent and price**
+- Confirm the member still wants to add A&E and agrees to the charge (written consent required before charging)
+- Confirm the amount — typically $190 for A&E at enrollment price (verify current pricing)
+
+**Step 2 — Charge via Authorize.net**
+1. Log into Authorize.net
+2. Tools → Charge a Credit Card
+3. Transaction Type: **Authorize & Capture**
+4. Enter card number, expiration (MMYY), CVV, and amount
+5. Read back all details to the member before submitting
+6. Order Description: "A&E Add-On — enrollment technical issue"
+7. Enter member name and email → Submit
+
+**Step 3 — Enroll in Feather**
+- Open the member's Feather profile
+- Manually enroll them into the A&E Certification and/or Credit Recommended course
+- Go to Transactions → Add Transaction → select the A&E package → Payment Method: **Authorize (manual)** → Add Package Transaction
+
+**Step 4 — Send receipt**
+- Find the transaction in Authorize.net → Print → Save as PDF
+- Email the PDF receipt to the member with a confirmation note
+
+**Escalation:** If unsure about current A&E pricing or enrollment setup, check with SOS before charging.
 
 ---
 
