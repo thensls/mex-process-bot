@@ -18,6 +18,7 @@ Environment variables:
 import json
 import logging
 import os
+import re
 import sys
 import time
 import urllib.error
@@ -591,6 +592,23 @@ def process_new_threads(state, slack_token, anthropic_key, airtable_key, base_id
 
         reporter_name = slack_get_user_info(slack_token, reporter_id)
         issue_text = msg.get("text", "")
+
+        # Skip messages directed at a specific person (e.g. "@Kimberly can you check this?")
+        # Slack encodes mentions as <@UXXXXXXX>. If the message opens with a mention of
+        # someone who is NOT the bot, it's a direct ask to that person — not for Coach Max.
+        _directed_match = re.match(r"^\s*<@([A-Z0-9]+)>", issue_text)
+        if _directed_match:
+            mentioned_id = _directed_match.group(1)
+            if mentioned_id != (_bot_user_id or ""):
+                logging.info("Skipping message directed at another user (%s): %s", mentioned_id, ts)
+                state["processed_threads"][ts] = {
+                    "reporter": reporter_name,
+                    "bot_response": None,
+                    "comparison_scored": "skipped",
+                    "processed_at": datetime.now().isoformat(),
+                }
+                save_state(state)
+                continue
 
         attachments = msg.get("files", [])
         if attachments:
