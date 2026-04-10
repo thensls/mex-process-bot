@@ -682,6 +682,7 @@ def process_new_threads(state, slack_token, anthropic_key, airtable_key, base_id
             "bot_category": bot_result["category"],
             "source_references": bot_result.get("source_references", ""),
             "is_undocumented": bot_result.get("is_undocumented", False),
+            "bot_last_reply_ts": str(time.time()),
             "comparison_scored": False,
             "processed_at": datetime.now().isoformat(),
         }
@@ -821,6 +822,117 @@ def check_comparison_responses(state, slack_token, anthropic_key, airtable_key, 
 # Main
 # ---------------------------------------------------------------------------
 
+def check_followup_questions(state, slack_token, anthropic_key):
+    """Monitor active threads for follow-up questions and respond in-thread."""
+    global _bot_user_id
+    if not _bot_user_id:
+        _bot_user_id = get_bot_user_id(slack_token)
+
+    now = datetime.now()
+
+    for thread_ts, thread_data in list(state["processed_threads"].items()):
+        # Only check threads that are still active (not scored/expired/skipped)
+        if thread_data.get("comparison_scored"):
+            continue
+        if not thread_data.get("bot_last_reply_ts"):
+            continue
+
+        # Skip threads older than expiry
+        processed_at = thread_data.get("processed_at", "")
+        if processed_at:
+            try:
+                age = (now - datetime.fromisoformat(processed_at)).days
+                if age > THREAD_EXPIRY_DAYS:
+                    continue
+            except (ValueError, TypeError):
+                pass
+
+        # Fetch thread replies
+        try:
+            replies_result = slack_request(
+                "conversations.replies",
+                {"channel": LIVE_CHANNEL_ID, "ts": thread_ts},
+                slack_token,
+            )
+        except Exception as e:
+            logging.error("Failed to fetch replies for followup check %s: %s", thread_ts, e)
+            continue
+
+        replies = replies_result.get("messages", [])
+        bot_last_ts = thread_data["bot_last_reply_ts"]
+
+        # Find new replies since bot's last message that aren't from bot or reviewer
+        new_replies = []
+        for r in replies:
+            if float(r["ts"]) <= float(bot_last_ts):
+                continue
+            user_id = r.get("user", "")
+            if user_id == (_bot_user_id or ""):
+                continue
+            if user_id == REVIEWER_USER_ID:
+                continue
+            new_replies.append(r)
+
+        if not new_replies:
+            continue
+
+        # Take the latest reply as the follow-up
+        latest = new_replies[-1]
+        followup_text = latest.get("text", "")
+
+        # Skip if the reply @mentions someone other than the bot
+        directed_match = re.match(r"^\s*<@([A-Z0-9]+)>", followup_text)
+        if directed_match:
+            mentioned_id = directed_match.group(1)
+            if mentioned_id != (_bot_user_id or ""):
+                logging.info("Skipping followup directed at another user (%s) in thread %s", mentioned_id, thread_ts)
+                continue
+
+        # Skip non-questions
+        if not is_question(followup_text, anthropic_key):
+            logging.info("Skipping non-question followup in thread %s", thread_ts)
+            # Update bot_last_reply_ts so we don't re-check this message
+            thread_data["bot_last_reply_ts"] = latest["ts"]
+            save_state(state)
+            continue
+
+        logging.info("Follow-up question detected in thread %s", thread_ts)
+
+        # Build full thread context
+        thread_context = "\n".join(
+            f"{r.get('user', 'unknown')}: {r.get('text', '')[:300]}"
+            for r in replies[1:]  # skip the original message
+        )
+
+        # Load KB using the original category
+        category = thread_data.get("bot_category", "other")
+        knowledge_base = load_knowledge_base(category)
+        reporter_name = thread_data.get("reporter", "teammate")
+
+        try:
+            bot_result = generate_response(
+                followup_text, reporter_name, thread_context, knowledge_base, anthropic_key,
+            )
+        except Exception as e:
+            logging.error("Failed to generate followup response for %s: %s", thread_ts, e)
+            continue
+
+        reply_msg = bot_result["response"]
+        if bot_result.get("is_undocumented"):
+            reply_msg += "\n\n⚠️ _I don't have this in my SOP — flagging for the team._"
+
+        try:
+            slack_post_message(slack_token, LIVE_CHANNEL_ID, reply_msg, thread_ts=thread_ts)
+        except Exception as e:
+            logging.error("Failed to post followup response: %s", e)
+            continue
+
+        thread_data["bot_last_reply_ts"] = str(time.time())
+        save_state(state)
+        logging.info("Posted follow-up response in thread %s", thread_ts)
+        time.sleep(1.0)
+
+
 def prune_old_threads(state):
     """Remove scored/expired threads older than 30 days from state."""
     now = datetime.now()
@@ -895,6 +1007,7 @@ def main():
     state = load_state()
 
     process_new_threads(state, slack_token, anthropic_key, airtable_key, base_id)
+    check_followup_questions(state, slack_token, anthropic_key)
     check_comparison_responses(state, slack_token, anthropic_key, airtable_key, base_id)
     prune_old_threads(state)
 
