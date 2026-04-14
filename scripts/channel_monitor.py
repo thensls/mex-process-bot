@@ -586,10 +586,8 @@ def process_new_threads(state, slack_token, anthropic_key, airtable_key, base_id
         "oldest": state["last_processed_ts"],
         "limit": 50,
     }
-    logging.info("Querying conversations.history: channel=%s oldest=%s", LIVE_CHANNEL_ID, state["last_processed_ts"])
     result = slack_request("conversations.history", params, slack_token)
     messages = result.get("messages", [])
-    logging.info("Slack API returned %d messages, ok=%s", len(messages), result.get("ok"))
 
     if not messages:
         logging.info("No new messages since %s", state["last_processed_ts"])
@@ -1050,47 +1048,7 @@ def main():
     if not airtable_key or not base_id:
         logging.warning("Airtable not configured — scores won't be stored")
 
-    # Diagnostic: verify token and channel access
-    try:
-        auth = slack_request("auth.test", {}, slack_token)
-        logging.info("Bot identity: %s (team: %s, user_id: %s)", auth.get("user"), auth.get("team"), auth.get("user_id"))
-    except Exception as e:
-        logging.error("auth.test failed — token may be invalid: %s", e)
-
-    try:
-        info = slack_request("conversations.info", {"channel": LIVE_CHANNEL_ID}, slack_token)
-        ch = info.get("channel", {})
-        logging.info("Channel: #%s (is_member: %s, is_archived: %s)", ch.get("name"), ch.get("is_member"), ch.get("is_archived"))
-    except Exception as e:
-        logging.error("conversations.info failed for %s: %s", LIVE_CHANNEL_ID, e)
-
-    # Force join the channel — some workspaces require explicit API join even if invited
-    try:
-        join_payload = json.dumps({"channel": LIVE_CHANNEL_ID}).encode("utf-8")
-        join_req = urllib.request.Request(
-            f"{SLACK_API_BASE}/conversations.join",
-            data=join_payload,
-            headers={"Authorization": f"Bearer {slack_token}", "Content-Type": "application/json"},
-            method="POST",
-        )
-        with urllib.request.urlopen(join_req, timeout=10) as resp:
-            join_result = json.loads(resp.read().decode("utf-8"))
-            logging.info("conversations.join: ok=%s error=%s", join_result.get("ok"), join_result.get("error"))
-    except Exception as e:
-        logging.warning("conversations.join failed: %s", e)
-
-    # Debug: raw conversations.history call to see full Slack response
     state = load_state()
-    debug_oldest = state["last_processed_ts"]
-    try:
-        debug_params = urllib.parse.urlencode({"channel": LIVE_CHANNEL_ID, "oldest": debug_oldest, "limit": 5})
-        debug_url = f"{SLACK_API_BASE}/conversations.history?{debug_params}"
-        debug_req = urllib.request.Request(debug_url, headers={"Authorization": f"Bearer {slack_token}"}, method="GET")
-        with urllib.request.urlopen(debug_req, timeout=10) as resp:
-            raw = resp.read().decode("utf-8")
-            logging.info("RAW conversations.history response (first 500 chars): %s", raw[:500])
-    except Exception as e:
-        logging.error("Debug conversations.history failed: %s", e)
 
     process_new_threads(state, slack_token, anthropic_key, airtable_key, base_id)
     check_followup_questions(state, slack_token, anthropic_key)
