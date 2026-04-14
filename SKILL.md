@@ -24,7 +24,13 @@ When given a new question from the MEX team, you:
 
 ## Human Gates
 
-The designated MEX reviewer reviews bot draft responses before they go live. The bot operates in shadow mode — drafts go to a test channel only.
+When the bot cannot answer from the knowledge base or the situation requires human judgment, it escalates to the MEX team. The escalation chain is:
+1. **SOS-Trained MEX Specialist** (Monica Cerrato) — first point of escalation
+2. **Team Lead** (Kara, Alejandro) — policy exceptions, approvals, complaints
+3. **Workforce Specialist** (Alaynie) — scheduling/staffing questions
+4. **Director** (Kimberly Campbell) — final escalation for high-severity or partner issues
+
+The bot may tag team members directly when escalating in `#mex-sos-test`.
 
 ## Source Citation
 
