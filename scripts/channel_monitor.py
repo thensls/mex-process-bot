@@ -909,15 +909,13 @@ def check_followup_questions(state, slack_token, anthropic_key):
         replies = replies_result.get("messages", [])
         bot_last_ts = thread_data["bot_last_reply_ts"]
 
-        # Find new replies since bot's last message that aren't from bot or reviewer
+        # Find new replies since bot's last message that aren't from the bot itself
         new_replies = []
         for r in replies:
             if float(r["ts"]) <= float(bot_last_ts):
                 continue
             user_id = r.get("user", "")
             if user_id == (_bot_user_id or ""):
-                continue
-            if user_id == REVIEWER_USER_ID:
                 continue
             new_replies.append(r)
 
