@@ -97,9 +97,12 @@ def load_state():
         with open(STATE_FILE) as f:
             state = json.load(f)
     else:
-        # Start from 5 minutes ago so each cron run picks up the last interval
+        # No persistent state (Railway cron = fresh container each run).
+        # Look back 6 hours to catch any messages since the last working day.
+        # Already-processed threads are tracked in Airtable; duplicates are
+        # prevented by the processed_threads dict within each run.
         state = {
-            "last_processed_ts": str(time.time() - 300),
+            "last_processed_ts": str(time.time() - 21600),
             "processed_threads": {},
         }
     return state
@@ -589,6 +592,30 @@ def process_new_threads(state, slack_token, anthropic_key, airtable_key, base_id
             continue
         if msg.get("subtype") or ("thread_ts" in msg and msg["thread_ts"] != ts):
             continue
+
+        # Check if bot already replied in this thread (state doesn't persist across runs)
+        if msg.get("reply_count", 0) > 0 and _bot_user_id:
+            try:
+                thread_replies = slack_request(
+                    "conversations.replies",
+                    {"channel": LIVE_CHANNEL_ID, "ts": ts},
+                    slack_token,
+                )
+                bot_already_replied = any(
+                    r.get("user") == _bot_user_id for r in thread_replies.get("messages", [])[1:]
+                )
+                if bot_already_replied:
+                    logging.info("Bot already replied in thread %s — skipping", ts)
+                    state["processed_threads"][ts] = {
+                        "reporter": msg.get("user", "unknown"),
+                        "bot_response": "(already replied — recovered from stateless run)",
+                        "bot_last_reply_ts": ts,
+                        "comparison_scored": False,
+                        "processed_at": datetime.now().isoformat(),
+                    }
+                    continue
+            except Exception as e:
+                logging.warning("Could not check thread replies for %s: %s", ts, e)
 
         reporter_id = msg.get("user", "unknown")
         if _bot_user_id and reporter_id == _bot_user_id:
