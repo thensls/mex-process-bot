@@ -315,12 +315,19 @@ IS_QUESTION_SCHEMA = {
 
 def is_question(text, api_key):
     """Returns True if the message is a genuine process question worth answering."""
+    # Always respond if Coach Max is mentioned by name
+    if "coach max" in text.lower():
+        logging.info("Coach Max mentioned by name — treating as question")
+        return True
+
     system = (
-        "You are filtering Slack messages for a MEX (Member Experience) support team bot. "
+        "You are filtering Slack messages for a MEX (Member Experience) support team bot named Coach Max. "
         "Return is_question: true if the message contains a genuine question asking for help, "
         "guidance, or information about a process, policy, or procedure — even if the message "
         "also contains links, ticket references, member profile URLs (Feather/HubSpot), or "
         "context about a specific member situation. "
+        "Also return is_question: true if the message is directed at the bot (mentions Coach Max, "
+        "asks the bot to do something, or addresses the bot directly). "
         "Team members often paste HubSpot ticket details (with Feather URLs, HubSpot URLs, "
         "member info) alongside their question — treat these as valid process questions. "
         "Return is_question: false ONLY for: general announcements, greetings, celebrations, "
@@ -589,7 +596,15 @@ def process_new_threads(state, slack_token, anthropic_key, airtable_key, base_id
     for msg in messages:
         ts = msg["ts"]
         if ts in state["processed_threads"]:
-            continue
+            # Retry threads where bot never actually responded (e.g. filter rejected it)
+            td = state["processed_threads"][ts]
+            if td.get("bot_response") and td["bot_response"] != "(already replied — recovered from stateless run)":
+                continue
+            if td.get("comparison_scored") == "skipped":
+                # Was skipped (directed @mention) — don't retry
+                continue
+            logging.info("Re-evaluating thread %s (no prior bot response)", ts)
+            del state["processed_threads"][ts]
         if msg.get("subtype") or ("thread_ts" in msg and msg["thread_ts"] != ts):
             continue
 
