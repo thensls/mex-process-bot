@@ -572,8 +572,10 @@ def process_new_threads(state, slack_token, anthropic_key, airtable_key, base_id
         "oldest": state["last_processed_ts"],
         "limit": 50,
     }
+    logging.info("Querying conversations.history: channel=%s oldest=%s", LIVE_CHANNEL_ID, state["last_processed_ts"])
     result = slack_request("conversations.history", params, slack_token)
     messages = result.get("messages", [])
+    logging.info("Slack API returned %d messages, ok=%s", len(messages), result.get("ok"))
 
     if not messages:
         logging.info("No new messages since %s", state["last_processed_ts"])
@@ -1003,6 +1005,20 @@ def main():
 
     if not airtable_key or not base_id:
         logging.warning("Airtable not configured — scores won't be stored")
+
+    # Diagnostic: verify token and channel access
+    try:
+        auth = slack_request("auth.test", {}, slack_token)
+        logging.info("Bot identity: %s (team: %s, user_id: %s)", auth.get("user"), auth.get("team"), auth.get("user_id"))
+    except Exception as e:
+        logging.error("auth.test failed — token may be invalid: %s", e)
+
+    try:
+        info = slack_request("conversations.info", {"channel": LIVE_CHANNEL_ID}, slack_token)
+        ch = info.get("channel", {})
+        logging.info("Channel: #%s (is_member: %s, is_archived: %s)", ch.get("name"), ch.get("is_member"), ch.get("is_archived"))
+    except Exception as e:
+        logging.error("conversations.info failed for %s: %s", LIVE_CHANNEL_ID, e)
 
     state = load_state()
 
