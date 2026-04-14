@@ -739,7 +739,6 @@ def process_new_threads(state, slack_token, anthropic_key, airtable_key, base_id
     successfully_handled = set(state["processed_threads"].keys())
     handled_msgs = [m for m in messages if m["ts"] in successfully_handled
                     or m.get("subtype")
-                    or m.get("user") == REVIEWER_USER_ID
                     or not m.get("text", "").strip()]
     if handled_msgs:
         state["last_processed_ts"] = max(m["ts"] for m in handled_msgs)
