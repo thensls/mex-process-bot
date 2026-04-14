@@ -1047,6 +1047,21 @@ def main():
     except Exception as e:
         logging.error("conversations.info failed for %s: %s", LIVE_CHANNEL_ID, e)
 
+    # Force join the channel — some workspaces require explicit API join even if invited
+    try:
+        join_payload = json.dumps({"channel": LIVE_CHANNEL_ID}).encode("utf-8")
+        join_req = urllib.request.Request(
+            f"{SLACK_API_BASE}/conversations.join",
+            data=join_payload,
+            headers={"Authorization": f"Bearer {slack_token}", "Content-Type": "application/json"},
+            method="POST",
+        )
+        with urllib.request.urlopen(join_req, timeout=10) as resp:
+            join_result = json.loads(resp.read().decode("utf-8"))
+            logging.info("conversations.join: ok=%s already_in_channel=%s", join_result.get("ok"), join_result.get("already_in_channel"))
+    except Exception as e:
+        logging.warning("conversations.join failed: %s", e)
+
     state = load_state()
 
     process_new_threads(state, slack_token, anthropic_key, airtable_key, base_id)
