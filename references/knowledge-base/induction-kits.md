@@ -123,6 +123,9 @@ If a kit question is not covered, escalate to the MEX reviewer.
 *Member wants kit before the induction ceremony / needs a replacement?*
 - $10.00 IKF applies in both cases. Process through Authorize. See Pricing List.
 
+*Where can members contact Chapter Leaders about the induction ceremony, cancellation, or reschedule?*
+- Direct the member to log into their **Members Area**. Under the "Welcome, [Your Name]" heading, they will see their Chapter Leaders' names listed. Clicking on a Chapter Leader's name will open the email platform to contact them directly.
+
 **Related resources:**
 - Damaged Induction Kit SOP
 - Induction Pricing List
