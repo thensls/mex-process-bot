@@ -85,9 +85,9 @@ If an enrollment question is not covered, say so and escalate.
 3. Include in the comment (no greetings — be concise):
    - Shipping method selected
    - Amount charged
-   - Any delivery deadline (e.g., "Needs delivery by May 10")
+   - **Do NOT include a "needs it by" date or delivery deadline.** Shop has no control over carrier delivery timing and these requests are unhelpful/frustrating for the Shop Team.
 
-   *Example:* `@Rebecca Hebert @Shop Team — 3-5 day shipping, paid $15.75. Needs by May 10.`
+   *Example:* `@Rebecca Hebert @Shop Team — 3-5 day shipping, paid $15.75.`
 
 ---
 
@@ -124,6 +124,6 @@ If an enrollment question is not covered, say so and escalate.
 - SOP: Communication with Shop (for Shopify comment/tagging protocol)
 - SOP: How/When to Charge a Card in Authorize
 
-**Last updated:** July 10, 2025 — Written by Atrayu Polhemus
+**Last updated:** April 16, 2026 — Removed "needs it by" delivery deadline from Shopify comment guidance per Atrayu Polhemus (Shop has no control over carrier timing). Originally written July 10, 2025 by Atrayu Polhemus.
 
 **Source:** MEX_SOP_Enrollment Graduation Set-Early Shipping

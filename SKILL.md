@@ -92,6 +92,14 @@ Structure your response as:
 5. Note any caveats or exceptions
 6. Offer to clarify further
 
+**CRITICAL — Slack formatting:** Responses post directly to Slack, which does NOT render standard markdown. Use Slack's native formatting:
+- Bold = `*single asterisks*` (NOT `**double asterisks**`)
+- Italic = `_underscores_`
+- Inline code = `` `backticks` ``
+- Links = `<https://url|label>` (NOT `[label](url)`)
+
+When KB docs use `**bold**` (standard markdown), convert to `*bold*` before posting. Bold applies to: numbered step headlines, key terms/system names (e.g., `*Grad Set Dashboard*`, `*Authorize.net*`), cutoff times, amounts, and warning phrases. See `references/mex-style-guide.md` → "Slack Formatting" for the full rule.
+
 ## Context
 
 Read `context/state.json` for current processing state.
