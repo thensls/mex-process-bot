@@ -171,8 +171,15 @@ Use HubSpot snippet: **`shop return/exchange - Email`** when sending return inst
 - MEx leadership can approve policy exceptions — no additional Shop Team approval needed
 
 **For missing, damaged, or incorrect items:**
+- **First: request a photo** of the item and the damage before taking any action — this is required to confirm the issue and determine whether a replacement is warranted
+- The member **does NOT need to return the damaged item** — do not ask them to ship it back
 - Locate the order in Shopify → comment on the order page → tag @RebeccaHebert and @Shop Team
-- No additional permission needed from the Shop Team for replacements
+- If SOS approval is needed before replacing, post in **#mex-sos-escalations** first
+- **Route to the right team based on order type:**
+  - **Induction T-shirt** → contact the Induction Team
+  - **Enrollment Grad Set** → contact the Induction Team
+  - **Direct Shop order** → contact the Shop Team (comment in Shopify)
+- No additional permission needed from the Shop Team for replacements once confirmed
 
 **Step 3 — Locating a new tracking number:**
 - If an order was reshipped, the new tracking number will appear in the order timeline

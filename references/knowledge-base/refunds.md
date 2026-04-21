@@ -31,6 +31,12 @@ If a refund question does not match a known process, escalate to the MEX reviewe
 - Members outside the window may have their account **disabled** but membership fees remain nonrefundable
 - Graduation item refunds follow a separate SOP
 
+**⚠️ A&E Credit Exception — refund allowed at any time:**
+If a member purchased A&E (Advanced & Executive) credits and their school/institution will **not accept the credits** (e.g., credits don't apply to their degree program), a refund may be processed **regardless of the 30-day window**. This is documented in the MEx Handbook.
+- Confirm the member's school explicitly won't accept the A&E credits
+- Process the refund per normal refund procedures (or ACH if 120+ days)
+- No save attempt required for this specific exception — the credits have no value to the member if their school won't accept them
+
 ---
 
 **Step 1 — Acknowledge and reassure:**
