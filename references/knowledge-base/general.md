@@ -846,3 +846,72 @@ The MEx Code of Honor is a commitment to take full ownership of words, actions, 
 **Last updated:** August 22, 2025 — Written by Kara Klimuszko & Nancy Castillo
 
 **Source:** Member Experience Specialist Handbook — Updated August 2025
+
+---
+
+## Reference: NSLS Cash Back and Credit Programs
+
+**When this comes up:** A chapter advisor, chapter leader, or member asks about the Cash Back Program or Pillars Credit Program — what they earn, how credits work, or eligibility.
+
+> For detailed balance or disbursement questions, direct to the Chapter Support Manager (National Office Coordinator). MEX provides general info only.
+
+---
+
+### Cash Back Program
+
+- **Participation:** Automatic — no sign-up required
+- **Value:** $5 per member enrolled + $5 per member inducted (rolling, each semester)
+
+**How credits work:**
+- $5 earned when a student joins and pays dues
+- $5 more earned when that student completes all induction steps
+- If a member transfers and inducts at a new chapter, the induction credit goes to the chapter where they inducted
+
+**How credits can be used:**
+- Applied toward NSLS Annual Chapter Dues
+- Applied toward NSLS-approved chapter activities (reviewed by National Office)
+- Withdrawn per Terms & Conditions
+
+**Key rules:**
+- Only **active chapters with a signed Terms & Conditions** can access credits
+- Only **Chapter Advisors** can request disbursements via the NSLS online portal
+- Disbursements over **$1,000** require an invoice, PO, or receipt
+- Balance cap: **$50,000** — credits are forfeited until balance drops below cap
+
+---
+
+### Pillars Credit Program (also called "Best Practices")
+
+- **Participation:** Optional, once per term
+- **Value:** Up to **$2,200** credit applied against Annual Chapter Dues (minimum $1,400 to apply)
+
+Chapters earn credits by completing pillars in the Pillar Dashboard within the Chapter Leader Dashboard.
+
+**10 Pillars:**
+
+| # | Pillar | Value |
+|---|---|---|
+| 1 | 80% of National Office Meetings Attended | $300 |
+| 2 | Bi-Annual Strategy Meetings (2 chapter leader meetings/term) | $300 |
+| 3 | 40%+ Membership Induction rate | $200 |
+| 4 | Leadership Summit Attendance (or approved alternative) | $200 |
+| 5 | Bi-Annual Invitations (2 compliant cycles/term) | $200 |
+| 6 | Bi-Weekly Meeting Minutes submitted | $200 |
+| 7 | Multiple Core Events (2 orientations, 2 LTDs, 6 Speaker Broadcasts, 1 Induction) | $200 |
+| 8 | 5+ Active Chapter Leaders with updated roles online | $100 |
+| 9 | Technology Usage (Message System + Chapter Events Calendar) | $100 |
+| 10 | 2 Community Service Events with marketing + photo | $100 |
+
+**Completing all 10** adds an automatic **$100 bonus** (total: $2,000) and unlocks bonuses:
+
+| Bonus | Value |
+|---|---|
+| Early Invitation (before 7/31 Fall / 12/15 Spring) | $50 |
+| 3-Year Terms & Conditions signed | $50 |
+| Early Terms & Conditions (by 6/30 Fall / 11/30 Spring) | $50 |
+| Positive Publicity (third-party media recognition) | $50 |
+| New Chapter Referral (school without an NSLS chapter) | $100 |
+
+Maximum: **$2,200**. Credits only apply once $1,400 minimum is reached.
+
+**Source:** NSLS Cash Back and Credit Program (2023)
