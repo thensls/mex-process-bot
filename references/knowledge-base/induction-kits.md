@@ -126,13 +126,25 @@ If a kit question is not covered, escalate to the MEX reviewer.
 *Where can members contact Chapter Leaders about the induction ceremony, cancellation, or reschedule?*
 - Direct the member to log into their **Members Area**. Under the "Welcome, [Your Name]" heading, they will see their Chapter Leaders' names listed. Clicking on a Chapter Leader's name will open the email platform to contact them directly.
 
+**A&E Certificate delivery — by chapter type:**
+
+When a member asks where their A&E (Advanced or Executive Leadership) certificate is:
+- **Online chapters:** Certificates are processed and sent out **weekly** (usually on Friday or Monday)
+- **Live-Online chapters:** If an induction is scheduled, mailed with the induction kit. Otherwise processed on the **1st and 15th of each month** (or end of semester, at chapter/chapter support manager's discretion)
+- **Standard chapters:** If an induction is scheduled, given at the **induction ceremony**. Otherwise processed in bulk at end of semester (at chapter/chapter support manager's discretion)
+
+**Presidential Seal:**
+- Members with a **3.3 GPA or above** receive a Presidential Seal on their leadership training certificate
+- Presidential members do not receive special additional benefits — the seal is visual recognition only
+- **If a qualifying member is missing their seal:** Contact **Kara Klimuszko** — she sends replacement seals **once a week**
+
 **Related resources:**
 - Damaged Induction Kit SOP
 - Induction Pricing List
 - How to Take a Certificate out of a Plaque
 - International Online Chapter Kits SOP
 
-**Last updated:** June 24, 2025 — Written by Atrayu Polhemus
+**Last updated:** June 24, 2025 — Written by Atrayu Polhemus. Presidential Seal and A&E certificate delivery timelines added from MEx Specialist Handbook.
 
 **Source:** SOP- Induction Kits Processing & Shipment
 

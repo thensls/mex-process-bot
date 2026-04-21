@@ -130,6 +130,18 @@ Save attempts must be documented in HubSpot (and FOL Saves Tracker when applicab
 *Can we refund the Grad Set or Parent Package?*
 - Parent Packages can be refunded at any time. Grad Sets follow the Enrollment Grad Set SOP. Personalized items are non-refundable.
 
+*Can we refund a plaque?*
+- **Yes — plaques can be refunded at any time and are not subject to the 30-day refund policy.** Process as a normal refund.
+
+*What if the member joined less than 24 hours ago?*
+- We physically cannot process the refund until the original payment clears (24–48 hours). Inform the member and follow up after 3 business days with a confirmation.
+
+*What if the member's credit card is expired or no longer valid?*
+- Re-do the refund in Feather but select **"Check"** as the refund type. Then email **billing@nsls.org** with: member name, contact information, mailing address, and the dollar amount to refund.
+
+*What if a member who was refunded the same day wants to rejoin?*
+- You can void the refund (canceling it before it processes) and reactivate the account. **Voids require Senior or Manager approval** — message your direct manager or a senior before processing.
+
 *What if a member's L2L program was discontinued?*
 - This qualifies as a discontinued product escalation — route to SOS for Team Lead review.
 
@@ -155,6 +167,7 @@ Save attempts must be documented in HubSpot (and FOL Saves Tracker when applicab
 **When to use Check (last resort):**
 - Member declines ACH and explicitly prefers a paper check
 - Any situation where ACH is applicable but member opts out
+- **Expired/invalid credit card:** if a refund in Feather errors because the card is no longer valid, switch the refund type to "Check" and email billing@nsls.org
 
 **Prerequisites:**
 - Refund must be approved per the Refund Exception Policy before proceeding

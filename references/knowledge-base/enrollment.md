@@ -127,3 +127,48 @@ If an enrollment question is not covered, say so and escalate.
 **Last updated:** April 16, 2026 — Removed "needs it by" delivery deadline from Shopify comment guidance per Atrayu Polhemus (Shop has no control over carrier timing). Originally written July 10, 2025 by Atrayu Polhemus.
 
 **Source:** MEX_SOP_Enrollment Graduation Set-Early Shipping
+
+---
+
+## Process: Disabled Member Wants to Rejoin
+
+**When this comes up:** A member whose account was disabled (typically after a refund) wants to reactivate or rejoin.
+
+**Rule by timing:**
+
+| Situation | What to do |
+|---|---|
+| Disabled/refunded the **same day** | Void the refund + reactivate in Feather. **Void requires Senior or Manager approval** — message your manager or a senior directly before processing. |
+| Disabled/refunded **NOT the same day** (but within ~1 week) | Provide the chapter's general nomination code. Member re-enrolls using that code. **They cannot reuse their original email address** — must use a different one. |
+| Disabled **over a week ago** | Start a new membership. Follow standard nomination protocols. |
+
+**Key rules:**
+- Voids (same-day cancellation of a refund) require Senior or Manager approval — do not process without it
+- Members re-enrolling after a non-same-day disable cannot use their original email address as the Member ID
+- For re-enrollment: find the chapter's general nomination code in Feather → go to the chapter → retrieve the code
+
+**Source:** MEx Specialist Handbook — Disabled Member Rejoining section
+
+---
+
+## Process: Phone Enrollment
+
+**When this comes up:** A member cannot enroll online, is having a technical issue that isn't resolved by a new invitation code, or insists on completing enrollment over the phone.
+
+**Preference:** Direct members to enroll themselves at nsls.org using their invitation code. The paper application is an option for members without a credit card.
+
+**If phone enrollment is necessary:**
+- Do not let the member hang up until enrollment is successfully completed
+- Open an **incognito/private browser window** and go to nsls.org
+- Walk the member through each step, typing in their information as they provide it:
+  1. Enter the nomination code in the boxes on the homepage
+  2. Confirm "Yes, I am the nominated student" is selected
+  3. Create the member profile — remind them their **primary email address will be their Member ID** going forward
+  4. Enter shipping information (becomes their Home Address in Feather)
+  5. Present the Wooden Certificate Plaque option and explain it
+  6. Read through the information above payment fields before entering card details
+  7. Confirm Terms and Conditions, then submit
+  8. Present A&E options — use "NO THANKS CONTINUE" if the member declines
+  9. Create a password and confirm the member can log in before ending the call
+
+**Source:** MEx Specialist Handbook — Phone Enrollment section

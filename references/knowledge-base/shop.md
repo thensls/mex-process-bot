@@ -82,9 +82,16 @@ If a shop question does not match a known process, escalate to the MEX reviewer.
 - Member pays return shipping
 - Items must be returned within 30 days of purchase
 - Items must be unused and in undamaged condition
+- Merchandise returns must include the **original receipt** — either the packing slip from the package or a printed/emailed order confirmation
 - **Non-refundable items:** Graduation items, induction items, personalized items, gift cards
 - **Credit card payments:** Refunded to the original card only — no cash refunds
 - NSLS does not refund shipping expenses or shipping warranties
+
+**Graduation Set return policy (Enrollment Grad Set):**
+- NSLS does not accept returns or provide refunds for graduation items as a standard rule
+- However, extenuating circumstances are handled **case-by-case**
+- Any approved return **must include ALL items** in the grad set: t-shirt, stoles, medallion, and cords
+- Incomplete returns are not accepted
 
 **Returns/exchanges mailing address:**
 > The National Society of Leadership and Success
@@ -225,9 +232,21 @@ Use HubSpot snippet: **`shop return/exchange - Email`** when sending return inst
 
 **When this comes up:** A member asks about shipping timelines, expedited shipping, order processing times, or guaranteed delivery dates for Shop orders.
 
-**Ground shipping:**
-- Most orders arrive within **3–5 business days**; delivery may be faster depending on location
+**Shipping speeds and pricing (NSLS Shop checkout):**
+
+| Speed | Timeline | Price |
+|---|---|---|
+| Standard | 7–14 business days | $9.99 |
+| Select | 3–5 business days | $15.75 |
+| Overnight | 1–2 business days | $44.95 |
+
+- Orders placed **before 11 AM ET** are processed and shipped **same day** (Monday–Friday)
+- Personalized/engraved items require an **additional business day** for processing
+- The NSLS is not responsible for carrier delays during transit
 - Ground shipments do **not** have guaranteed delivery dates
+
+**Ground shipping (general):**
+- Most orders arrive within **3–5 business days** via ground; delivery may be faster depending on location
 
 **Expedited shipping:**
 - Any shipping method faster than standard ground
