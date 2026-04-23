@@ -104,6 +104,10 @@ def main():
                         "type": "checkbox",
                         "options": {"color": "greenBright", "icon": "check"},
                     },
+                    {"name": "Reaction Score", "type": "number", "options": {"precision": 0},
+                     "description": "0–100 based on ✅/❌ emoji reactions on bot reply"},
+                    {"name": "Reaction Feedback", "type": "singleLineText",
+                     "description": "Human-readable reaction summary (e.g. ✅ correct (3 votes))"},
                 ],
             },
             {

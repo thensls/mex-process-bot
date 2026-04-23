@@ -74,6 +74,10 @@ STATE_FILE = os.path.join(STATE_DIR, "state.json")
 
 AGENT_NAME = "mex-process-monitor"
 
+# Emoji reactions used to score bot responses
+REACTION_CORRECT = "white_check_mark"   # ✅  green check = response was right
+REACTION_WRONG = "x"                    # ❌  red x       = response was wrong
+
 # ---------------------------------------------------------------------------
 # Logging
 # ---------------------------------------------------------------------------
@@ -715,7 +719,7 @@ def process_new_threads(state, slack_token, anthropic_key, airtable_key, base_id
             reply_msg += "\n\n⚠️ _I don't have this in my SOP — flagging for the team._"
 
         try:
-            slack_post_message(slack_token, LIVE_CHANNEL_ID, reply_msg, thread_ts=ts)
+            bot_reply_ts = slack_post_message(slack_token, LIVE_CHANNEL_ID, reply_msg, thread_ts=ts)
         except Exception as e:
             logging.error("Failed to post response to live channel: %s", e)
             continue
@@ -729,6 +733,7 @@ def process_new_threads(state, slack_token, anthropic_key, airtable_key, base_id
             "source_references": bot_result.get("source_references", ""),
             "is_undocumented": bot_result.get("is_undocumented", False),
             "bot_last_reply_ts": str(time.time()),
+            "bot_message_ts": bot_reply_ts,   # actual Slack TS of bot's reply (for reactions.get)
             "comparison_scored": False,
             "processed_at": datetime.now().isoformat(),
         }
@@ -976,6 +981,81 @@ def check_followup_questions(state, slack_token, anthropic_key):
         time.sleep(1.0)
 
 
+def check_reaction_scores(state, slack_token, airtable_key, base_id):
+    """Check ✅/❌ reactions on bot replies and log to Airtable."""
+    for thread_ts, thread_data in list(state["processed_threads"].items()):
+        # Skip threads with no bot reply or where we never got a message TS
+        if thread_data.get("comparison_scored") in ("skipped", "expired"):
+            continue
+        bot_msg_ts = thread_data.get("bot_message_ts")
+        if not bot_msg_ts:
+            continue
+
+        try:
+            result = slack_request(
+                "reactions.get",
+                {"channel": LIVE_CHANNEL_ID, "timestamp": bot_msg_ts, "full": "true"},
+                slack_token,
+            )
+        except Exception as e:
+            logging.warning("Could not fetch reactions for %s: %s", thread_ts, e)
+            continue
+
+        reactions = result.get("message", {}).get("reactions", [])
+        correct_count = 0
+        wrong_count = 0
+        for r in reactions:
+            if r.get("name") == REACTION_CORRECT:
+                correct_count = r.get("count", 0)
+            elif r.get("name") == REACTION_WRONG:
+                wrong_count = r.get("count", 0)
+
+        if correct_count == 0 and wrong_count == 0:
+            continue  # No relevant reactions yet
+
+        total = correct_count + wrong_count
+        reaction_score = round((correct_count / total) * 100)
+
+        if wrong_count == 0:
+            feedback = f"✅ correct ({correct_count} vote{'s' if correct_count != 1 else ''})"
+        elif correct_count == 0:
+            feedback = f"❌ wrong ({wrong_count} vote{'s' if wrong_count != 1 else ''})"
+        else:
+            feedback = f"mixed ({correct_count}✅ / {wrong_count}❌)"
+
+        # Only write to Airtable if reaction state changed since last check
+        if thread_data.get("reaction_feedback") == feedback:
+            continue
+
+        logging.info("Reaction score for thread %s: %s", thread_ts, feedback)
+
+        if base_id and airtable_key:
+            try:
+                permalink = f"https://thensls.slack.com/archives/{LIVE_CHANNEL_ID}/p{thread_ts.replace('.', '')}"
+                record_data = {
+                    "records": [{"fields": {
+                        "Thread ID": thread_ts,
+                        "Thread Link": permalink,
+                        "Reaction Score": reaction_score,
+                        "Reaction Feedback": feedback,
+                    }}],
+                    "performUpsert": {"fieldsToMergeOn": ["Thread ID"]},
+                }
+                airtable_request(
+                    "PATCH",
+                    f"{base_id}/Response%20Comparisons",
+                    data=record_data,
+                    api_key=airtable_key,
+                )
+                logging.info("Updated Airtable reaction score for %s: %s", thread_ts, feedback)
+            except Exception as e:
+                logging.error("Airtable reaction write failed for %s: %s", thread_ts, e)
+
+        thread_data["reaction_feedback"] = feedback
+        thread_data["reaction_score"] = reaction_score
+        save_state(state)
+
+
 def prune_old_threads(state):
     """Remove scored/expired threads older than 30 days from state."""
     now = datetime.now()
@@ -1052,6 +1132,7 @@ def main():
     process_new_threads(state, slack_token, anthropic_key, airtable_key, base_id)
     check_followup_questions(state, slack_token, anthropic_key)
     check_comparison_responses(state, slack_token, anthropic_key, airtable_key, base_id)
+    check_reaction_scores(state, slack_token, airtable_key, base_id)
     prune_old_threads(state)
 
     duration = round(time.time() - start_time, 1)
