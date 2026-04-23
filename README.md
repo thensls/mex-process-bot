@@ -122,6 +122,8 @@ Logs each cron run (run ID, duration, threads processed, errors).
 - `chat:write` — post replies
 - `users:read` — look up member names
 - `files:read` — read file attachments
+- `reactions:read` — detect ✅/❌ emoji reactions on bot replies
+- `im:write` — open DM channels to notify reviewer
 
 ---
 
