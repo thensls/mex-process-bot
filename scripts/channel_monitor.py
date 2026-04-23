@@ -147,6 +147,25 @@ def slack_request(method, params, token):
     return result
 
 
+def slack_dm_user(token, user_id, text):
+    """Open a DM with a user and post a message."""
+    # Open (or retrieve) a direct message channel
+    body = json.dumps({"users": user_id}).encode("utf-8")
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/json; charset=utf-8",
+    }
+    req = urllib.request.Request(
+        f"{SLACK_API_BASE}/conversations.open", data=body, headers=headers, method="POST"
+    )
+    with urllib.request.urlopen(req, timeout=30) as resp:
+        result = json.loads(resp.read().decode("utf-8"))
+    if not result.get("ok"):
+        raise RuntimeError(f"Slack conversations.open: {result.get('error')}")
+    dm_channel = result["channel"]["id"]
+    return slack_post_message(token, dm_channel, text)
+
+
 def slack_post_message(token, channel, text, thread_ts=None):
     payload = {
         "channel": channel,
@@ -727,6 +746,7 @@ def process_new_threads(state, slack_token, anthropic_key, airtable_key, base_id
         # Track state
         state["processed_threads"][ts] = {
             "reporter": reporter_name,
+            "question": issue_text[:500],
             "bot_response": bot_result["response"],
             "bot_priority": bot_result["priority"],
             "bot_category": bot_result["category"],
@@ -1023,15 +1043,54 @@ def check_reaction_scores(state, slack_token, airtable_key, base_id):
         else:
             feedback = f"mixed ({correct_count}✅ / {wrong_count}❌)"
 
-        # Only write to Airtable if reaction state changed since last check
+        # Only act if reaction state changed since last check
         if thread_data.get("reaction_feedback") == feedback:
             continue
 
         logging.info("Reaction score for thread %s: %s", thread_ts, feedback)
 
+        permalink = f"https://thensls.slack.com/archives/{LIVE_CHANNEL_ID}/p{thread_ts.replace('.', '')}"
+
+        # DM the reviewer for ❌ reactions (needs KB review) and ✅ (confirmation)
+        if not thread_data.get("dm_sent"):
+            question_preview = thread_data.get("question", "")[:300]
+            response_preview = thread_data.get("bot_response", "")[:400]
+            reporter = thread_data.get("reporter", "unknown")
+
+            if wrong_count > 0 and correct_count == 0:
+                dm_text = (
+                    f"❌ *Coach Max flagged — needs review*\n\n"
+                    f"*Asked by:* {reporter}\n"
+                    f"*Question:* {question_preview}\n\n"
+                    f"*Coach Max said:*\n{response_preview}\n\n"
+                    f"*Flagged as wrong by {wrong_count} vote{'s' if wrong_count != 1 else ''}.*\n"
+                    f"May need a KB update → <{permalink}|view thread>"
+                )
+            elif correct_count > 0 and wrong_count == 0:
+                dm_text = (
+                    f"✅ *Coach Max confirmed correct*\n\n"
+                    f"*Asked by:* {reporter}\n"
+                    f"*Question:* {question_preview}\n\n"
+                    f"Marked correct by {correct_count} vote{'s' if correct_count != 1 else ''} → <{permalink}|view thread>"
+                )
+            else:
+                dm_text = (
+                    f"⚠️ *Coach Max — mixed reactions*\n\n"
+                    f"*Asked by:* {reporter}\n"
+                    f"*Question:* {question_preview}\n\n"
+                    f"{correct_count}✅ / {wrong_count}❌ — worth a look → <{permalink}|view thread>"
+                )
+
+            try:
+                slack_dm_user(slack_token, REVIEWER_USER_ID, dm_text)
+                logging.info("DMed reviewer about reaction on thread %s", thread_ts)
+                thread_data["dm_sent"] = True
+            except Exception as e:
+                logging.error("Failed to DM reviewer for %s: %s", thread_ts, e)
+
+        # Write to Airtable if configured
         if base_id and airtable_key:
             try:
-                permalink = f"https://thensls.slack.com/archives/{LIVE_CHANNEL_ID}/p{thread_ts.replace('.', '')}"
                 record_data = {
                     "records": [{"fields": {
                         "Thread ID": thread_ts,
