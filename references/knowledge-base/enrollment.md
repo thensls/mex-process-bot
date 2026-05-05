@@ -15,6 +15,7 @@ If an enrollment question is not covered, say so and escalate.
 
 - MeX SOP Enrollment Graduation Set
 - A&E Add-On After Enrollment (Technical Failure)
+- A&E $190 Discount Window (MEx Specialist Handbook)
 
 ---
 
@@ -47,6 +48,30 @@ If an enrollment question is not covered, say so and escalate.
 - Email the PDF receipt to the member with a confirmation note
 
 **Escalation:** If unsure about current A&E pricing or enrollment setup, check with SOS before charging.
+
+---
+
+## Process: A&E $190 Discount — 30-Day Window and Late Requests
+
+**When this comes up:** A member declined A&E at enrollment, wants to add it now at the **$190 enrollment price**, and asks whether the discount is still available.
+
+**The rule (per MEx Specialist Handbook):** Members have **30 days from enrollment** to take advantage of the $190 A&E discount. After 30 days, the discount is no longer automatically available.
+
+**Inside the 30-day window:**
+- Process the A&E add-on at the $190 enrollment price using the standard Authorize.net flow (see "Adding A&E After Enrollment Due to Technical Issue" above for the exact charge + Feather enrollment steps).
+
+**Outside the 30-day window — exception path:**
+- The bot/MEX specialist **cannot greenlight** the $190 price as an exception on its own. Pricing exceptions are a **policy decision** that requires a human call.
+- Route to your **Team Lead** (Kara, Alejandro) or escalate to **Kimberly Campbell** (Director of Member Experience) for a final decision. You can also post in `#mex-sos-escalations` to get eyes on it quickly.
+- In practice, exceptions are often approved when the member is genuinely ready to engage with the A&E content — leadership wants to keep members moving forward in the program. But the call is theirs, not the specialist's.
+
+**How to set the member's expectation:**
+- Acknowledge their interest and disappointment, then say something like: *"The $190 price is a 30-day enrollment offer per our handbook, so I can't apply it directly here — but let me check with my Team Lead to see if we can make an exception. I'll get back to you shortly."*
+- Do NOT promise the discount before leadership approves it.
+
+**Source:** MEx Specialist Handbook (30-day A&E discount window)
+
+**Last updated:** May 4, 2026 — Added based on MEx team feedback that the 30-day handbook rule was not previously documented in the KB.
 
 ---
 

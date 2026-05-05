@@ -136,7 +136,8 @@ When a member asks where their A&E (Advanced or Executive Leadership) certificat
 **Presidential Seal:**
 - Members with a **3.3 GPA or above** receive a Presidential Seal on their leadership training certificate
 - Presidential members do not receive special additional benefits — the seal is visual recognition only
-- **If a qualifying member is missing their seal:** Contact **Kara Klimuszko** — she sends replacement seals **once a week**
+- **If a qualifying member is missing their seal, or asks how to get the seal sticker** (e.g., they were sent a PDF certificate and want the physical seal sticker to add to it): Contact **Kara Klimuszko** — she sends replacement / additional seal stickers **once a week**
+- The full process for handling Presidential Seal sticker requests is documented in the **MEx Specialist Handbook** (recently added). When in doubt, check the handbook or route the request to Kara directly.
 
 **Related resources:**
 - Damaged Induction Kit SOP
@@ -144,7 +145,7 @@ When a member asks where their A&E (Advanced or Executive Leadership) certificat
 - How to Take a Certificate out of a Plaque
 - International Online Chapter Kits SOP
 
-**Last updated:** June 24, 2025 — Written by Atrayu Polhemus. Presidential Seal and A&E certificate delivery timelines added from MEx Specialist Handbook.
+**Last updated:** May 4, 2026 — Expanded Presidential Seal section to cover the sticker-only request scenario (member has PDF cert and wants the physical seal). Originally written June 24, 2025 by Atrayu Polhemus.
 
 **Source:** SOP- Induction Kits Processing & Shipment
 

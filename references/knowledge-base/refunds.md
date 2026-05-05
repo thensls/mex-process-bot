@@ -37,6 +37,10 @@ If a member purchased A&E (Advanced & Executive) credits and their school/instit
 - Process the refund per normal refund procedures (or ACH if 120+ days)
 - No save attempt required for this specific exception — the credits have no value to the member if their school won't accept them
 
+**Any other A&E refund request outside of policy:**
+- If a member is requesting an A&E refund that doesn't fit the school-won't-accept exception above (e.g., changed their mind, ran out of time, dissatisfied) and they're past the 30-day window — **SOS approval is required** before processing. Do not promise a refund outcome before SOS reviews.
+- If there's been a significant service delay before the refund request, leadership may grant an exception to maintain goodwill — but that's still a leadership call, not a specialist call.
+
 ---
 
 **Step 1 — Acknowledge and reassure:**
@@ -254,9 +258,11 @@ Verify that one of the following applies:
 
 ---
 
-## Process: A&E Reimbursement — Offer Met
+## Process: A&E Reimbursement — Offer Met (HISTORICAL / EXPIRED)
 
-**When this comes up:** A member who joined during the Fall 2024 enrollment test (April 26–October 18, 2024) completed their A&E program within one year and is requesting the reimbursement they were promised at enrollment.
+**🛑 STATUS — DO NOT SURFACE IN ACTIVE RESPONSES:** This was a Fall 2024 enrollment test offer that has expired. The completion window (one year from purchase, capped at the 4/26/2024–10/18/2024 enrollment window) has now passed, so no new members can qualify. This section is preserved **for historical reference only** — in the rare case that an old member from that exact window resurfaces with documentation. **Do not lead with this scenario when answering A&E refund questions.** Lead with the school-won't-accept-credits exception above, or the "outside of policy → SOS approval" path.
+
+**When this comes up (historical only):** A member who joined during the Fall 2024 enrollment test (April 26–October 18, 2024) completed their A&E program within one year and is requesting the reimbursement they were promised at enrollment.
 
 **⚠️ Eligibility is limited:** This offer applies **only** to members who joined between **4/26/2024 and 10/18/2024** during the testing application phase. Not all members who joined during this window received the offer — always verify via the Feather report before proceeding.
 
@@ -297,6 +303,6 @@ Verify that one of the following applies:
 *What if it has been more than 120 days?*
 - Route through SOP_MEx ACH Refunds for an ACH/RAMP refund via Billing.
 
-**Last updated:** July 10, 2025 — Written by Kara Klimuszko
+**Last updated:** May 4, 2026 — Marked as historical/expired per Kara Klimuszko. This Fall 2024 offer's completion window has passed; do not surface in active responses. Originally written July 10, 2025 by Kara Klimuszko.
 
-**Source:** SOP - A&E Reimbursement Offer Met
+**Source:** SOP - A&E Reimbursement Offer Met (historical reference only)
