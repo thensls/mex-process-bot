@@ -21,7 +21,26 @@ If a shop question does not match a known process, escalate to the MEX reviewer.
 
 ---
 
+## 🔗 Cross-references — Related Topics in Other KB Files
+
+This file (`shop.md`) is for the **public NSLS Shop** (shop.nsls.org) — items anyone can buy. It is **NOT** the right home for induction items, which are restricted to inducted members and not sold publicly.
+
+| If the question is about… | Look in this file's section… | …or this other file |
+|---|---|---|
+| Member wants to **purchase another induction t-shirt** | (not here — induction t-shirt is locked behind steps and NOT in the public shop) | `induction-kits.md` → Induction Pricing |
+| Member wants the **Presidential Seal sticker** | (not here) | `induction-kits.md` → Induction Kits Processing |
+| Graduation set early shipping (stole, cords, medallion) | (not here) | `enrollment.md` → Enrollment Graduation Set |
+| International kit shipment | (not here) | `induction-kits.md` |
+| Refund for a shop item | (not here) | `refunds.md` |
+| Shop item exchange / return label | Shop Return Label | (stay here) |
+| Shop warranty (lost/stolen/damaged in transit) | Shop Warranty | (stay here) |
+| Communicating with the Shop Team / Rebecca Hebert | Communication with Shop | (stay here) |
+
+---
+
 ## Process: Shop Warranty
+
+**Tags:** shop warranty, lost package, stolen package, damaged in transit, package warranty, $3.95 warranty, $5.95 warranty, package replacement, warranty coverage, warranty claim, package not delivered, missing shop order, shop protection, USPS lost, UPS lost, no tracking received
 
 **When this comes up:** A member reports a lost, stolen, or damaged shop item and asks about warranty coverage or a replacement.
 
@@ -115,6 +134,8 @@ Use HubSpot snippet: **`shop return/exchange - Email`** when sending return inst
 
 ## Process: Shop Return Label
 
+**Tags:** return label, shop return, exchange shop item, return shipping, Shopify return, create return label, member return, SOS approval return, Team Lead approval return
+
 **When this comes up:** A member needs a return label processed through Shopify.
 
 **⚠️ Critical rule:** Return labels are NOT routinely provided. They are only granted in escalated situations or where the issue was on NSLS's end. **Always check with SOS (`#mex-sos-escalations`) or your Team Lead before processing.** Do not proceed without approval.
@@ -151,6 +172,8 @@ Use HubSpot snippet: **`shop return/exchange - Email`** when sending return inst
 ---
 
 ## Process: Communication with Shop
+
+**Tags:** communicate with shop, Shop Team, Rebecca Hebert, Michael Adamian, Derald Dryman, Alex Kliman, shop@nsls.org, Shopify comment, tag Rebecca, tag Shop Team, Printful tracking, Printify tracking, ShipStation tracking, address change Shopify, missing item Shopify, damaged item Shopify, SNHU grad set distinction
 
 **When this comes up:** MEX needs to contact the Shop Team regarding exchanges, returns, refunds, missing/damaged/incorrect items, address changes, or order tracking.
 
@@ -229,6 +252,8 @@ Use HubSpot snippet: **`shop return/exchange - Email`** when sending return inst
 ---
 
 ## Reference: Shop Shipping FAQs
+
+**Tags:** shop shipping, shipping timeline, ground shipping shop, expedited shop shipping, 3-5 business days shop, processing time shop, 9:30 ET cutoff shop, 12 PM ET cutoff shop, guaranteed delivery date, personalized order processing, expedited cost shop
 
 **When this comes up:** A member asks about shipping timelines, expedited shipping, order processing times, or guaranteed delivery dates for Shop orders.
 

@@ -19,7 +19,28 @@ If an enrollment question is not covered, say so and escalate.
 
 ---
 
+## 🔗 Cross-references — Related Topics in Other KB Files
+
+| If the question is about… | Look in this file's section… | …or this other file |
+|---|---|---|
+| **A&E refund** (school won't accept, outside-policy exception) | (not here) | `refunds.md` |
+| A&E $190 enrollment discount window | A&E $190 Discount — 30-Day Window | (stay here) |
+| A&E add-on after enrollment (technical failure) | Adding A&E After Enrollment Due to Technical Issue | (stay here) |
+| **International member can't enroll** (address won't accept) | (not here) | `induction-kits.md` → International Kits |
+| Phone enrollment walkthrough | Phone Enrollment | `general.md` (cross-listed) |
+| Graduation set early shipping (before steps complete) | Enrollment Graduation Set — Early Shipping | (stay here) |
+| Member wants to **purchase a new induction t-shirt** | (not here) | `induction-kits.md` → Induction Pricing |
+| Disabled member wants to rejoin | Disabled Member Wants to Rejoin | (stay here) |
+| Refund eligibility / 30-day refund window | (not here) | `refunds.md` |
+| Membership cancellation save attempt | (not here) | `refunds.md` → Refund Exception |
+
+---
+
 ## Process: Adding A&E After Enrollment Due to Technical Issue
+
+**Tags:** A&E technical issue, A&E system error, A&E enrollment failure, A&E couldn't enroll, A&E froze, A&E timed out, A&E manual charge, $190 A&E technical, A&E Authorize.net, A&E Feather enrollment, A&E add-on, A&E Certification, A&E Credit Recommended
+
+**When this comes up:** A member enrolled but could not add the A&E (Advanced & Executive) courses during enrollment because the system froze, errored out, or timed out — and they want to add it now at the **enrollment-window price** because it was a technical failure on our end.
 
 **When this comes up:** A member enrolled but could not add the A&E (Advanced & Executive) courses during enrollment because the system froze, errored out, or timed out. They want to add it now at the enrollment price.
 
@@ -53,7 +74,9 @@ If an enrollment question is not covered, say so and escalate.
 
 ## Process: A&E $190 Discount — 30-Day Window and Late Requests
 
-**When this comes up:** A member declined A&E at enrollment, wants to add it now at the **$190 enrollment price**, and asks whether the discount is still available.
+**Tags:** A&E $190, A&E 190, A&E discount, A&E 30 days, A&E enrollment offer, A&E price exception, A&E late enrollment, A&E expired discount, A&E member wants $190, A&E ready to start, A&E exception, A&E Team Lead approval, A&E Kimberly approval, A&E pricing exception, A&E handbook 30 day rule, A&E offer expired
+
+**When this comes up:** A member declined A&E at enrollment, wants to add it now at the **$190 enrollment price**, and asks whether the discount is still available — or a MEx specialist asks if an exception can be granted to give the $190 price to a member outside the 30-day window.
 
 **The rule (per MEx Specialist Handbook):** Members have **30 days from enrollment** to take advantage of the $190 A&E discount. After 30 days, the discount is no longer automatically available.
 
@@ -77,7 +100,9 @@ If an enrollment question is not covered, say so and escalate.
 
 ## Process: Enrollment Graduation Set — Early Shipping
 
-**When this comes up:** A member purchased the Enrollment Graduation Set during registration but has not yet completed induction, and requests their items be shipped before completing all steps.
+**Tags:** graduation set, grad set, early shipping, ship grad set early, before steps, graduation ceremony, ceremony coming up, expedited grad set, stole, cords, medallion, engraved medallion, personalized medallion, Grad Set Dashboard, Rebecca Hebert, 9:30 ET cutoff, 12 PM EST cutoff, standard ground grad set, 3-5 day grad set, 2-day rush grad set, Authorize.net grad set shipping, Shopify grad set comment
+
+**When this comes up:** A member purchased the Enrollment Graduation Set during registration but has not yet completed induction, and requests their items be shipped before completing all steps. Often paired with an upcoming graduation ceremony.
 
 **Context:** Graduation Sets are normally shipped after all induction steps are completed. However, early shipping is permitted — particularly for members with upcoming ceremonies or late-season enrollees. **SOS approval is not required** for early fulfillment. Encourage completing steps first when possible, but fulfill the request if the member asks directly or it's an escalation.
 
@@ -157,6 +182,8 @@ If an enrollment question is not covered, say so and escalate.
 
 ## Process: Disabled Member Wants to Rejoin
 
+**Tags:** disabled member, rejoin, reactivate, re-enroll, refunded member returning, void refund, member came back, account disabled, reactivate account, same-day void, new nomination code, Senior approval void, Manager approval void
+
 **When this comes up:** A member whose account was disabled (typically after a refund) wants to reactivate or rejoin.
 
 **Rule by timing:**
@@ -178,7 +205,11 @@ If an enrollment question is not covered, say so and escalate.
 
 ## Process: Phone Enrollment
 
-**When this comes up:** A member cannot enroll online, is having a technical issue that isn't resolved by a new invitation code, or insists on completing enrollment over the phone.
+**Tags:** phone enrollment, enroll over phone, can't enroll online, technical issue enrollment, walk member through enrollment, incognito browser enrollment, paper application, invitation code, nomination code, Member ID setup, Wooden Certificate Plaque option, A&E offer at enrollment, NO THANKS CONTINUE A&E, password creation, member hangs up
+
+**⚠️ Note for international-address questions:** If the issue is specifically that the member's **international address** isn't being accepted by the form, **do NOT use this Phone Enrollment SOP as the answer** — instead, route to `induction-kits.md` → "International Kits for Online Chapters." That's the canonical home for international-address handling during enrollment.
+
+**When this comes up:** A member cannot enroll online, is having a technical issue that isn't resolved by a new invitation code, or insists on completing enrollment over the phone — *and the issue is NOT specifically about an international address.*
 
 **Preference:** Direct members to enroll themselves at nsls.org using their invitation code. The paper application is an option for members without a credit card.
 

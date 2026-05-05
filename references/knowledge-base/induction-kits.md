@@ -19,9 +19,30 @@ If a kit question is not covered, escalate to the MEX reviewer.
 
 ---
 
+## 🔗 Cross-references — Related Topics in Other KB Files
+
+This file (`induction-kits.md`) is the canonical home for **all international-address handling, induction kit pricing, and Presidential Seal stickers** — even when the question sounds like it belongs elsewhere.
+
+| If the question is about… | Look in this file's section… | …or this other file |
+|---|---|---|
+| International member struggling with the **enrollment form** | International Kits for Online Chapters | (stay here) |
+| Member wants to **purchase another induction t-shirt** ($24.99) | Induction Pricing — Replacement & Additional Items | (stay here) |
+| Member wants the **Presidential Seal sticker** for their certificate | Induction Kits Processing & Shipment → Presidential Seal | (stay here) |
+| Member wants a **graduation set** (stole, cords, medallion) | (not here) | `enrollment.md` → Enrollment Graduation Set |
+| Member wants a **shop-purchased t-shirt** or non-induction merch | (not here) | `shop.md` |
+| Phone enrollment walkthrough | (not here) | `general.md` → Phone Enrollment |
+| Refund for an induction item | (not here) | `refunds.md` |
+
+---
+
 ## Process: International Kits for Online Chapters
 
-**When this comes up:** A member does not have a US address when enrolling, or needs their induction kit shipped internationally after completing steps.
+**Tags:** international, international address, international member, international enrollment, international kit, international shipping, INTERNATIONAL placeholder, no US address, address won't accept, school address during enrollment, NSLS corporate address, Miami address, Biscayne, online chapter international, SNHU international, Walden international, Northcentral international, Danielle Roth, chapter advisor international
+
+**When this comes up:**
+- A member does not have a US address when enrolling, or needs their induction kit shipped internationally after completing steps.
+- A potential or new member is **struggling with the enrollment form** because it won't accept their international address.
+- A MEx specialist asks: *"International member trying to enroll, what should they do?"* / *"International member can't complete enrollment"* / *"Address field not working for international student"*
 
 **Key rule:** The enrollment system does not accept international addresses. Members must use a US address (school or NSLS corporate) during enrollment, then provide their real international address to their chapter advisor for kit shipment.
 
@@ -80,7 +101,12 @@ If a kit question is not covered, escalate to the MEX reviewer.
 
 ## Process: Induction Kits Processing & Shipment
 
-**When this comes up:** A member asks about their kit delivery, shipment location, what's in the kit, when to expect it, or has a challenge with delivery.
+**Tags:** induction kit, kit delivery, kit shipment, kit timeline, what's in the kit, kit contents, where is my kit, IKF, induction kit fee, $10 IKF, online chapter kit, standard chapter kit, A&E certificate delivery, Presidential Seal, presidential seal sticker, presidential certificate, 3.3 GPA seal, missing seal, seal sticker request, Kara Klimuszko seal, kit processing, 1st and 15th, kit replacement, kit before induction, chapter leader contact
+
+**When this comes up:**
+- A member asks about their kit delivery, shipment location, what's in the kit, when to expect it, or has a challenge with delivery.
+- A member asks about the **Presidential Seal sticker** for their certificate (PDF or physical) — including the case where they were sent a PDF and want the physical seal sticker added.
+- A MEx specialist asks: *"How can I get a member the Presidential Seal sticker?"* / *"Where is the member's induction kit?"* / *"What does the kit contain?"*
 
 **What is an induction kit:** A package sent to members after completing all steps of the Foundations of Leadership program and having those steps approved by chapter leadership. It includes a certificate of completion, lapel pin, car decal, and other induction items (varies by chapter). This is NOT a welcome package — it is only sent after all steps are completed and approved.
 
@@ -153,7 +179,12 @@ When a member asks where their A&E (Advanced or Executive Leadership) certificat
 
 ## Process: Induction Pricing — Replacement & Additional Items
 
-**When this comes up:** A member contacts MEX wanting a replacement or additional induction item (kit, certificate, or t-shirt) and needs to be charged.
+**Tags:** induction pricing, induction t-shirt, induction tshirt, additional t-shirt, replacement t-shirt, second t-shirt, member wants another t-shirt, member wants induction shirt, $24.99, 24.99, t-shirt cost, kit replacement cost, certificate replacement, plaque replacement, induction shirt not in shop, locked behind steps, purchase induction merch, old member induction shirt, replacement charge, IKF charge, Authorize.net induction charge, Inductions Team contact
+
+**When this comes up:**
+- A member contacts MEX wanting a replacement or additional induction item (kit, certificate, or t-shirt) and needs to be charged.
+- A member (often an inducted member from years ago) wants to **purchase another induction t-shirt** — note: the induction t-shirt is **locked behind induction steps and is NOT sold in the public NSLS Shop**. Direct charge through Authorize at **$24.99**, then submit to Inductions Team.
+- A MEx specialist asks: *"How much does an induction t-shirt cost?"* / *"Member wants to buy a new induction shirt"* / *"Replacement induction kit price"* / *"Is the induction t-shirt in the shop?"* (No.)
 
 **⚠️ Critical rules:**
 - Always confirm the member's shipping address before processing payment

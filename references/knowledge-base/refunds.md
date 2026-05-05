@@ -20,9 +20,26 @@ If a refund question does not match a known process, escalate to the MEX reviewe
 
 ---
 
+## 🔗 Cross-references — Related Topics in Other KB Files
+
+| If the question is about… | Look in this file's section… | …or this other file |
+|---|---|---|
+| 30-day refund window / exception policy | Refund Exception — MEx Policy | (stay here) |
+| ACH/RAMP refund (120+ days, original payment unavailable) | ACH Refunds | (stay here) |
+| **A&E refund: school won't accept credits** | Refund Exception — A&E Credit Exception | (stay here) |
+| **A&E refund outside policy** (changed mind, etc.) | Refund Exception — Any other A&E refund | (stay here) — requires SOS approval |
+| Member wants the **$190 A&E discount** at enrollment (not a refund) | (not here) | `enrollment.md` → A&E $190 Discount |
+| Membership cancellation save attempt | Refund Exception — Save Attempt steps | (stay here) |
+| Disabled member wants to rejoin | (not here) | `enrollment.md` → Disabled Member Wants to Rejoin |
+| Graduation item refunds (grad set, induction items) | (not here, follows separate SOP) | `induction-kits.md` / `enrollment.md` |
+
+---
+
 ## Process: Refund Exception — MEx Policy
 
-**When this comes up:** A member requests a refund — within or outside the 30-day window — or when handling escalations, save attempts, and exception decisions.
+**Tags:** refund, refund eligibility, 30-day refund, refund exception, refund outside 30 days, refund policy, save attempt, escalation, MEX leadership refund, A&E credit exception, school won't accept credits, school won't accept A&E, A&E credits don't apply, refund regardless of 30 days, A&E refund outside policy, SOS approval refund, FOL Saves Tracker, member wants to cancel, cancel membership, membership refund
+
+**When this comes up:** A member requests a refund — within or outside the 30-day window — or when handling escalations, save attempts, and exception decisions. Includes A&E credit refund scenarios.
 
 **Core policy:**
 - NSLS offers a **30-day refund window** for all new memberships
@@ -157,6 +174,8 @@ Save attempts must be documented in HubSpot (and FOL Saves Tracker when applicab
 
 ## Process: ACH Refunds
 
+**Tags:** ACH refund, RAMP refund, 120 days refund, original payment unavailable, electronic refund, bank-to-bank refund, billing department refund, ACH form, ACH approval, expired card refund
+
 **When this comes up:** A refund cannot be processed through the original payment method — either because it is no longer available, the member has been with NSLS 120+ days, or an urgent exception was approved.
 
 **Key definitions:**
@@ -259,6 +278,8 @@ Verify that one of the following applies:
 ---
 
 ## Process: A&E Reimbursement — Offer Met (HISTORICAL / EXPIRED)
+
+**Tags:** Fall 2024 enrollment test (HISTORICAL ONLY), ENROLLMENT OFFER MET (HISTORICAL ONLY), Refundable on Completion report (HISTORICAL ONLY), 4/26/2024-10/18/2024 cohort. **DO NOT surface this section in active responses — the offer's completion window has expired.** For active A&E refund questions, use the Refund Exception section above.
 
 **🛑 STATUS — DO NOT SURFACE IN ACTIVE RESPONSES:** This was a Fall 2024 enrollment test offer that has expired. The completion window (one year from purchase, capped at the 4/26/2024–10/18/2024 enrollment window) has now passed, so no new members can qualify. This section is preserved **for historical reference only** — in the rare case that an old member from that exact window resurfaces with documentation. **Do not lead with this scenario when answering A&E refund questions.** Lead with the school-won't-accept-credits exception above, or the "outside of policy → SOS approval" path.
 

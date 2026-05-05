@@ -28,7 +28,34 @@ If a general question is not covered, say so and escalate.
 
 ---
 
+## 🔗 Cross-references — Related Topics in Other KB Files
+
+`general.md` is the catch-all for **admin, operational, and policy** topics that don't fit a single member-facing category. Many cross-cutting questions touch this file plus another.
+
+| If the question is about… | Look in this file's section… | …or this other file |
+|---|---|---|
+| Member transcript request (NSC) | Transcript Request | (stay here) |
+| Data removal / GDPR / "delete my data" | Data Removal Requests from Members | (stay here) |
+| How to charge a card in Authorize.net | How/When to Charge a Card in Authorize | (stay here) |
+| Ignite (MEX support plan) | Ignite MEX Support Plan | (stay here) |
+| Unsubscribe a contact | Unsubscribe a Contact | (stay here) |
+| SNHU members / SNHU spring 2026 / SNHU grad set distinction | SNHU Partnership — Spring 2026 | also `shop.md` for SNHU grad set distinction |
+| Handbook reference (any handbook lookup) | MEX Handbook — Key Operational Facts | — |
+| Member benefits / pricing reference | External Pricing Guide | — |
+| Cash back / credit programs (Aspiration, etc.) | NSLS Cash Back and Credit Programs | — |
+| Phone enrollment | (not here) | `enrollment.md` → Phone Enrollment |
+| **International member can't enroll** | (not here) | `induction-kits.md` |
+| **Induction t-shirt purchase** | (not here) | `induction-kits.md` → Induction Pricing |
+| **Presidential Seal sticker** | (not here) | `induction-kits.md` |
+| Refund / cancellation save attempt | (not here) | `refunds.md` |
+| Letter of Recommendation (LOR) / digital badge | (not here) | `benefits.md` |
+| Scholarship inquiry | (not here) | `scholarships.md` |
+
+---
+
 ## Process: Transcript Request
+
+**Tags:** transcript, transcript request, official transcript, unofficial transcript, NSC, National Student Clearinghouse, transcript fee, transcript dashboard, transcript not eligible, completed both courses transcript
 
 **When this comes up:** A member asks how to request an official or unofficial NSLS transcript through the National Student Clearinghouse (NSC).
 
@@ -111,6 +138,8 @@ If a general question is not covered, say so and escalate.
 
 ## Process: Data Removal Requests from Members
 
+**Tags:** data removal, delete my data, GDPR, CCPA, member privacy, account deletion, remove from system, erase my information, data privacy request
+
 **When this comes up:** A member (or prospective member) requests that their personal data be removed from NSLS systems.
 
 **⚠️ Critical rules:**
@@ -170,6 +199,8 @@ If a general question is not covered, say so and escalate.
 ---
 
 ## Process: How/When to Charge a Card in Authorize
+
+**Tags:** Authorize.net, charge a card, manual charge, how to charge in Authorize, Authorize transaction, Authorize & Capture, refund in Authorize, void in Authorize, international Authorize address blank, Authorize receipt PDF
 
 **When this comes up:** A manual card charge is required for a member through Authorize.net.
 
@@ -243,6 +274,8 @@ If a general question is not covered, say so and escalate.
 
 ## Process: Ignite MEX Support Plan
 
+**Tags:** Ignite, Ignite support plan, Ignite member, Ignite questions, Ignite refund, Ignite eligibility, Ignite renewal
+
 **When this comes up:** Any member question about Ignite — what it is, how to log in, or what the Clarity Track is.
 
 **What is Ignite:** NSLS's new career readiness product. Helps members gain clarity and confidence about their career direction through a personalized, AI-powered experience. Currently includes the **Clarity Track** — a 6-step guided journey. Currently in beta; invited members are from the Online Chapter only. No additional cost — included with NSLS membership.
@@ -302,6 +335,8 @@ For any out-of-scope question: send a summary email to the member, CC Kevin, and
 
 ## Process: Unsubscribe a Contact
 
+**Tags:** unsubscribe, opt out, stop emails, remove from email list, HubSpot unsubscribe, marketing email opt-out, communication preferences
+
 **When this comes up:** A member or prospective member requests to stop receiving NSLS communications via email, chat, or phone.
 
 **Key rule:** Always opt out in **both HubSpot AND Feather** to fully stop outreach.
@@ -357,6 +392,8 @@ For any out-of-scope question: send a summary email to the member, CC Kevin, and
 ---
 
 ## Process: SNHU Partnership — Spring 2026
+
+**Tags:** SNHU, Southern New Hampshire University, SNHU partnership, SNHU Spring 2026, SNHU enrollment, SNHU cycle, SNHU financial hardship waiver, SNHU induction kit, SNHU grad set, SNHU tassel charm, SNHU cords, SNHU member, SNHU transfer
 
 **When this comes up:** Any question about SNHU members, enrollment, induction kits, transfers, graduation sets, or the SNHU chapter timeline for Spring 2026.
 
@@ -419,6 +456,8 @@ For any out-of-scope question: send a summary email to the member, CC Kevin, and
 ---
 
 ## Process: Handling Calls About Former OA Advisors
+
+**Tags:** former OA advisor, OA advisor left, advisor no longer here, online chapter advisor, former advisor referral, OA transition
 
 **When this comes up:** A member calls asking about a former Online Advisor by name, asking for their contact info, or asking about the advising transition. This also applies when a member says they emailed their advisor and never heard back.
 
@@ -500,6 +539,8 @@ If the member then asks a general advising question about FOL steps, program, or
 
 ## Process: Bot-Created Issues in HubSpot
 
+**Tags:** bot-created issue, NSLS support bot, bot ticket, post-bot follow-up, bot escalation, bot conversation handoff, HubSpot bot ticket, bot Slack flag
+
 **When this comes up:** A MEX Specialist is assigned a Bot-Created Issue ticket in HubSpot. These automated tickets are generated when a visitor interacts with the NSLS chatbot but doesn't resolve their issue. Some include identifiable member info and require full support; others may be anonymous ("Unknown Visitor") and can be closed quickly.
 
 **⚠️ Critical rules:**
@@ -558,6 +599,8 @@ If the member then asks a general advising question about FOL steps, program, or
 ---
 
 ## Reference: External Pricing Guide — Costs for Members
+
+**Tags:** member pricing, NSLS costs, A&E price, $190 A&E, $24.99 t-shirt, $10 IKF, induction kit fee, graduation set price, replacement pricing, External Pricing Guide, member-facing pricing
 
 **When this comes up:** A member asks about pricing for enrollment, courses, add-ons, shop items, or post-enrollment purchases. This is the authoritative external-facing pricing reference.
 
@@ -632,6 +675,8 @@ Available for purchase at any time after initial enrollment through the Members 
 ---
 
 ## Reference: CARE Philosophy
+
+**Tags:** CARE philosophy, Connected Attentive Responsible Enthusiastic, MEX values, MEx team values, NSLS values, member experience approach, save attempt CARE, empathetic response
 
 **When this comes up:** When a team member asks about the MEX philosophy, what CARE stands for, how to apply it, or why the team operates the way it does.
 
@@ -722,6 +767,8 @@ Because the impact lasts far beyond a phone call, email, or chat. It influences 
 
 ## Reference: MEx Team Code of Honor
 
+**Tags:** Code of Honor, MEx team principles, team conduct, team integrity, team accountability, GO THE EXTRA MILE, DEMONSTRATE GRIT, RAISE THE BAR, GREAT RESULTS BY GOOD HUMANS
+
 **When this comes up:** Questions about team expectations, accountability, or how MEX team members are expected to operate.
 
 **The Code:**
@@ -747,6 +794,8 @@ The MEx Code of Honor is a commitment to take full ownership of words, actions, 
 ---
 
 ## Reference: MEX Handbook — Key Operational Facts
+
+**Tags:** MEX handbook, MEx Specialist Handbook, handbook reference, handbook 30-day rule, handbook A&E rule, handbook policy lookup, key facts handbook
 
 **When this comes up:** Quick-reference information from the MEX Specialist Handbook not covered in dedicated SOPs. The full handbook is in the MEX Google Drive (MEX SOP Drive Folder — Updated 2025).
 
@@ -850,6 +899,8 @@ The MEx Code of Honor is a commitment to take full ownership of words, actions, 
 ---
 
 ## Reference: NSLS Cash Back and Credit Programs
+
+**Tags:** Aspiration, Aspiration Reimbursement, $75 cash back, banking partner, NSLS credit program, discontinued banking partner, member credit programs
 
 **When this comes up:** A chapter advisor, chapter leader, or member asks about the Cash Back Program or Pillars Credit Program — what they earn, how credits work, or eligibility.
 

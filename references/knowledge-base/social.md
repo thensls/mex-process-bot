@@ -25,6 +25,20 @@ nation's largest leadership honor society, only accredited leadership honor soci
 
 ---
 
+## 🔗 Cross-references — Related Topics in Other KB Files
+
+`social.md` is the entry point for **public/community-facing replies** (Instagram, Facebook, LinkedIn, etc.). Internal MEX process questions go elsewhere.
+
+| If the question is about… | …go to |
+|---|---|
+| Member sharing their digital badge on social | `benefits.md` → Digital Badge Upload |
+| Member-facing complaint that requires a CARE save attempt (private channel) | `refunds.md` → Refund Exception |
+| Replying to a member DM about a refund / shop / induction issue | The relevant KB file (refunds, shop, induction-kits) — social.md only handles the public-facing reply tone |
+
+**Tags (file-level):** social media, community management, Instagram, Facebook, LinkedIn, TikTok, Threads, X, Twitter, Google Reviews, DM, comment response, brand voice, Facebook Group moderation, public reply, community reply, NSLS community voice
+
+---
+
 ## When This Applies
 
 Use the community manager knowledge base when a MEX team member asks:

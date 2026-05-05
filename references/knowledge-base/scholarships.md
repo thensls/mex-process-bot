@@ -2,6 +2,20 @@
 
 **Source:** MEX SOP — Scholarship Inquiry Response & Student Encouragement
 
+**Tags (file-level):** scholarship, scholarship inquiry, scholarship application, scholarship eligibility, scholarship encouragement, awards pipeline, Scholars App, member wants scholarship, NSLS scholarships, scholarship deadline, scholarship requirements, scholarship for inducted members, can pre-inducted member apply, Royce scholarship, MEL scholarship
+
+---
+
+## 🔗 Cross-references — Related Topics in Other KB Files
+
+| If the question is about… | …go to |
+|---|---|
+| Letter of recommendation for a scholarship | `benefits.md` → LOR Request |
+| Member completed steps but can't see scholarship eligibility | `feather.md` → Credit for a Step |
+| Refund related to scholarship | `refunds.md` |
+
+---
+
 ## Overview
 
 All MEx Specialists handle scholarship inquiries — no need to transfer to the Awards Pipeline. Respond within 24 hours. Encourage members to apply for every scholarship they're eligible for.

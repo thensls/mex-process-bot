@@ -23,7 +23,27 @@ If a Feather question does not match a known process, say so and escalate.
 
 ---
 
+## 🔗 Cross-references — Related Topics in Other KB Files
+
+This file (`feather.md`) covers operations **inside the Feather admin platform** — the internal tool MEx specialists use. It's NOT for member-facing process questions; those usually live elsewhere.
+
+| If the question is about… | Look in this file's section… | …or this other file |
+|---|---|---|
+| Creating a Feather profile manually | Manually Creating a Feather Profile | (stay here) |
+| Chapter transfer (member moved schools) | Chapter Transfer | (stay here) |
+| Step won't show as complete (tech issue) | Credit for a Step / Tech Issues with Videos | (stay here) |
+| Member can't watch a Speaker Broadcast video | Tech Issues with Videos in Members Area | (stay here) |
+| Disabled member wants to rejoin | Disabled Member Wants to Rejoin | also in `enrollment.md` |
+| New nominations / invitation tracking | Invitations Report in Feather | (stay here) |
+| **A&E course grading** (member's A&E not graded) | (not documented anywhere yet — escalate to Team Lead or registrar) | — |
+| Member wants a tracking number for their kit | (not here) | `induction-kits.md` / `shop.md` Communication with Shop |
+| Member wants a refund | (not here) | `refunds.md` |
+
+---
+
 ## Process: Manually Creating a Feather Profile
+
+**Tags:** create Feather profile, manual Feather profile, MEX creates profile, member can't enroll Feather, technical enrollment failure Feather, Feather payment issue, Feather profile setup
 
 **When this comes up:** A member cannot self-enroll due to a technical issue or payment problem, and MEX needs to manually create their Feather profile.
 
@@ -118,6 +138,8 @@ If a Feather question does not match a known process, say so and escalate.
 
 ## Process: Chapter Transfer
 
+**Tags:** chapter transfer, transfer schools, transferred to new school, transfer SNHU, transfer Walden, transfer Northcentral, change chapter, member transferred, current chapter to new chapter, transfer completed snippet, before induction transfer, after induction transfer
+
 **When this comes up:** A member needs or requests a transfer to a different chapter — due to a school change, inactive chapter, scheduling needs, A&E certification access, or wanting their new school's name on their certificate.
 
 **Key rule:** Only transfer to a chapter that is **active AND accepting members**. Never transfer into an inactive or closed chapter.
@@ -180,6 +202,8 @@ If a Feather question does not match a known process, say so and escalate.
 
 ## Process: Credit for a Step
 
+**Tags:** credit for a step, step won't complete, Orientation not marked complete, LTD not complete, Leadership Training Day not complete, SNT not marked, speaker broadcast not credited, member completed step but portal doesn't show, manually credit step, Feather step credit
+
 **When this comes up:** A member completed a Speaker Broadcast step but it is not reflected in their progress — typically because they attended via an online chapter or viewed an archived broadcast.
 
 **Key rule:** Credit can only be given for **3 different** Speaker Broadcasts, each at least **30 minutes** long. Archived broadcasts do **not** count toward step credit.
@@ -223,6 +247,8 @@ If a Feather question does not match a known process, say so and escalate.
 ---
 
 ## Process: Tech Issues with Videos in Members Area
+
+**Tags:** video won't play, can't watch speaker broadcast, video buffering, Members Area video error, video locked, video won't load, browser video issue, video tech issue, speaker broadcast tech issue
 
 **When this comes up:** A member reports a video isn't playing as part of the Speaker Broadcast step in the Foundations of Leadership (FOL) program. This can block their progress — respond promptly and with empathy.
 
@@ -271,6 +297,8 @@ If a Feather question does not match a known process, say so and escalate.
 ---
 
 ## Process: Disabled Member Wants to Rejoin
+
+**Tags:** disabled member rejoin, reactivate disabled account, member came back after refund, void refund Feather, re-enroll disabled, new nomination code rejoin, original email blocked rejoin (cross-listed in enrollment.md)
 
 **When this comes up:** A member whose profile was disabled (due to a refund, cancellation, or other reason) wants to reactivate or rejoin NSLS.
 
@@ -334,6 +362,8 @@ If a Feather question does not match a known process, say so and escalate.
 ---
 
 ## Process: Invitations Report in Feather
+
+**Tags:** invitations report, nomination tracking, find member nomination, invitation status, nomination email not received, who nominated member, nomination history
 
 **When this comes up:** A member asks about their chapter's nomination deadline, or MEX needs to look up an invitation deadline to answer a nominee inquiry.
 

@@ -368,20 +368,47 @@ def is_question(text, api_key):
 
 
 def classify_issue(issue_text, api_key):
-    """Cheap Haiku call to classify a question into a KB category (~50 tokens output)."""
+    """Cheap Haiku call to classify a question into a KB category (~50 tokens output).
+
+    The classifier is intentionally biased toward 'other' (full KB load) for any question
+    that plausibly spans multiple topics, because picking the wrong single category causes
+    the bot to miss critical content that lives in another file.
+    """
     categories_str = ", ".join(KB_CATEGORIES + ["other"])
     system = (
         "Classify this member experience process question into exactly one category. "
-        "Categories: refunds (refund/reimbursement/ACH/charge), "
-        "feather (Feather platform, profiles, chapters, videos, steps, transfers), "
-        "shop (shop orders, returns, warranties, shipments), "
-        "benefits (digital badges, letters of recommendation, LOR), "
-        "enrollment (enrollment, graduation, member status), "
-        "induction-kits (induction kit shipment, international kits), "
-        "scholarships (scholarship applications, awards, encouragement), "
-        "general (handbook, data removal, unsubscribe, transcripts, other admin), "
-        "social (social media replies, community management, Instagram, Facebook, LinkedIn, TikTok, "
-        "Threads, X, Twitter, Google Reviews, DMs, brand voice, comment responses, Facebook Group moderation). "
+        "If the question plausibly spans 2+ categories OR you are uncertain, return 'other' "
+        "to load the full knowledge base — picking the wrong single category causes the bot "
+        "to miss critical content. Be conservative; prefer 'other' over a bad guess.\n\n"
+        "Categories:\n"
+        "- refunds: refund eligibility, reimbursement, ACH refunds, charge disputes, A&E refund "
+        "scenarios (school won't accept credits, outside-30-day exceptions). NOT for the $190 "
+        "A&E enrollment discount itself — that's 'enrollment'.\n"
+        "- feather: Feather platform (the internal admin tool) — profiles, chapter assignments, "
+        "video issues, step-completion bugs, member transfers between chapters, disabled members.\n"
+        "- shop: NSLS Shop orders, returns, warranties, shipments, shop@nsls.org communications, "
+        "Shopify comments. NOT for induction-kit or graduation-set pricing — those are "
+        "'induction-kits' and 'enrollment' respectively.\n"
+        "- benefits: digital badges, letters of recommendation (LOR), member benefits.\n"
+        "- enrollment: new member enrollment flow, phone enrollment, graduation set early shipping, "
+        "A&E $190 enrollment-window discount, A&E add-on after enrollment, enrollment deadline "
+        "extensions, major-not-listed in form, self-nomination. NOT for international-address "
+        "questions during enrollment — those are 'induction-kits' (where the International Kits "
+        "SOP lives).\n"
+        "- induction-kits: induction kit shipment + contents, international kits and "
+        "international-address handling during enrollment, induction t-shirt and replacement "
+        "pricing (e.g., $24.99 t-shirt), Presidential Seal stickers, kit address changes.\n"
+        "- scholarships: scholarship applications, awards, encouragement to apply.\n"
+        "- general: handbook references, data removal, unsubscribe, transcripts, Authorize.net "
+        "charges, Ignite support, login/temp password, SNHU specifics, other admin.\n"
+        "- social: social media replies, community management, Instagram, Facebook, LinkedIn, "
+        "TikTok, Threads, X, Twitter, Google Reviews, DMs, brand voice, comment responses, "
+        "Facebook Group moderation.\n"
+        "- other: use this whenever the question spans 2+ categories OR the topic is unclear. "
+        "Loading 'other' triggers a full-KB load, which is safer than a bad single-category "
+        "guess. Examples that should route to 'other': questions mixing enrollment + shipping, "
+        "shop + induction items, refunds + Feather, anything mentioning a member's general "
+        "complaint that touches multiple processes.\n\n"
         f"All categories: {categories_str}"
     )
     try:

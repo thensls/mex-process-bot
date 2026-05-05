@@ -19,7 +19,21 @@ If a benefits question is not covered, say so and escalate.
 
 ---
 
+## 🔗 Cross-references — Related Topics in Other KB Files
+
+| If the question is about… | Look in this file's section… | …or this other file |
+|---|---|---|
+| Digital badge / share badge on LinkedIn | Digital Badge Upload on Social Media | (stay here) |
+| Letter of Recommendation (LOR) | Letter of Recommendation (LOR) Request | (stay here) |
+| Scholarships | (not here) | `scholarships.md` |
+| Member completed steps but no badge access | (not here — likely a Feather step credit issue) | `feather.md` |
+| Replying to a member's social media post / comment | (not here) | `social.md` |
+
+---
+
 ## Process: Digital Badge Upload on Social Media
+
+**Tags:** digital badge, NSLS badge, badge LinkedIn, badge Instagram, badge Facebook, badge Twitter, share badge, post badge, Credly badge, member badge, badge upload, where is my badge, can't find my badge
 
 **When this comes up:** A member asks how to find or share their NSLS digital badge on LinkedIn, Instagram, Facebook, Twitter, or other social platforms.
 
@@ -55,6 +69,8 @@ If a benefits question is not covered, say so and escalate.
 ---
 
 ## Process: Letter of Recommendation (LOR) Request
+
+**Tags:** LOR, letter of recommendation, recommendation letter, member needs letter, NSLS recommendation, request a recommendation, scholarship recommendation, job recommendation, Nancy Castillo LOR
 
 **When this comes up:** A member requests an LOR, asks about LOR eligibility, needs help downloading one, or needs NSLS to submit an LOR directly to a third party on their behalf.
 
