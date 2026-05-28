@@ -315,7 +315,7 @@ test dependencies). Should pass on any Python 3.12 install.
 | Lookback window | 5 minutes per run (answer flow) / 14 days for thread corrections / 24 hours for channel announcements |
 | SOP-updater veto window | 30 minutes after explicit ✅ approval |
 | File ingestion (v1) | PDF only via Anthropic native document blocks |
-| Files on roadmap | Word (.docx), PowerPoint (.pptx), Excel (.xlsx), Google Sheets URLs |
+| Files on roadmap (no committed timeline) | Word (.docx), PowerPoint (.pptx), Excel (.xlsx), Google Sheets URLs |
 | GitHub repo | `thensls/mex-process-bot` |
 | Railway project | `mex-process-bot` |
 | Airtable base | MEX Process Bot (`appE3iRRmifoZKawe`) |
