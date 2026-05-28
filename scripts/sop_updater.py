@@ -455,3 +455,14 @@ def check_veto(reactions, approved_reviewers):
             if u in approved_reviewers:
                 return u
     return None
+
+
+def resolve_source_file(category):
+    """Map a question category to the repo-relative path of its KB file.
+
+    Unknown / 'other' / None all fall back to general.md.
+    """
+    from scripts.channel_monitor import KB_CATEGORIES
+    if category in KB_CATEGORIES and category != "other":
+        return f"references/knowledge-base/{category}.md"
+    return "references/knowledge-base/general.md"

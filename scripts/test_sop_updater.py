@@ -322,5 +322,28 @@ class TestReactionPolling(unittest.TestCase):
         self.assertIsNone(check_veto(reactions, {"U123"}))
 
 
+class TestResolveSourceFile(unittest.TestCase):
+    def test_known_category(self):
+        from scripts.sop_updater import resolve_source_file
+        self.assertEqual(
+            resolve_source_file("shop"),
+            "references/knowledge-base/shop.md",
+        )
+
+    def test_other_falls_back_to_general(self):
+        from scripts.sop_updater import resolve_source_file
+        self.assertEqual(
+            resolve_source_file("other"),
+            "references/knowledge-base/general.md",
+        )
+
+    def test_unknown_falls_back_to_general(self):
+        from scripts.sop_updater import resolve_source_file
+        self.assertEqual(
+            resolve_source_file(None),
+            "references/knowledge-base/general.md",
+        )
+
+
 if __name__ == "__main__":
     unittest.main()
