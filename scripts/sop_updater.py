@@ -56,3 +56,58 @@ def parse_approved_reviewers(env_value):
     if not env_value:
         return set()
     return {part.strip() for part in env_value.split(",") if part.strip()}
+
+
+class EditConflictError(Exception):
+    """Raised when the `old` block in a structured edit can't be applied uniquely."""
+
+
+def apply_structured_edit(original_content, edit):
+    """
+    Apply a structured edit to file content, returning new content.
+
+    edit is one of:
+      {"change_type": "REPLACE"|"EDIT", "old": "<exact text>", "new": "<replacement>"}
+      {"change_type": "ADD", "anchor_after": "<exact text>", "new": "<new content to insert after>"}
+      {"change_type": "ADD", "create_new_section": True, "new": "<full new section incl. heading>"}
+
+    Raises EditConflictError if `old` (or `anchor_after`) doesn't appear EXACTLY ONCE in original.
+    """
+    change_type = edit.get("change_type")
+
+    if change_type in ("REPLACE", "EDIT"):
+        old = edit["old"]
+        new = edit["new"]
+        count = original_content.count(old)
+        if count == 0:
+            raise EditConflictError(f"`old` block not found in file: {old[:80]!r}")
+        if count > 1:
+            raise EditConflictError(f"`old` block appears {count} times — ambiguous: {old[:80]!r}")
+        return original_content.replace(old, new, 1)
+
+    if change_type == "ADD":
+        if edit.get("create_new_section"):
+            new = edit["new"]
+            # Append with a leading blank line if the file doesn't already end with one
+            sep = "" if original_content.endswith("\n\n") else ("\n" if original_content.endswith("\n") else "\n\n")
+            return original_content + sep + new + ("" if new.endswith("\n") else "\n")
+        anchor = edit["anchor_after"]
+        count = original_content.count(anchor)
+        if count == 0:
+            raise EditConflictError(f"`anchor_after` not found: {anchor[:80]!r}")
+        if count > 1:
+            raise EditConflictError(f"`anchor_after` appears {count} times — ambiguous")
+        new = edit["new"]
+        # Insert directly after the anchor with a single newline separator
+        idx = original_content.index(anchor) + len(anchor)
+        prefix = original_content[:idx]
+        suffix = original_content[idx:]
+        if not prefix.endswith("\n"):
+            insertion = "\n" + new
+        else:
+            insertion = new
+        if not insertion.endswith("\n"):
+            insertion += "\n"
+        return prefix + insertion + suffix
+
+    raise ValueError(f"Unknown change_type: {change_type!r}")
