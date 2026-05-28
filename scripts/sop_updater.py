@@ -563,6 +563,12 @@ def airtable_request(*args, **kwargs):
     return _impl(*args, **kwargs)
 
 
+def classify_issue(*args, **kwargs):
+    """Lazy import from channel_monitor — used in Path B to infer category from announcement text."""
+    from scripts.channel_monitor import classify_issue as _impl
+    return _impl(*args, **kwargs)
+
+
 def slack_request(*args, **kwargs):
     from scripts.channel_monitor import slack_request as _impl
     return _impl(*args, **kwargs)
@@ -747,15 +753,50 @@ def advance_funnel(state, slack_token, anthropic_key, airtable_key, base_id,
 
 def _advance_awaiting_proposal(entry, slack_token, anthropic_key, github_token,
                                  github_repo, channel_id):
-    """Fetch source file, ask Claude for proposal, post classification prompt."""
+    """Fetch source file, ask Claude for proposal, post classification prompt.
+
+    For Path B (announcement entries), this also:
+      1. Infers the category from the announcement text via classify_issue (Haiku).
+      2. Downloads any PDF attachments and builds Anthropic document blocks.
+      3. Includes file-ingestion acknowledgment in the classification message.
+    """
+    is_announcement = entry.get("trigger_type") == "announcement"
+
+    # Path B: infer category if not set
+    if is_announcement and not entry.get("bot_category"):
+        try:
+            inferred = classify_issue(entry["reviewer_text"], anthropic_key)
+        except Exception as e:
+            logging.warning(
+                "Category classification failed for announcement %s — defaulting to general: %s",
+                entry["thread_ts"], e,
+            )
+            inferred = None
+        entry["bot_category"] = inferred or "general"
+
     source_file = resolve_source_file(entry.get("bot_category"))
     content, sha = github_get_file(github_repo, source_file, github_token)
+
+    # Path B: build PDF document blocks from attached files (if any)
+    pdf_blocks = None
+    file_info = None
+    if is_announcement and entry.get("attached_files"):
+        blocks, ingested, skipped = build_pdf_content_blocks(
+            entry["attached_files"], slack_token,
+        )
+        if blocks:
+            pdf_blocks = blocks
+        # Always show file_info when there are attachments (positive OR negative ack)
+        if ingested or skipped:
+            file_info = {"ingested": ingested, "skipped": skipped}
+
     proposal = propose_change_type(
         question=entry["original_question"],
         bot_answer=entry["bot_answer"],
         reviewer_correction=entry["reviewer_text"],
         source_file_content=content,
         api_key=anthropic_key,
+        pdf_blocks=pdf_blocks,
     )
     reviewer_name = slack_get_user_info(slack_token, entry["reviewer_user_id"])
     first_name = reviewer_name.split()[0] if reviewer_name else "there"
@@ -766,6 +807,7 @@ def _advance_awaiting_proposal(entry, slack_token, anthropic_key, github_token,
         source_file=source_file,
         section_summary=proposal["section_summary"],
         current_excerpt=proposal["current_excerpt"],
+        file_info=file_info,
     )
     confirm_ts = slack_post_message(
         slack_token, channel_id, prompt_text, thread_ts=entry["thread_ts"],
@@ -778,6 +820,8 @@ def _advance_awaiting_proposal(entry, slack_token, anthropic_key, github_token,
     entry["proposal"] = proposal
     entry["reviewer_name"] = reviewer_name
     entry["confirm_msg_ts"] = confirm_ts
+    entry["pdf_blocks"] = pdf_blocks or []  # persist for use in generate_structured_edit later
+    entry["file_info"] = file_info  # persist for downstream display if needed
     entry["status"] = "awaiting_confirm"
 
 
@@ -823,6 +867,7 @@ def _advance_awaiting_confirm(entry, slack_token, anthropic_key, github_token,
         bot_answer=entry["bot_answer"],
         reviewer_correction=entry["reviewer_text"],
         api_key=anthropic_key,
+        pdf_blocks=entry.get("pdf_blocks") or None,
     )
 
     # Compute the new content to validate the edit applies cleanly NOW.

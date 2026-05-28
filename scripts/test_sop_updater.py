@@ -971,5 +971,127 @@ class TestScanForAnnouncements(unittest.TestCase):
         self.assertEqual(len(state["sop_updates"]), 1)
 
 
+class TestAdvanceProposalForAnnouncement(unittest.TestCase):
+    @patch("scripts.sop_updater.build_pdf_content_blocks")
+    @patch("scripts.sop_updater.github_get_file")
+    @patch("scripts.sop_updater.propose_change_type")
+    @patch("scripts.sop_updater.slack_post_message")
+    @patch("scripts.sop_updater.slack_get_user_info")
+    @patch("scripts.sop_updater.classify_issue")
+    def test_announcement_infers_category_and_passes_pdfs(
+        self, mock_classify_issue, mock_userinfo, mock_post, mock_propose,
+        mock_get_file, mock_build_pdfs,
+    ):
+        # Setup
+        mock_classify_issue.return_value = "refunds"
+        mock_userinfo.return_value = "Kara Lopez"
+        mock_get_file.return_value = ("## Refunds\n\nold policy\n", "sha_xyz")
+        mock_propose.return_value = {
+            "change_type": "REPLACE",
+            "section_summary": "Refunds policy",
+            "current_excerpt": "old policy",
+            "rationale": "policy changed",
+        }
+        mock_post.return_value = "confirm.msg.ts"
+        # PDF block + skipped non-PDF
+        pdf_block = {"type": "document", "source": {"type": "base64", "media_type": "application/pdf", "data": "QkE="}}
+        mock_build_pdfs.return_value = (
+            [pdf_block],
+            ["handbook.pdf"],
+            [{"name": "data.xlsx", "reason": "format not supported yet"}],
+        )
+
+        from scripts.sop_updater import advance_funnel
+        state = {
+            "sop_updates": [{
+                "thread_ts": "100.0", "reply_ts": "100.0",
+                "reviewer_user_id": "U_KARA",
+                "reviewer_text": "<@BOT> refunds are now illegal",
+                "trigger_type": "announcement",
+                "original_question": "",
+                "bot_answer": "",
+                "bot_category": "",  # not classified yet
+                "attached_files": [
+                    {"name": "handbook.pdf", "mimetype": "application/pdf",
+                     "url_private": "https://x", "size": 1000, "id": "F1"},
+                    {"name": "data.xlsx", "mimetype": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                     "url_private": "https://y", "size": 2000, "id": "F2"},
+                ],
+                "status": "awaiting_proposal",
+                "created_at": datetime.now().isoformat(),
+            }],
+            "processed_corrections": [],
+        }
+        advance_funnel(
+            state=state, slack_token="T", anthropic_key="K", airtable_key=None,
+            base_id=None, github_token="G", github_repo="r/r", channel_id="C0",
+            approved_reviewers={"U_KARA"},
+        )
+
+        entry = state["sop_updates"][0]
+        # bot_category was inferred and stored
+        self.assertEqual(entry["bot_category"], "refunds")
+        # build_pdf_content_blocks was called with attached_files
+        mock_build_pdfs.assert_called_once()
+        # propose_change_type was called with pdf_blocks kwarg
+        propose_kwargs = mock_propose.call_args.kwargs
+        self.assertIn("pdf_blocks", propose_kwargs)
+        self.assertEqual(propose_kwargs["pdf_blocks"], [pdf_block])
+        # The classification prompt posted should mention the ingested PDF
+        post_args = mock_post.call_args.args
+        # slack_post_message(token, channel, text, thread_ts=...)
+        posted_text = post_args[2]
+        self.assertIn("handbook.pdf", posted_text)
+        self.assertIn("data.xlsx", posted_text)
+        # State transitioned
+        self.assertEqual(entry["status"], "awaiting_confirm")
+        self.assertEqual(entry["confirm_msg_ts"], "confirm.msg.ts")
+        self.assertEqual(entry["source_file"], "references/knowledge-base/refunds.md")
+
+
+class TestAdvanceProposalForCorrectionBackwardCompat(unittest.TestCase):
+    """The Path A (thread correction) flow must keep working unchanged."""
+
+    @patch("scripts.sop_updater.github_get_file")
+    @patch("scripts.sop_updater.propose_change_type")
+    @patch("scripts.sop_updater.slack_post_message")
+    @patch("scripts.sop_updater.slack_get_user_info")
+    def test_path_a_no_files_no_category_inference(
+        self, mock_userinfo, mock_post, mock_propose, mock_get_file,
+    ):
+        mock_userinfo.return_value = "Kara"
+        mock_get_file.return_value = ("content", "sha")
+        mock_propose.return_value = {
+            "change_type": "REPLACE",
+            "section_summary": "x",
+            "current_excerpt": "y",
+            "rationale": "z",
+        }
+        mock_post.return_value = "msg.ts"
+
+        from scripts.sop_updater import advance_funnel
+        state = {
+            "sop_updates": [{
+                "thread_ts": "1.0", "reply_ts": "2.0",
+                "reviewer_user_id": "U", "reviewer_text": "fix this",
+                "original_question": "Q", "bot_answer": "A",
+                "bot_category": "shop",  # already set for Path A
+                "status": "awaiting_proposal",
+                "created_at": datetime.now().isoformat(),
+                # No trigger_type, no attached_files — defaults must work
+            }],
+            "processed_corrections": [],
+        }
+        advance_funnel(
+            state, "T", "K", None, None, "G", "r/r", "C0", {"U"},
+        )
+        # propose_change_type should be called without pdf_blocks (or with empty list)
+        propose_kwargs = mock_propose.call_args.kwargs
+        pdf_blocks = propose_kwargs.get("pdf_blocks")
+        self.assertFalse(pdf_blocks)  # None or empty list — both acceptable
+        # State transitions correctly
+        self.assertEqual(state["sop_updates"][0]["status"], "awaiting_confirm")
+
+
 if __name__ == "__main__":
     unittest.main()
