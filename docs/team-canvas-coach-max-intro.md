@@ -123,10 +123,10 @@ Coach Max will often *tell you* who to escalate to — but use your judgment.
 ## ❓ Quick FAQ
 
 **Do I have to tag Coach Max for it to see my message?**
-No. Just post in the channel. Coach Max sees every new top-level message and decides whether to answer.
+Not required — just posting in the channel usually works. But if you want to make absolutely sure Coach Max picks it up, **@-mention it in your message** and it'll always respond.
 
-**What if my message looks like a question but isn't?**
-Coach Max uses a filter to skip greetings, banter, status updates, etc. — so it won't answer everything that ends with a question mark. If it doesn't respond and you wanted an answer, just rephrase to be clearer.
+**What if Coach Max doesn't reply to my message?**
+Sometimes Coach Max skips messages that look more like a comment or status update than a question. No big deal — just **@-mention Coach Max** and re-post (or reply in the same thread). That guarantees it'll see it and answer.
 
 **Can I use Coach Max for non-MEX questions?**
 It's tuned for MEX process. For other domains, you'll get *"I don't have this in my SOP."*
@@ -138,7 +138,7 @@ Yes — every answer cites the source. Look for something like *"Per our Refund 
 It uses the SOPs we have in the knowledge base, but those SOPs can sometimes be out of date or incomplete. **That's what the ✅/❌ reactions are for** — your feedback helps us spot gaps. If something feels wrong, flag it.
 
 **Who built it / who maintains it?**
-Built and maintained by Alex Villalobos. Angelica monitors the backend.
+Built by Alex Villalobos together with the MEX team. Going forward, **the team maintains it directly** — the MEX leads can update Coach Max's playbooks straight from Slack using the *"Coach Max KB update workflow"* canvas. No engineering ticket required.
 
 ---
 
