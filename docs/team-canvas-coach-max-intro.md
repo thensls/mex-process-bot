@@ -138,7 +138,7 @@ Yes — every answer cites the source. Look for something like *"Per our Refund 
 It uses the SOPs we have in the knowledge base, but those SOPs can sometimes be out of date or incomplete. **That's what the ✅/❌ reactions are for** — your feedback helps us spot gaps. If something feels wrong, flag it.
 
 **Who built it / who maintains it?**
-Built by Alex Villalobos together with the MEX team. Going forward, **the team maintains it directly** — the MEX leads can update Coach Max's playbooks straight from Slack using the *"Coach Max KB update workflow"* canvas. No engineering ticket required.
+Built by Angelica Villalobos with the MEX team. Going forward, **the team maintains it directly** — the MEX leads can update Coach Max's playbooks straight from Slack using the *"Coach Max KB update workflow"* canvas. No engineering ticket required.
 
 ---
 

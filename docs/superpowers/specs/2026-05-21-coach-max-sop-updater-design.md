@@ -426,7 +426,7 @@ Look up each Slack member ID before deploy: Slack → click profile → More →
 - Automatic `doc_versioner.py` snapshots before every commit
 - Easy manual rollback via `doc_versioner.py restore <snapshot>`
 - Airtable `SOP Updates` table = full audit trail
-- Owner (Alex Villalobos) actively monitors the first ~10 real corrections via the `SOP Updates` table + thread notifications.
+- Owner (Angelica Villalobos) actively monitors the first ~10 real corrections via the `SOP Updates` table + thread notifications.
 
 **Kill switch:** if anything goes wrong, set `MEX_BOT_SOP_UPDATER_ENABLED=false` in Railway env. Next cron tick (≤5 min) the new pass is disabled while existing answering behavior continues untouched.
 
