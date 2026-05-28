@@ -442,8 +442,14 @@ def generate_structured_edit(change_type, source_file_content, style_guide,
 # ---------------------------------------------------------------------------
 
 def format_classification_prompt(reviewer_first_name, proposed_type, source_file,
-                                  section_summary, current_excerpt):
-    """Build the Slack thread reply that asks the reviewer to confirm change type."""
+                                  section_summary, current_excerpt, file_info=None):
+    """Build the Slack thread reply that asks the reviewer to confirm change type.
+
+    `file_info` (optional, used for Path B channel-announcement flow) is a dict:
+        {"ingested": [<filename>, ...], "skipped": [{"name": <str>, "reason": <str>}, ...]}
+    When provided, the prompt includes acknowledgment of which attachments were
+    ingested by Claude and which were skipped (with the reason).
+    """
     type_label = {"ADD": "ENHANCE", "REPLACE": "REPLACE", "EDIT": "REVISE"}[proposed_type]
     short_file = source_file.split("/")[-1]
 
@@ -453,9 +459,26 @@ def format_classification_prompt(reviewer_first_name, proposed_type, source_file
     )
     if current_excerpt:
         body += f"\n_Current:_ {current_excerpt}\n"
+
+    # File ack block (only for Path B announcements with attachments)
+    if file_info:
+        ingested = file_info.get("ingested", [])
+        skipped = file_info.get("skipped", [])
+        if ingested or skipped:
+            body += "\n*File attachments:*\n"
+            if ingested:
+                names = ", ".join(f"`{n}`" for n in ingested)
+                body += f"• ✅ Reading: {names}\n"
+            for s in skipped:
+                # Each skipped item: {"name": ..., "reason": ...}
+                body += f"• ⚠️ Skipped `{s['name']}` — {s['reason']}. "
+                body += "Please paste the relevant text in your message OR re-upload as PDF.\n"
+
     body += (
         f"\nReact with one:\n"
-        f"➕ enhance  ·  🔁 replace  ·  ✏️ revise  ·  🚫 not an update"
+        f"➕ enhance  ·  🔁 replace  ·  ✏️ revise  ·  🚫 not an update\n"
+        f"\n_Wrong file? React 🚫 and re-post your announcement with the right category in "
+        f"the text (e.g., 'KB update SHOP: ...')._"
     )
     return body
 

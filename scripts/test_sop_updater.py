@@ -772,5 +772,71 @@ class TestGenerateStructuredEditWithFiles(unittest.TestCase):
         self.assertEqual(len(doc_blocks), 1)
 
 
+class TestClassificationPromptFileAck(unittest.TestCase):
+    def test_no_file_info_unchanged_from_existing_behavior(self):
+        """Without file_info, output should be unchanged from before — backward compat."""
+        from scripts.sop_updater import format_classification_prompt
+        msg = format_classification_prompt(
+            reviewer_first_name="Kara",
+            proposed_type="REPLACE",
+            source_file="references/knowledge-base/shop.md",
+            section_summary="Return Labels",
+            current_excerpt="Issue label via Form A.",
+        )
+        self.assertIn("Kara", msg)
+        self.assertIn("REPLACE", msg)
+        self.assertNotIn("attached", msg.lower())  # no file ack when no files
+
+    def test_ingested_pdf_is_acknowledged(self):
+        from scripts.sop_updater import format_classification_prompt
+        msg = format_classification_prompt(
+            reviewer_first_name="Kara",
+            proposed_type="REPLACE",
+            source_file="references/knowledge-base/shop.md",
+            section_summary="Return Labels",
+            current_excerpt="Issue label via Form A.",
+            file_info={"ingested": ["handbook-v2.pdf"], "skipped": []},
+        )
+        self.assertIn("handbook-v2.pdf", msg)
+        # Should say something positive about reading it
+        msg_lower = msg.lower()
+        self.assertTrue("reading" in msg_lower or "using" in msg_lower or "ingested" in msg_lower)
+
+    def test_skipped_non_pdf_shows_format_message_and_roadmap(self):
+        from scripts.sop_updater import format_classification_prompt
+        msg = format_classification_prompt(
+            reviewer_first_name="Kara",
+            proposed_type="REPLACE",
+            source_file="references/knowledge-base/shop.md",
+            section_summary="Return Labels",
+            current_excerpt="Issue label via Form A.",
+            file_info={
+                "ingested": [],
+                "skipped": [
+                    {"name": "policy.docx", "reason": "format not supported yet (PDF-only; Word/PPT/Excel/Sheets coming soon)"},
+                ],
+            },
+        )
+        self.assertIn("policy.docx", msg)
+        # The message must mention PDF as the workaround
+        msg_lower = msg.lower()
+        self.assertIn("pdf", msg_lower)
+
+    def test_override_hint_included(self):
+        """Bot should mention how to override the file selection (react 🚫 + re-post with category)."""
+        from scripts.sop_updater import format_classification_prompt
+        msg = format_classification_prompt(
+            reviewer_first_name="Kara",
+            proposed_type="REPLACE",
+            source_file="references/knowledge-base/shop.md",
+            section_summary="Return Labels",
+            current_excerpt="Issue label via Form A.",
+        )
+        # Override hint should be in every classification prompt
+        self.assertIn("🚫", msg)
+        msg_lower = msg.lower()
+        self.assertTrue("wrong file" in msg_lower or "re-post" in msg_lower or "category" in msg_lower)
+
+
 if __name__ == "__main__":
     unittest.main()
