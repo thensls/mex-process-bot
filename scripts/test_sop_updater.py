@@ -571,5 +571,41 @@ class TestClassifyAnnouncement(unittest.TestCase):
         self.assertEqual(result, "question")
 
 
+class TestSlackDownloadFile(unittest.TestCase):
+    @patch("scripts.sop_updater.urllib.request.urlopen")
+    def test_downloads_file_bytes(self, mock_urlopen):
+        # Build a mock response that returns raw bytes
+        body = b"%PDF-1.4 fake pdf content"
+        resp = MagicMock()
+        resp.read.return_value = body
+        resp.__enter__.return_value = resp
+        resp.__exit__.return_value = None
+        mock_urlopen.return_value = resp
+
+        from scripts.sop_updater import slack_download_file
+        content = slack_download_file(
+            "https://files.slack.com/files-pri/T0/F0/handbook.pdf",
+            "xoxb-test-token",
+        )
+        self.assertEqual(content, body)
+
+        # Verify the request used the right header (Authorization: Bearer ...)
+        request_arg = mock_urlopen.call_args[0][0]
+        self.assertEqual(
+            request_arg.get_header("Authorization"),
+            "Bearer xoxb-test-token",
+        )
+
+    @patch("scripts.sop_updater.urllib.request.urlopen")
+    def test_raises_on_http_error(self, mock_urlopen):
+        import urllib.error
+        mock_urlopen.side_effect = urllib.error.HTTPError(
+            "http://x", 403, "Forbidden", {}, None,
+        )
+        from scripts.sop_updater import slack_download_file
+        with self.assertRaises(RuntimeError):
+            slack_download_file("http://x", "TOKEN")
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -989,3 +989,28 @@ def run_sop_updater(state, slack_token, anthropic_key, airtable_key, base_id,
         github_token, github_repo, channel_id, approved_reviewers,
     )
     prune_finished_entries(state)
+
+
+def slack_download_file(url_private, slack_token, timeout=30):
+    """Download a file from a Slack url_private using the bot's token.
+
+    Returns raw bytes. Raises RuntimeError on HTTP failure.
+    Slack files require an Authorization: Bearer header even for the url_private endpoint.
+    """
+    headers = {
+        "Authorization": f"Bearer {slack_token}",
+        "User-Agent": "coach-max-bot",
+    }
+    req = urllib.request.Request(url_private, headers=headers, method="GET")
+    try:
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
+            return resp.read()
+    except urllib.error.HTTPError as e:
+        body = ""
+        try:
+            body = e.read().decode("utf-8", errors="replace")[:200]
+        except Exception:
+            pass
+        raise RuntimeError(f"Slack file download {url_private[:80]} → HTTP {e.code}: {body}")
+    except urllib.error.URLError as e:
+        raise RuntimeError(f"Slack file download connection error: {e.reason}")
