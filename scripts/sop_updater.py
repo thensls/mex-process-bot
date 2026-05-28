@@ -36,7 +36,8 @@ EMOJI_ENHANCE = "heavy_plus_sign"      # ➕  → ADD
 EMOJI_REPLACE = "repeat"               # 🔁  → REPLACE
 EMOJI_REVISE = "pencil2"               # ✏️  → EDIT
 EMOJI_NOT_AN_UPDATE = "no_entry_sign"  # 🚫
-EMOJI_VETO = "octagonal_sign"          # 🛑
+EMOJI_APPROVE = "white_check_mark"     # ✅  → approve a proposed diff
+EMOJI_VETO = "octagonal_sign"          # 🛑  → veto during the post-approval window
 
 EMOJI_TO_TYPE = {
     EMOJI_ENHANCE: "ADD",
@@ -485,11 +486,17 @@ def format_classification_prompt(reviewer_first_name, proposed_type, source_file
 
 
 def format_diff_post(source_file, diff, window_minutes):
-    """Build the Slack thread reply showing the proposed diff with veto countdown."""
+    """Build the Slack thread reply showing the proposed diff.
+
+    Requires explicit ✅ approval from an approved reviewer before the veto window
+    starts. Reviewer can also react 🚫 to cancel without committing.
+    """
     return (
         f"Proposed update to `{source_file}`:\n\n"
         f"{diff}\n\n"
-        f"Auto-commits in *{window_minutes} min* unless anyone reacts 🛑."
+        f"React *✅* to approve (starts a {window_minutes} min veto window — team can react 🛑 to block).\n"
+        f"React *🚫* to cancel without committing.\n"
+        f"_Nothing commits until an approved lead reacts ✅._"
     )
 
 
@@ -539,6 +546,19 @@ def check_veto(reactions, approved_reviewers):
     """Return the Slack user ID of the first approved reviewer who reacted 🛑, or None."""
     for r in reactions:
         if r.get("name") != EMOJI_VETO:
+            continue
+        for u in r.get("users", []):
+            if u in approved_reviewers:
+                return u
+    return None
+
+
+def check_diff_approval(reactions, approved_reviewers):
+    """Return the Slack user ID of the first approved reviewer who reacted ✅
+    on the diff message, or None.
+    """
+    for r in reactions:
+        if r.get("name") != EMOJI_APPROVE:
             continue
         for u in r.get("users", []):
             if u in approved_reviewers:
@@ -738,6 +758,11 @@ def advance_funnel(state, slack_token, anthropic_key, airtable_key, base_id,
                     entry, slack_token, anthropic_key, github_token, github_repo, channel_id,
                     approved_reviewers, airtable_key, base_id,
                 )
+            elif status == "awaiting_approval":
+                _advance_awaiting_approval(
+                    entry, slack_token, channel_id, approved_reviewers,
+                    airtable_key, base_id,
+                )
             elif status == "awaiting_window":
                 _advance_awaiting_window(
                     entry, slack_token, github_token, github_repo, channel_id,
@@ -905,10 +930,72 @@ def _advance_awaiting_confirm(entry, slack_token, anthropic_key, github_token,
     entry["new_content"] = new_content
     entry["diff_render"] = diff_render
     entry["diff_msg_ts"] = diff_msg_ts
-    entry["window_expires_at"] = (
-        datetime.now(timezone.utc) + timedelta(minutes=QUIET_WINDOW_MINUTES)
-    ).isoformat()
-    entry["status"] = "awaiting_window"
+    # NOTE: window_expires_at is NOT set yet — it starts only after ✅ approval.
+    entry["status"] = "awaiting_approval"
+
+
+def _advance_awaiting_approval(entry, slack_token, channel_id, approved_reviewers,
+                                 airtable_key, base_id):
+    """Diff is posted. Wait for ✅ from an approved reviewer to start the veto window.
+
+    Also accept 🚫 from an approved reviewer as an explicit cancel.
+    """
+    try:
+        result = slack_request(
+            "reactions.get",
+            {"channel": channel_id, "timestamp": entry["diff_msg_ts"], "full": "true"},
+            slack_token,
+        )
+        reactions = result.get("message", {}).get("reactions", [])
+    except Exception as e:
+        logging.warning(
+            "Could not fetch approval reactions for %s: %s",
+            entry["thread_ts"], e,
+        )
+        return
+
+    # Stale check (same 48h as awaiting_confirm)
+    created = datetime.fromisoformat(entry["created_at"])
+    age = datetime.now() - created
+
+    # Cancel via 🚫 from approved user?
+    for r in reactions:
+        if r.get("name") != EMOJI_NOT_AN_UPDATE:
+            continue
+        for u in r.get("users", []):
+            if u in approved_reviewers:
+                slack_post_message(
+                    slack_token, channel_id, format_not_an_update(),
+                    thread_ts=entry["thread_ts"],
+                )
+                entry["status"] = "not_an_update"
+                entry["cancelled_by"] = u
+                log_sop_update(
+                    airtable_key, base_id,
+                    _airtable_payload(entry, channel_id, entry.get("diff_render", "")),
+                )
+                return
+
+    # Approval via ✅?
+    approver = check_diff_approval(reactions, approved_reviewers)
+    if approver:
+        entry["approved_by"] = approver
+        entry["window_expires_at"] = (
+            datetime.now(timezone.utc) + timedelta(minutes=QUIET_WINDOW_MINUTES)
+        ).isoformat()
+        entry["status"] = "awaiting_window"
+        return
+
+    # Neither approval nor cancel — stale check
+    if age > timedelta(hours=STALE_CLOSE_HOURS):
+        entry["status"] = "stale"
+        log_sop_update(
+            airtable_key, base_id,
+            _airtable_payload(entry, channel_id, entry.get("diff_render", "")),
+        )
+        return
+
+    # else: keep waiting
 
 
 def _advance_awaiting_window(entry, slack_token, github_token, github_repo, channel_id,

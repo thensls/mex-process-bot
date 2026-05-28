@@ -1164,5 +1164,180 @@ class TestShouldRouteToSopUpdater(unittest.TestCase):
         ))
 
 
+class TestAwaitingApproval(unittest.TestCase):
+    """The new state: diff is posted, waiting for ✅ from an approved lead."""
+
+    @patch("scripts.sop_updater.slack_get_user_info")
+    @patch("scripts.sop_updater.slack_post_message")
+    @patch("scripts.sop_updater.slack_request")
+    def test_approval_reaction_transitions_to_awaiting_window(
+        self, mock_slack_req, mock_post, mock_userinfo,
+    ):
+        # ✅ from approved reviewer on the diff message
+        mock_slack_req.return_value = {
+            "message": {"reactions": [
+                {"name": "white_check_mark", "users": ["U_KARA"]},
+            ]}
+        }
+
+        from scripts.sop_updater import advance_funnel
+        state = {
+            "sop_updates": [{
+                "thread_ts": "1.0",
+                "reviewer_user_id": "U_KARA",
+                "reviewer_name": "Kara",
+                "confirmed_type": "REPLACE",
+                "source_file": "references/knowledge-base/shop.md",
+                "source_file_sha": "sha",
+                "source_file_content": "old",
+                "new_content": "new",
+                "diff_msg_ts": "diff.ts",
+                "diff_render": "```diff\n- a\n+ b\n```",
+                "status": "awaiting_approval",
+                "created_at": datetime.now().isoformat(),
+                "edit": {"change_type": "REPLACE", "old": "old", "new": "new"},
+            }],
+        }
+        advance_funnel(
+            state=state, slack_token="T", anthropic_key="K", airtable_key=None,
+            base_id=None, github_token="G", github_repo="r/r", channel_id="C0",
+            approved_reviewers={"U_KARA"},
+        )
+        entry = state["sop_updates"][0]
+        self.assertEqual(entry["status"], "awaiting_window")
+        self.assertIn("window_expires_at", entry)
+        self.assertEqual(entry.get("approved_by"), "U_KARA")
+
+    @patch("scripts.sop_updater.slack_get_user_info")
+    @patch("scripts.sop_updater.slack_post_message")
+    @patch("scripts.sop_updater.slack_request")
+    def test_cancel_reaction_marks_not_an_update(
+        self, mock_slack_req, mock_post, mock_userinfo,
+    ):
+        # 🚫 from approved reviewer on the diff
+        mock_slack_req.return_value = {
+            "message": {"reactions": [
+                {"name": "no_entry_sign", "users": ["U_KARA"]},
+            ]}
+        }
+        from scripts.sop_updater import advance_funnel
+        state = {
+            "sop_updates": [{
+                "thread_ts": "1.0",
+                "reviewer_user_id": "U_KARA",
+                "confirmed_type": "REPLACE",
+                "source_file": "x.md",
+                "source_file_sha": "sha",
+                "new_content": "new",
+                "diff_msg_ts": "diff.ts",
+                "diff_render": "diff",
+                "status": "awaiting_approval",
+                "created_at": datetime.now().isoformat(),
+            }],
+        }
+        advance_funnel(
+            state, "T", "K", None, None, "G", "r/r", "C0", {"U_KARA"},
+        )
+        self.assertEqual(state["sop_updates"][0]["status"], "not_an_update")
+
+    @patch("scripts.sop_updater.slack_get_user_info")
+    @patch("scripts.sop_updater.slack_post_message")
+    @patch("scripts.sop_updater.slack_request")
+    def test_no_reaction_stays_in_awaiting_approval(
+        self, mock_slack_req, mock_post, mock_userinfo,
+    ):
+        # No relevant reactions — just an unrelated emoji
+        mock_slack_req.return_value = {
+            "message": {"reactions": [
+                {"name": "thumbsup", "users": ["U_KARA"]},
+            ]}
+        }
+        from scripts.sop_updater import advance_funnel
+        state = {
+            "sop_updates": [{
+                "thread_ts": "1.0",
+                "reviewer_user_id": "U_KARA",
+                "confirmed_type": "REPLACE",
+                "source_file": "x.md",
+                "source_file_sha": "sha",
+                "new_content": "new",
+                "diff_msg_ts": "diff.ts",
+                "diff_render": "diff",
+                "status": "awaiting_approval",
+                "created_at": datetime.now().isoformat(),
+            }],
+        }
+        advance_funnel(
+            state, "T", "K", None, None, "G", "r/r", "C0", {"U_KARA"},
+        )
+        self.assertEqual(state["sop_updates"][0]["status"], "awaiting_approval")
+
+    @patch("scripts.sop_updater.slack_get_user_info")
+    @patch("scripts.sop_updater.slack_post_message")
+    @patch("scripts.sop_updater.slack_request")
+    def test_approval_from_non_approved_user_ignored(
+        self, mock_slack_req, mock_post, mock_userinfo,
+    ):
+        # ✅ from someone NOT on the approved list
+        mock_slack_req.return_value = {
+            "message": {"reactions": [
+                {"name": "white_check_mark", "users": ["U_RANDOM"]},
+            ]}
+        }
+        from scripts.sop_updater import advance_funnel
+        state = {
+            "sop_updates": [{
+                "thread_ts": "1.0",
+                "reviewer_user_id": "U_KARA",
+                "confirmed_type": "REPLACE",
+                "source_file": "x.md",
+                "source_file_sha": "sha",
+                "new_content": "new",
+                "diff_msg_ts": "diff.ts",
+                "diff_render": "diff",
+                "status": "awaiting_approval",
+                "created_at": datetime.now().isoformat(),
+            }],
+        }
+        advance_funnel(
+            state, "T", "K", None, None, "G", "r/r", "C0", {"U_KARA"},
+        )
+        # Should stay in awaiting_approval
+        self.assertEqual(state["sop_updates"][0]["status"], "awaiting_approval")
+
+
+class TestDiffPostNewWording(unittest.TestCase):
+    """The diff post should now ask for an explicit ✅ approval reaction."""
+
+    def test_diff_post_mentions_approval_emoji(self):
+        from scripts.sop_updater import format_diff_post
+        msg = format_diff_post(
+            source_file="x.md", diff="```diff\n+ y\n```", window_minutes=30,
+        )
+        # Should mention the approval reaction
+        self.assertIn("✅", msg)
+        # Should still mention veto
+        self.assertIn("🛑", msg)
+        # Should still mention 30 min
+        self.assertIn("30 min", msg)
+
+
+class TestCheckDiffApproval(unittest.TestCase):
+    def test_returns_approver_id(self):
+        from scripts.sop_updater import check_diff_approval
+        reactions = [{"name": "white_check_mark", "users": ["U_KARA"]}]
+        self.assertEqual(check_diff_approval(reactions, {"U_KARA"}), "U_KARA")
+
+    def test_ignores_non_approved_user(self):
+        from scripts.sop_updater import check_diff_approval
+        reactions = [{"name": "white_check_mark", "users": ["U_RANDOM"]}]
+        self.assertIsNone(check_diff_approval(reactions, {"U_KARA"}))
+
+    def test_ignores_other_emojis(self):
+        from scripts.sop_updater import check_diff_approval
+        reactions = [{"name": "thumbsup", "users": ["U_KARA"]}]
+        self.assertIsNone(check_diff_approval(reactions, {"U_KARA"}))
+
+
 if __name__ == "__main__":
     unittest.main()
