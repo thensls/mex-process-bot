@@ -294,12 +294,16 @@ def classify_announcement(message_text, api_key):
     return json.loads(result)["class"]
 
 
-def propose_change_type(question, bot_answer, reviewer_correction, source_file_content, api_key):
+def propose_change_type(question, bot_answer, reviewer_correction, source_file_content,
+                          api_key, pdf_blocks=None):
     """Have Claude propose how to classify the change.
 
     Returns dict with change_type, section_summary (heading or 'NEW SECTION'),
     current_excerpt (the existing line/block to be touched, or empty if ADD-new-section),
     rationale (1-sentence why).
+
+    If `pdf_blocks` is provided (list of Anthropic document content blocks), they are
+    sent alongside the text prompt so Claude can read PDF contents.
     """
     from scripts.channel_monitor import CLAUDE_MODEL
 
@@ -318,14 +322,20 @@ def propose_change_type(question, bot_answer, reviewer_correction, source_file_c
         "current_excerpt=''."
     )
 
-    user_msg = (
+    text_prompt = (
         f"ORIGINAL QUESTION:\n{question}\n\n"
         f"COACH MAX'S ANSWER:\n{bot_answer}\n\n"
         f"REVIEWER'S CORRECTION:\n{reviewer_correction}\n\n"
         f"CURRENT KB FILE CONTENT:\n{source_file_content}"
     )
+
+    if pdf_blocks:
+        user_message = [{"type": "text", "text": text_prompt}] + list(pdf_blocks)
+    else:
+        user_message = text_prompt
+
     result = claude_request(
-        CLAUDE_MODEL, system, user_msg, api_key,
+        CLAUDE_MODEL, system, user_message, api_key,
         max_tokens=600, json_schema=PROPOSAL_SCHEMA,
     )
     return json.loads(result)
@@ -350,13 +360,16 @@ EDIT_SCHEMA = {
 
 
 def generate_structured_edit(change_type, source_file_content, style_guide,
-                              question, bot_answer, reviewer_correction, api_key):
+                              question, bot_answer, reviewer_correction, api_key,
+                              pdf_blocks=None):
     """Generate the actual structured edit Claude will apply.
 
     Returns dict suitable for apply_structured_edit():
       REPLACE/EDIT → {change_type, old, new}
       ADD (existing section) → {change_type:"ADD", anchor_after, new}
       ADD (new section) → {change_type:"ADD", create_new_section: true, new}
+
+    If `pdf_blocks` is provided, they are sent alongside the text prompt.
     """
     from scripts.channel_monitor import CLAUDE_MODEL
 
@@ -405,14 +418,20 @@ def generate_structured_edit(change_type, source_file_content, style_guide,
         f"{type_instructions[change_type]}"
     )
 
-    user_msg = (
+    text_prompt = (
         f"ORIGINAL QUESTION:\n{question}\n\n"
         f"COACH MAX'S ANSWER (the wrong/incomplete one):\n{bot_answer}\n\n"
         f"REVIEWER'S CORRECTION (the canonical answer):\n{reviewer_correction}\n\n"
         f"CURRENT FILE CONTENT:\n{source_file_content}"
     )
+
+    if pdf_blocks:
+        user_message = [{"type": "text", "text": text_prompt}] + list(pdf_blocks)
+    else:
+        user_message = text_prompt
+
     result = claude_request(
-        CLAUDE_MODEL, system, user_msg, api_key,
+        CLAUDE_MODEL, system, user_message, api_key,
         max_tokens=2000, json_schema=EDIT_SCHEMA,
     )
     return json.loads(result)

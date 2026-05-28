@@ -690,5 +690,87 @@ class TestBuildPdfContentBlocks(unittest.TestCase):
         self.assertEqual(skipped, [])
 
 
+class TestProposeChangeTypeWithFiles(unittest.TestCase):
+    @patch("scripts.sop_updater.claude_request")
+    def test_pdf_blocks_passed_as_content_list(self, mock_claude):
+        """When pdf_blocks is provided, claude_request receives a list of content blocks."""
+        mock_claude.return_value = json.dumps({
+            "change_type": "REPLACE",
+            "section_summary": "Refunds",
+            "current_excerpt": "old refund policy",
+            "rationale": "policy changed",
+        })
+        from scripts.sop_updater import propose_change_type
+        pdf_blocks = [{
+            "type": "document",
+            "source": {"type": "base64", "media_type": "application/pdf", "data": "QkFTRTY0"},
+        }]
+        propose_change_type(
+            question="",
+            bot_answer="",
+            reviewer_correction="refunds are now illegal",
+            source_file_content="## Refunds\n\nold refund policy\n",
+            api_key="API_KEY",
+            pdf_blocks=pdf_blocks,
+        )
+        # Inspect the actual user_message arg passed to claude_request
+        call_args = mock_claude.call_args
+        # claude_request(model, system, user_message, api_key, ...) — user_message is position 2
+        user_message = call_args[0][2]
+        # When pdf_blocks present, user_message MUST be a list
+        self.assertIsInstance(user_message, list)
+        # First block should be text with the prompt
+        self.assertEqual(user_message[0]["type"], "text")
+        # PDF block should be appended after
+        doc_blocks = [b for b in user_message if b.get("type") == "document"]
+        self.assertEqual(len(doc_blocks), 1)
+
+    @patch("scripts.sop_updater.claude_request")
+    def test_no_pdf_blocks_preserves_string_user_message(self, mock_claude):
+        """Without pdf_blocks, user_message is still a string (existing behavior)."""
+        mock_claude.return_value = json.dumps({
+            "change_type": "EDIT",
+            "section_summary": "x",
+            "current_excerpt": "y",
+            "rationale": "z",
+        })
+        from scripts.sop_updater import propose_change_type
+        propose_change_type(
+            question="Q", bot_answer="A", reviewer_correction="C",
+            source_file_content="content", api_key="KEY",
+        )
+        user_message = mock_claude.call_args[0][2]
+        self.assertIsInstance(user_message, str)
+
+
+class TestGenerateStructuredEditWithFiles(unittest.TestCase):
+    @patch("scripts.sop_updater.claude_request")
+    def test_pdf_blocks_passed_through(self, mock_claude):
+        mock_claude.return_value = json.dumps({
+            "change_type": "REPLACE",
+            "old": "old",
+            "new": "new",
+        })
+        from scripts.sop_updater import generate_structured_edit
+        pdf_blocks = [{
+            "type": "document",
+            "source": {"type": "base64", "media_type": "application/pdf", "data": "QkE="},
+        }]
+        generate_structured_edit(
+            change_type="REPLACE",
+            source_file_content="old",
+            style_guide="",
+            question="",
+            bot_answer="",
+            reviewer_correction="C",
+            api_key="K",
+            pdf_blocks=pdf_blocks,
+        )
+        user_message = mock_claude.call_args[0][2]
+        self.assertIsInstance(user_message, list)
+        doc_blocks = [b for b in user_message if b.get("type") == "document"]
+        self.assertEqual(len(doc_blocks), 1)
+
+
 if __name__ == "__main__":
     unittest.main()
