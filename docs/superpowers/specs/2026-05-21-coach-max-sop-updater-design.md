@@ -305,21 +305,28 @@ awaiting_confirm → awaiting_window → committed
 
 ## Rollout
 
-**Phase 1 — Live with Kara as sole reviewer (today)**
-- `MEX_BOT_APPROVED_REVIEWERS` set to Kara's Slack user ID only (look up via Slack: click profile → More → Copy member ID before deploy).
-- `MEX_BOT_SOP_UPDATER_ENABLED=true`.
-- Owner (Alex Villalobos) babysits actively for first ~5 real corrections.
-- Safety nets:
-  - 30-min veto window
-  - Automatic `doc_versioner.py` snapshots before every commit
-  - Easy manual rollback via `doc_versioner.py restore <snapshot>`
-  - Airtable SOP Updates table = full audit
+**Single phase — live with full MEX-lead allowlist (today)**
 
-**Phase 2 — Full team after 2-3 clean updates**
-- Add Monica, Alejandro, Alaynie, Kimberly to `MEX_BOT_APPROVED_REVIEWERS`.
-- No code change — env var only.
+`MEX_BOT_APPROVED_REVIEWERS` includes all five MEX leads from the start:
 
-**Trigger to advance:** Owner judgment after observing 2-3 successful real-world updates with no false positives, no bad diffs, no needed rollbacks.
+- Kara K. (Team Lead)
+- Kimberly Campbell (Director)
+- Alejandro (Team Lead)
+- Monica Cerrato (SOS-Trained MEX Specialist)
+- Alaynie (Workforce Specialist)
+
+Look up each Slack member ID before deploy: Slack → click profile → More → Copy member ID.
+
+**Rationale for no narrowing phase:** the leads are all busy; bottlenecking on a single reviewer defeats the purpose. The 30-min veto window already gives any of the five a chance to 🛑 a bad update — broader veto pool is itself a safety net.
+
+**Safety nets (unchanged):**
+- 30-min quiet veto window
+- Automatic `doc_versioner.py` snapshots before every commit
+- Easy manual rollback via `doc_versioner.py restore <snapshot>`
+- Airtable `SOP Updates` table = full audit trail
+- Owner (Alex Villalobos) actively monitors the first ~10 real corrections via the `SOP Updates` table + thread notifications.
+
+**Kill switch:** if anything goes wrong, set `MEX_BOT_SOP_UPDATER_ENABLED=false` in Railway env. Next cron tick (≤5 min) the new pass is disabled while existing answering behavior continues untouched.
 
 ---
 
@@ -345,4 +352,4 @@ awaiting_confirm → awaiting_window → committed
 | Gap handling | Same funnel; treated as ADD with a new section |
 | Quiet window | 30 min uniform across all types |
 | Provenance | Commit message only; KB files stay clean |
-| Rollout | Live today, Kara only → full team after 2-3 clean updates |
+| Rollout | Live today, full MEX-lead allowlist (Kara, Kimberly, Alejandro, Monica, Alaynie) — no single-reviewer phase |
