@@ -1067,9 +1067,14 @@ def prune_finished_entries(state, max_age_days=7):
 
 def run_sop_updater(state, slack_token, anthropic_key, airtable_key, base_id,
                      github_token, github_repo, channel_id, approved_reviewers, bot_user_id):
-    """Top-level SOP-updater pass: scan, advance, prune."""
+    """Top-level SOP-updater pass: scan (both paths), advance, prune."""
     ensure_sop_state_keys(state)
+    # Path A: thread corrections
     scan_for_corrections(
+        state, slack_token, anthropic_key, channel_id, approved_reviewers, bot_user_id,
+    )
+    # Path B: channel announcements
+    scan_for_announcements(
         state, slack_token, anthropic_key, channel_id, approved_reviewers, bot_user_id,
     )
     advance_funnel(

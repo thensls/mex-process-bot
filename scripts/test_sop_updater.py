@@ -1093,5 +1093,36 @@ class TestAdvanceProposalForCorrectionBackwardCompat(unittest.TestCase):
         self.assertEqual(state["sop_updates"][0]["status"], "awaiting_confirm")
 
 
+class TestRunSopUpdaterIncludesAnnouncements(unittest.TestCase):
+    @patch("scripts.sop_updater.advance_funnel")
+    @patch("scripts.sop_updater.scan_for_announcements")
+    @patch("scripts.sop_updater.scan_for_corrections")
+    def test_calls_both_scans_then_advance(
+        self, mock_scan_correction, mock_scan_announce, mock_advance,
+    ):
+        from scripts.sop_updater import run_sop_updater
+        state = {
+            "sop_updates": [], "processed_corrections": [],
+            "processed_threads": {}, "processed_announcements": [],
+        }
+        run_sop_updater(
+            state=state, slack_token="T", anthropic_key="K",
+            airtable_key=None, base_id=None,
+            github_token="G", github_repo="r/r", channel_id="C0",
+            approved_reviewers={"U1"}, bot_user_id="BOT",
+        )
+        # Both scans called, then advance
+        mock_scan_correction.assert_called_once()
+        mock_scan_announce.assert_called_once()
+        mock_advance.assert_called_once()
+        # Announcement scan should receive the bot_user_id
+        announce_call = mock_scan_announce.call_args
+        # Verify bot_user_id is passed (either as positional or kwarg)
+        ba_args = announce_call.args
+        ba_kwargs = announce_call.kwargs
+        bot_id_seen = "BOT" in ba_args or ba_kwargs.get("bot_user_id") == "BOT"
+        self.assertTrue(bot_id_seen, f"bot_user_id 'BOT' should be passed to scan_for_announcements; got args={ba_args}, kwargs={ba_kwargs}")
+
+
 if __name__ == "__main__":
     unittest.main()
