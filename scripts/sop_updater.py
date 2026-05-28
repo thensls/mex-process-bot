@@ -131,3 +131,9 @@ def render_diff_for_slack(old_text, new_text):
             body_lines.append("  " + line)
     body = "\n".join(body_lines) if body_lines else "(no textual change)"
     return f"```diff\n{body}\n```"
+
+
+def ensure_sop_state_keys(state):
+    """Mutate state in place to add SOP-updater keys if missing."""
+    state.setdefault("sop_updates", [])
+    state.setdefault("processed_corrections", [])

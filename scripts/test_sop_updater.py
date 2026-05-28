@@ -4,7 +4,7 @@ import json
 import unittest
 from unittest.mock import MagicMock, patch
 
-from scripts.sop_updater import parse_approved_reviewers, apply_structured_edit, EditConflictError, render_diff_for_slack
+from scripts.sop_updater import parse_approved_reviewers, apply_structured_edit, EditConflictError, render_diff_for_slack, ensure_sop_state_keys
 
 
 class TestPlaceholder(unittest.TestCase):
@@ -117,6 +117,22 @@ class TestApplyStructuredEdit(unittest.TestCase):
     def test_unknown_change_type_raises(self):
         with self.assertRaises(ValueError):
             apply_structured_edit("x", {"change_type": "BOGUS", "old": "x", "new": "y"})
+
+
+class TestEnsureSopStateKeys(unittest.TestCase):
+    def test_adds_missing_keys(self):
+        state = {"last_processed_ts": "0", "processed_threads": {}}
+        ensure_sop_state_keys(state)
+        self.assertIn("sop_updates", state)
+        self.assertIn("processed_corrections", state)
+        self.assertEqual(state["sop_updates"], [])
+        self.assertEqual(state["processed_corrections"], [])
+
+    def test_preserves_existing_values(self):
+        state = {"sop_updates": [{"thread_ts": "1.2"}], "processed_corrections": ["x"]}
+        ensure_sop_state_keys(state)
+        self.assertEqual(len(state["sop_updates"]), 1)
+        self.assertEqual(state["processed_corrections"], ["x"])
 
 
 if __name__ == "__main__":
