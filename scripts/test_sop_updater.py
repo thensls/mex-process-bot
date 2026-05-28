@@ -607,5 +607,88 @@ class TestSlackDownloadFile(unittest.TestCase):
             slack_download_file("http://x", "TOKEN")
 
 
+class TestBuildPdfContentBlocks(unittest.TestCase):
+    @patch("scripts.sop_updater.slack_download_file")
+    def test_pdf_gets_encoded_as_document_block(self, mock_download):
+        mock_download.return_value = b"%PDF-1.4 minimal pdf"
+        from scripts.sop_updater import build_pdf_content_blocks
+        attachments = [{
+            "id": "F0",
+            "name": "handbook.pdf",
+            "mimetype": "application/pdf",
+            "url_private": "https://files.slack.com/files-pri/F0",
+            "size": 1024,
+        }]
+        blocks, ingested_names, skipped = build_pdf_content_blocks(
+            attachments, "TOKEN",
+        )
+        self.assertEqual(len(blocks), 1)
+        self.assertEqual(blocks[0]["type"], "document")
+        self.assertEqual(blocks[0]["source"]["media_type"], "application/pdf")
+        self.assertIn("data", blocks[0]["source"])
+        self.assertEqual(ingested_names, ["handbook.pdf"])
+        self.assertEqual(skipped, [])
+
+    def test_non_pdf_is_skipped_and_reported(self):
+        from scripts.sop_updater import build_pdf_content_blocks
+        attachments = [
+            {"id": "F1", "name": "policy.docx", "mimetype": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+             "url_private": "https://files.slack.com/files-pri/F1", "size": 500},
+            {"id": "F2", "name": "data.xlsx", "mimetype": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+             "url_private": "https://files.slack.com/files-pri/F2", "size": 500},
+        ]
+        blocks, ingested_names, skipped = build_pdf_content_blocks(
+            attachments, "TOKEN",
+        )
+        self.assertEqual(blocks, [])
+        self.assertEqual(ingested_names, [])
+        self.assertEqual(len(skipped), 2)
+        # Each skipped entry should contain the filename + a human-readable reason
+        skipped_names = [s["name"] for s in skipped]
+        self.assertIn("policy.docx", skipped_names)
+        self.assertIn("data.xlsx", skipped_names)
+
+    @patch("scripts.sop_updater.slack_download_file")
+    def test_oversized_pdf_is_skipped(self, mock_download):
+        # 32 MiB + 1 byte (binary)
+        from scripts.sop_updater import build_pdf_content_blocks
+        attachments = [{
+            "id": "F0",
+            "name": "huge.pdf",
+            "mimetype": "application/pdf",
+            "url_private": "https://files.slack.com/F0",
+            "size": 32 * 1024 * 1024 + 1,  # 32 MiB + 1 byte
+        }]
+        blocks, ingested_names, skipped = build_pdf_content_blocks(
+            attachments, "TOKEN",
+        )
+        mock_download.assert_not_called()  # don't even download
+        self.assertEqual(blocks, [])
+        self.assertEqual(skipped[0]["name"], "huge.pdf")
+        self.assertIn("too large", skipped[0]["reason"].lower())
+
+    @patch("scripts.sop_updater.slack_download_file")
+    def test_download_failure_is_reported_as_skipped(self, mock_download):
+        mock_download.side_effect = RuntimeError("403 Forbidden")
+        from scripts.sop_updater import build_pdf_content_blocks
+        attachments = [{
+            "id": "F0", "name": "h.pdf", "mimetype": "application/pdf",
+            "url_private": "https://x", "size": 100,
+        }]
+        blocks, ingested_names, skipped = build_pdf_content_blocks(
+            attachments, "TOKEN",
+        )
+        self.assertEqual(blocks, [])
+        self.assertEqual(skipped[0]["name"], "h.pdf")
+        self.assertIn("download", skipped[0]["reason"].lower())
+
+    def test_no_attachments_returns_empty(self):
+        from scripts.sop_updater import build_pdf_content_blocks
+        blocks, ingested_names, skipped = build_pdf_content_blocks([], "TOKEN")
+        self.assertEqual(blocks, [])
+        self.assertEqual(ingested_names, [])
+        self.assertEqual(skipped, [])
+
+
 if __name__ == "__main__":
     unittest.main()

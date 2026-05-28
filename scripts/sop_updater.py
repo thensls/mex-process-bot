@@ -1014,3 +1014,73 @@ def slack_download_file(url_private, slack_token, timeout=30):
         raise RuntimeError(f"Slack file download {url_private[:80]} → HTTP {e.code}: {body}")
     except urllib.error.URLError as e:
         raise RuntimeError(f"Slack file download connection error: {e.reason}")
+
+
+PDF_MAX_BYTES = 32 * 1024 * 1024  # 32 MB — Anthropic document limit
+
+
+def build_pdf_content_blocks(attachments, slack_token):
+    """Given a list of Slack file attachments, download PDFs and build Claude document blocks.
+
+    Returns (blocks, ingested_names, skipped) where:
+      - blocks: list of Anthropic document content blocks for PDFs successfully ingested
+      - ingested_names: list of PDF filenames included in blocks
+      - skipped: list of {"name", "reason"} for any attachment that couldn't be used
+
+    Non-PDFs are skipped with a "format not supported" reason. PDFs over 32 MB are skipped
+    with "too large." Download failures are skipped with the error message.
+    """
+    blocks = []
+    ingested_names = []
+    skipped = []
+
+    for att in attachments or []:
+        name = att.get("name") or "unnamed-file"
+        mimetype = (att.get("mimetype") or "").lower()
+        size = att.get("size", 0)
+        url = att.get("url_private", "")
+
+        is_pdf = mimetype == "application/pdf" or name.lower().endswith(".pdf")
+
+        if not is_pdf:
+            skipped.append({
+                "name": name,
+                "reason": "format not supported yet (PDF-only; Word/PPT/Excel/Sheets coming soon)",
+            })
+            continue
+
+        if size and size > PDF_MAX_BYTES:
+            skipped.append({
+                "name": name,
+                "reason": f"file too large ({size // (1024 * 1024)} MB; max 32 MB)",
+            })
+            continue
+
+        try:
+            data = slack_download_file(url, slack_token)
+        except Exception as e:
+            skipped.append({
+                "name": name,
+                "reason": f"download failed: {e}"[:200],
+            })
+            continue
+
+        if len(data) > PDF_MAX_BYTES:
+            skipped.append({
+                "name": name,
+                "reason": f"file too large after download ({len(data) // (1024 * 1024)} MB)",
+            })
+            continue
+
+        b64 = base64.b64encode(data).decode("ascii")
+        blocks.append({
+            "type": "document",
+            "source": {
+                "type": "base64",
+                "media_type": "application/pdf",
+                "data": b64,
+            },
+        })
+        ingested_names.append(name)
+
+    return blocks, ingested_names, skipped
