@@ -14,6 +14,7 @@ and the bot's knowledge base. On each cron tick:
 State lives in context/state.json under keys `sop_updates` and `processed_corrections`.
 """
 
+import difflib
 import json
 import logging
 import os
@@ -111,3 +112,22 @@ def apply_structured_edit(original_content, edit):
         return prefix + insertion + suffix
 
     raise ValueError(f"Unknown change_type: {change_type!r}")
+
+
+def render_diff_for_slack(old_text, new_text):
+    """Render a minimal `-/+` diff wrapped in a Slack diff code fence."""
+    old_lines = old_text.splitlines() if old_text else []
+    new_lines = new_text.splitlines() if new_text else []
+    body_lines = []
+    diff = difflib.unified_diff(old_lines, new_lines, lineterm="", n=0)
+    for line in diff:
+        if line.startswith("---") or line.startswith("+++") or line.startswith("@@"):
+            continue
+        if line.startswith("-"):
+            body_lines.append("- " + line[1:])
+        elif line.startswith("+"):
+            body_lines.append("+ " + line[1:])
+        else:
+            body_lines.append("  " + line)
+    body = "\n".join(body_lines) if body_lines else "(no textual change)"
+    return f"```diff\n{body}\n```"

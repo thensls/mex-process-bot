@@ -4,7 +4,7 @@ import json
 import unittest
 from unittest.mock import MagicMock, patch
 
-from scripts.sop_updater import parse_approved_reviewers, apply_structured_edit, EditConflictError
+from scripts.sop_updater import parse_approved_reviewers, apply_structured_edit, EditConflictError, render_diff_for_slack
 
 
 class TestPlaceholder(unittest.TestCase):
@@ -41,6 +41,26 @@ class TestParseApprovedReviewers(unittest.TestCase):
             parse_approved_reviewers("U123,,U456,"),
             {"U123", "U456"},
         )
+
+
+class TestRenderDiff(unittest.TestCase):
+    def test_replace_shows_both_blocks(self):
+        diff = render_diff_for_slack("foo bar", "foo baz")
+        self.assertIn("- foo bar", diff)
+        self.assertIn("+ foo baz", diff)
+        # Should be wrapped in a diff code fence
+        self.assertIn("```diff", diff)
+        self.assertTrue(diff.rstrip().endswith("```"))
+
+    def test_add_only_shows_plus_lines(self):
+        diff = render_diff_for_slack("", "new content")
+        self.assertIn("+ new content", diff)
+        self.assertNotIn("- new", diff)
+
+    def test_multiline_blocks(self):
+        diff = render_diff_for_slack("line1\nline2", "line1\nline2 changed")
+        self.assertIn("- line2", diff)
+        self.assertIn("+ line2 changed", diff)
 
 
 class TestApplyStructuredEdit(unittest.TestCase):
