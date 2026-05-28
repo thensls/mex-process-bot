@@ -466,3 +466,51 @@ def resolve_source_file(category):
     if category in KB_CATEGORIES and category != "other":
         return f"references/knowledge-base/{category}.md"
     return "references/knowledge-base/general.md"
+
+
+def airtable_request(*args, **kwargs):
+    """Lazy import from channel_monitor."""
+    from scripts.channel_monitor import airtable_request as _impl
+    return _impl(*args, **kwargs)
+
+
+def log_sop_update(airtable_key, base_id, entry):
+    """Write/upsert one row to the SOP Updates Airtable table.
+
+    `entry` keys map to Airtable field names. Idempotent via thread_ts as merge key.
+    """
+    if not airtable_key or not base_id:
+        logging.info("Airtable not configured — skipping SOP update log")
+        return
+
+    fields = {
+        "Thread ID": entry["thread_ts"],
+        "Timestamp": datetime.now(timezone.utc).isoformat(),
+        "Thread Link": entry.get("thread_link", ""),
+        "Reviewer": entry.get("reviewer_name", ""),
+        "Source File": entry.get("source_file", ""),
+        "Change Type": entry.get("change_type", ""),
+        "Status": entry.get("status", ""),
+        "Commit SHA": entry.get("commit_sha", ""),
+        "Snapshot Path": entry.get("snapshot_path", ""),
+        "Original Question": (entry.get("original_question") or "")[:10000],
+        "Bot's Answer": (entry.get("bot_answer") or "")[:10000],
+        "Reviewer's Correction": (entry.get("reviewer_correction") or "")[:10000],
+        "Final Diff": (entry.get("final_diff") or "")[:10000],
+        "Notes": entry.get("notes", ""),
+    }
+
+    record_data = {
+        "records": [{"fields": fields}],
+        "performUpsert": {"fieldsToMergeOn": ["Thread ID"]},
+    }
+    try:
+        airtable_request(
+            "PATCH",
+            f"{base_id}/SOP%20Updates",
+            data=record_data,
+            api_key=airtable_key,
+        )
+        logging.info("Logged SOP Update for thread %s (%s)", entry["thread_ts"], entry["status"])
+    except Exception as e:
+        logging.error("Failed to log SOP Update for %s: %s", entry["thread_ts"], e)

@@ -345,5 +345,36 @@ class TestResolveSourceFile(unittest.TestCase):
         )
 
 
+class TestLogSopUpdate(unittest.TestCase):
+    @patch("scripts.sop_updater.airtable_request")
+    def test_logs_committed_update(self, mock_airtable):
+        mock_airtable.return_value = {"records": [{"id": "rec123"}]}
+        from scripts.sop_updater import log_sop_update
+        log_sop_update(
+            airtable_key="KEY",
+            base_id="BASE",
+            entry={
+                "thread_ts": "1234567890.123",
+                "thread_link": "https://slack.com/...",
+                "reviewer_name": "Kara",
+                "source_file": "references/knowledge-base/shop.md",
+                "change_type": "REPLACE",
+                "status": "committed",
+                "commit_sha": "abc123",
+                "snapshot_path": "versions/shop_v...",
+                "original_question": "How do I...",
+                "bot_answer": "Use Form A.",
+                "reviewer_correction": "Use Form B.",
+                "final_diff": "- foo\n+ bar",
+                "notes": "",
+            },
+        )
+        mock_airtable.assert_called_once()
+        call_args = mock_airtable.call_args
+        # Verify the table is "SOP Updates" (URL-encoded). The path is the
+        # second positional arg (method, path, ...).
+        self.assertIn("SOP%20Updates", call_args[0][1])
+
+
 if __name__ == "__main__":
     unittest.main()
