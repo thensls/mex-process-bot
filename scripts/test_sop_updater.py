@@ -838,5 +838,138 @@ class TestClassificationPromptFileAck(unittest.TestCase):
         self.assertTrue("wrong file" in msg_lower or "re-post" in msg_lower or "category" in msg_lower)
 
 
+class TestScanForAnnouncements(unittest.TestCase):
+    @patch("scripts.sop_updater.classify_announcement")
+    @patch("scripts.sop_updater.slack_request")
+    def test_creates_entry_for_update_directive_with_mention(self, mock_slack, mock_classify):
+        # Top-level msg from approved reviewer, @-mentions the bot
+        mock_slack.return_value = {
+            "messages": [
+                {
+                    "ts": "100.0", "user": "U_KARA",
+                    "text": "<@BOT123> we updated the handbook — refunds are now illegal",
+                    "files": [{
+                        "id": "F1", "name": "handbook.pdf",
+                        "mimetype": "application/pdf", "url_private": "https://x", "size": 1000,
+                    }],
+                },
+                # Another msg that should be skipped (no mention)
+                {"ts": "101.0", "user": "U_KARA", "text": "just chatting"},
+                # Thread reply (not top-level) — should be skipped
+                {"ts": "102.0", "thread_ts": "50.0", "user": "U_KARA", "text": "<@BOT123> in-thread"},
+            ]
+        }
+        mock_classify.return_value = "update_directive"
+
+        from scripts.sop_updater import scan_for_announcements
+        state = {
+            "sop_updates": [],
+            "processed_announcements": [],
+        }
+        scan_for_announcements(
+            state=state,
+            slack_token="T",
+            anthropic_key="K",
+            channel_id="C0",
+            approved_reviewers={"U_KARA"},
+            bot_user_id="BOT123",
+        )
+        # One entry created
+        self.assertEqual(len(state["sop_updates"]), 1)
+        entry = state["sop_updates"][0]
+        self.assertEqual(entry["trigger_type"], "announcement")
+        self.assertEqual(entry["reviewer_user_id"], "U_KARA")
+        self.assertEqual(entry["status"], "awaiting_proposal")
+        self.assertEqual(entry["original_question"], "")
+        self.assertEqual(entry["bot_answer"], "")
+        # Files captured
+        self.assertEqual(len(entry["attached_files"]), 1)
+        self.assertEqual(entry["attached_files"][0]["name"], "handbook.pdf")
+        # Only 100.0 processed (the directive); the chatter doesn't get marked either way
+        # because classify is only called for messages that pass the mention gate.
+        self.assertIn("100.0", state["processed_announcements"])
+
+    @patch("scripts.sop_updater.classify_announcement")
+    @patch("scripts.sop_updater.slack_request")
+    def test_skips_question_classification(self, mock_slack, mock_classify):
+        mock_slack.return_value = {
+            "messages": [{
+                "ts": "100.0", "user": "U_KARA",
+                "text": "<@BOT123> how do I process this refund?",
+            }],
+        }
+        mock_classify.return_value = "question"
+
+        from scripts.sop_updater import scan_for_announcements
+        state = {"sop_updates": [], "processed_announcements": []}
+        scan_for_announcements(state, "T", "K", "C0", {"U_KARA"}, "BOT123")
+        # No funnel entry
+        self.assertEqual(state["sop_updates"], [])
+        # Still marked processed (so we don't re-classify next tick)
+        self.assertIn("100.0", state["processed_announcements"])
+
+    @patch("scripts.sop_updater.slack_request")
+    def test_skips_non_approved_reviewer(self, mock_slack):
+        mock_slack.return_value = {
+            "messages": [{
+                "ts": "100.0", "user": "U_RANDOM",
+                "text": "<@BOT123> please update the SOP",
+            }],
+        }
+        from scripts.sop_updater import scan_for_announcements
+        state = {"sop_updates": [], "processed_announcements": []}
+        scan_for_announcements(state, "T", "K", "C0", {"U_KARA"}, "BOT123")
+        self.assertEqual(state["sop_updates"], [])
+        # Non-approved messages never get marked processed (no need — they're naturally filtered out)
+        self.assertNotIn("100.0", state["processed_announcements"])
+
+    @patch("scripts.sop_updater.slack_request")
+    def test_skips_message_without_bot_mention(self, mock_slack):
+        mock_slack.return_value = {
+            "messages": [{
+                "ts": "100.0", "user": "U_KARA",
+                "text": "we updated the handbook — no mention of the bot",
+            }],
+        }
+        from scripts.sop_updater import scan_for_announcements
+        state = {"sop_updates": [], "processed_announcements": []}
+        scan_for_announcements(state, "T", "K", "C0", {"U_KARA"}, "BOT123")
+        self.assertEqual(state["sop_updates"], [])
+
+    @patch("scripts.sop_updater.classify_announcement")
+    @patch("scripts.sop_updater.slack_request")
+    def test_skips_already_processed(self, mock_slack, mock_classify):
+        mock_slack.return_value = {
+            "messages": [{
+                "ts": "100.0", "user": "U_KARA",
+                "text": "<@BOT123> please update",
+            }],
+        }
+        from scripts.sop_updater import scan_for_announcements
+        state = {"sop_updates": [], "processed_announcements": ["100.0"]}
+        scan_for_announcements(state, "T", "K", "C0", {"U_KARA"}, "BOT123")
+        mock_classify.assert_not_called()
+        self.assertEqual(state["sop_updates"], [])
+
+    @patch("scripts.sop_updater.classify_announcement")
+    @patch("scripts.sop_updater.slack_request")
+    def test_skips_when_inflight_for_same_thread(self, mock_slack, mock_classify):
+        mock_slack.return_value = {
+            "messages": [{
+                "ts": "100.0", "user": "U_KARA",
+                "text": "<@BOT123> please update",
+            }],
+        }
+        from scripts.sop_updater import scan_for_announcements
+        state = {
+            "sop_updates": [{"thread_ts": "100.0", "status": "awaiting_confirm"}],
+            "processed_announcements": [],
+        }
+        scan_for_announcements(state, "T", "K", "C0", {"U_KARA"}, "BOT123")
+        mock_classify.assert_not_called()
+        # Still 1 entry (the existing inflight one, untouched)
+        self.assertEqual(len(state["sop_updates"]), 1)
+
+
 if __name__ == "__main__":
     unittest.main()

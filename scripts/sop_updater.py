@@ -19,6 +19,7 @@ import difflib
 import json
 import logging
 import os
+import re
 import time
 import urllib.error
 import urllib.parse
@@ -1126,3 +1127,119 @@ def build_pdf_content_blocks(attachments, slack_token):
         ingested_names.append(name)
 
     return blocks, ingested_names, skipped
+
+
+# ---------------------------------------------------------------------------
+# Path B — announcement scanning
+# ---------------------------------------------------------------------------
+
+ANNOUNCEMENT_LOOKBACK_SECONDS = 24 * 60 * 60  # 24 hours
+
+
+def _ensure_announcement_state_keys(state):
+    """Mutate state in place to add Path B state keys if missing."""
+    state.setdefault("processed_announcements", [])
+
+
+def _message_mentions_bot(text, bot_user_id):
+    """True if the message contains an <@BOT_USER_ID> mention anywhere in the body."""
+    if not text or not bot_user_id:
+        return False
+    return f"<@{bot_user_id}>" in text
+
+
+def scan_for_announcements(state, slack_token, anthropic_key, channel_id,
+                            approved_reviewers, bot_user_id):
+    """Path B: find top-level channel messages from approved reviewers that @-mention
+    the bot, classify them, and create sop_updates entries for KB update directives.
+    """
+    _ensure_announcement_state_keys(state)
+    now = datetime.now()
+    oldest = now - timedelta(seconds=ANNOUNCEMENT_LOOKBACK_SECONDS)
+
+    try:
+        result = slack_request(
+            "conversations.history",
+            {
+                "channel": channel_id,
+                "oldest": str(oldest.timestamp()),
+                "limit": 100,
+            },
+            slack_token,
+        )
+    except Exception as e:
+        logging.warning("scan_for_announcements: conversations.history failed: %s", e)
+        return
+
+    messages = result.get("messages", [])
+    for msg in messages:
+        ts = msg.get("ts", "")
+        # Top-level only
+        if msg.get("subtype"):
+            continue
+        if "thread_ts" in msg and msg["thread_ts"] != ts:
+            continue
+        # Approved reviewer
+        user_id = msg.get("user", "")
+        if user_id not in approved_reviewers:
+            continue
+        # Must @-mention the bot
+        text = msg.get("text", "")
+        if not _message_mentions_bot(text, bot_user_id):
+            continue
+        # Idempotency
+        if ts in state["processed_announcements"]:
+            continue
+        # Skip if a sop_update already in-flight for this thread
+        if any(u["thread_ts"] == ts for u in state["sop_updates"]):
+            continue
+
+        # Filter gate
+        try:
+            classification = classify_announcement(text, anthropic_key)
+        except Exception as e:
+            logging.warning(
+                "scan_for_announcements: classify_announcement failed for %s — deferring: %s",
+                ts, e,
+            )
+            continue  # don't mark processed; retry next tick
+
+        state["processed_announcements"].append(ts)
+
+        if classification != "update_directive":
+            logging.info(
+                "scan_for_announcements: skipping %s as %s",
+                ts, classification,
+            )
+            continue
+
+        # Capture file attachments for downstream PDF ingestion
+        attached_files = []
+        for f in msg.get("files", []):
+            attached_files.append({
+                "id": f.get("id", ""),
+                "name": f.get("name", ""),
+                "mimetype": f.get("mimetype", ""),
+                "url_private": f.get("url_private", ""),
+                "size": f.get("size", 0),
+            })
+
+        entry = {
+            "thread_ts": ts,
+            "reply_ts": ts,  # for announcements, the message IS the thread anchor
+            "reviewer_user_id": user_id,
+            "reviewer_text": text,
+            "trigger_type": "announcement",
+            "original_question": "",  # no prior question for Path B
+            "bot_answer": "",
+            "bot_category": "",  # let classifier infer later
+            "attached_files": attached_files,
+            "status": "awaiting_proposal",
+            "created_at": now.isoformat(),
+        }
+        state["sop_updates"].append(entry)
+        logging.info(
+            "scan_for_announcements: created announcement entry for ts %s by %s "
+            "(%d attachments)",
+            ts, user_id, len(attached_files),
+        )
