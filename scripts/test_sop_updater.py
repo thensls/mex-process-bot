@@ -173,5 +173,24 @@ class TestGithubHelpers(unittest.TestCase):
         self.assertEqual(commit_sha, "new-sha-xyz")
 
 
+class TestClassifyCorrection(unittest.TestCase):
+    @patch("scripts.sop_updater.claude_request")
+    def test_returns_correction_for_substantive_reply(self, mock_claude):
+        mock_claude.return_value = json.dumps({"class": "correction"})
+        from scripts.sop_updater import classify_correction
+        result = classify_correction(
+            "Actually, use Form B not Form A — A was deprecated 4/15",
+            "API_KEY",
+        )
+        self.assertEqual(result, "correction")
+
+    @patch("scripts.sop_updater.claude_request")
+    def test_returns_chatter_for_thanks(self, mock_claude):
+        mock_claude.return_value = json.dumps({"class": "chatter"})
+        from scripts.sop_updater import classify_correction
+        result = classify_correction("Thanks Coach Max!", "API_KEY")
+        self.assertEqual(result, "chatter")
+
+
 if __name__ == "__main__":
     unittest.main()

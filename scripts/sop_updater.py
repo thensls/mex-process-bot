@@ -191,3 +191,45 @@ def github_put_file(repo, file_path, new_content, commit_message, expected_sha, 
     }
     result = _github_request("PUT", path, token, body=body)
     return result["commit"]["sha"]
+
+
+# ---------------------------------------------------------------------------
+# Correction Classification
+# ---------------------------------------------------------------------------
+
+CORRECTION_CLASS_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "class": {"type": "string", "enum": ["correction", "chatter", "escalation", "unclear"]},
+    },
+    "required": ["class"],
+    "additionalProperties": False,
+}
+
+
+def claude_request(*args, **kwargs):
+    """Lazily imports from channel_monitor so the dependency is one-way."""
+    from scripts.channel_monitor import claude_request as _impl
+    return _impl(*args, **kwargs)
+
+
+def classify_correction(reply_text, api_key):
+    """Filter a reviewer thread reply: correction / chatter / escalation / unclear."""
+    from scripts.channel_monitor import CLAUDE_CLASSIFIER
+
+    system = (
+        "You are filtering a Slack thread reply from a MEX (Member Experience) lead "
+        "to a Coach Max bot answer. Return one of four classes:\n"
+        "  - correction: substantive content correcting or augmenting the bot's answer "
+        "(new info, replacement of outdated process, fixed detail)\n"
+        "  - chatter: 'thanks', acknowledgements, banter, emoji reactions only\n"
+        "  - escalation: 'I'll handle this one', taking over the conversation, "
+        "no KB-relevant content\n"
+        "  - unclear: ambiguous — flag for human review\n"
+        "Be conservative: when in doubt between correction and unclear, choose unclear."
+    )
+    result = claude_request(
+        CLAUDE_CLASSIFIER, system, reply_text[:1000], api_key,
+        max_tokens=50, json_schema=CORRECTION_CLASS_SCHEMA,
+    )
+    return json.loads(result)["class"]
