@@ -14,6 +14,7 @@ and the bot's knowledge base. On each cron tick:
 State lives in context/state.json under keys `sop_updates` and `processed_corrections`.
 """
 
+import base64
 import difflib
 import json
 import logging
@@ -137,3 +138,56 @@ def ensure_sop_state_keys(state):
     """Mutate state in place to add SOP-updater keys if missing."""
     state.setdefault("sop_updates", [])
     state.setdefault("processed_corrections", [])
+
+
+def _github_request(method, path, token, body=None):
+    """Wrapper for GitHub REST API calls."""
+    url = f"{GITHUB_API_BASE}{path}"
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Accept": "application/vnd.github+json",
+        "X-GitHub-Api-Version": "2022-11-28",
+        "User-Agent": "coach-max-bot",
+    }
+    data = json.dumps(body).encode("utf-8") if body is not None else None
+    if data is not None:
+        headers["Content-Type"] = "application/json"
+    req = urllib.request.Request(url, data=data, headers=headers, method=method)
+    try:
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            return json.loads(resp.read().decode("utf-8"))
+    except urllib.error.HTTPError as e:
+        resp_body = ""
+        try:
+            resp_body = e.read().decode("utf-8")[:300]
+        except Exception:
+            pass
+        raise RuntimeError(f"GitHub {method} {path} → HTTP {e.code}: {resp_body}")
+
+
+def github_get_file(repo, file_path, token):
+    """Fetch file content and current HEAD SHA via Contents API.
+
+    Returns (content_str, sha). Raises RuntimeError on HTTP failure.
+    """
+    path = f"/repos/{repo}/contents/{urllib.parse.quote(file_path)}"
+    result = _github_request("GET", path, token)
+    content_b64 = result["content"]
+    sha = result["sha"]
+    decoded = base64.b64decode(content_b64).decode("utf-8")
+    return decoded, sha
+
+
+def github_put_file(repo, file_path, new_content, commit_message, expected_sha, token):
+    """Commit a file update via Contents API. Returns new commit SHA.
+
+    `expected_sha` must match the file's current SHA — otherwise GitHub returns 409.
+    """
+    path = f"/repos/{repo}/contents/{urllib.parse.quote(file_path)}"
+    body = {
+        "message": commit_message,
+        "content": base64.b64encode(new_content.encode("utf-8")).decode("ascii"),
+        "sha": expected_sha,
+    }
+    result = _github_request("PUT", path, token, body=body)
+    return result["commit"]["sha"]

@@ -1,7 +1,9 @@
 """Unit tests for sop_updater.py — stdlib only."""
 
+import base64
 import json
 import unittest
+from io import BytesIO
 from unittest.mock import MagicMock, patch
 
 from scripts.sop_updater import parse_approved_reviewers, apply_structured_edit, EditConflictError, render_diff_for_slack, ensure_sop_state_keys
@@ -133,6 +135,42 @@ class TestEnsureSopStateKeys(unittest.TestCase):
         ensure_sop_state_keys(state)
         self.assertEqual(len(state["sop_updates"]), 1)
         self.assertEqual(state["processed_corrections"], ["x"])
+
+
+def _mock_http_response(status, body_dict):
+    """Build a mock urllib response object that returns the given JSON body."""
+    body = json.dumps(body_dict).encode("utf-8")
+    resp = MagicMock()
+    resp.read.return_value = body
+    resp.__enter__.return_value = resp
+    resp.__exit__.return_value = None
+    return resp
+
+
+class TestGithubHelpers(unittest.TestCase):
+    @patch("scripts.sop_updater.urllib.request.urlopen")
+    def test_github_get_file_returns_content_and_sha(self, mock_urlopen):
+        content_b64 = base64.b64encode(b"hello world").decode("ascii")
+        mock_urlopen.return_value = _mock_http_response(200, {
+            "content": content_b64,
+            "sha": "abc123",
+            "encoding": "base64",
+        })
+        from scripts.sop_updater import github_get_file
+        content, sha = github_get_file("owner/repo", "path/file.md", "TOKEN")
+        self.assertEqual(content, "hello world")
+        self.assertEqual(sha, "abc123")
+
+    @patch("scripts.sop_updater.urllib.request.urlopen")
+    def test_github_put_file_returns_commit_sha(self, mock_urlopen):
+        mock_urlopen.return_value = _mock_http_response(200, {
+            "commit": {"sha": "new-sha-xyz"},
+        })
+        from scripts.sop_updater import github_put_file
+        commit_sha = github_put_file(
+            "owner/repo", "path/file.md", "new content", "msg", "expected-sha", "TOKEN"
+        )
+        self.assertEqual(commit_sha, "new-sha-xyz")
 
 
 if __name__ == "__main__":
