@@ -2234,7 +2234,7 @@ Railway runs the cron every 5 minutes. After flipping `MEX_BOT_SOP_UPDATER_ENABL
 
 - [ ] **Step 5: End-to-end test with a real thread**
 
-In `#mex-sos-text`:
+In `#mex-sos-test`:
 1. Post a test question targeting an existing KB topic (e.g., a refund or shop question).
 2. Wait for Coach Max's reply (≤5 min).
 3. Reply in the thread as Kara (or any approved reviewer) with a deliberate correction (e.g., "Actually, the cutoff is 6pm ET, not 5pm" — pick something that's truly a small fix to a test KB file, OR use a sandbox `references/knowledge-base/test.md` file you set up just for this).
@@ -2251,7 +2251,7 @@ Set `MEX_BOT_SOP_UPDATER_ENABLED=false` in Railway. Within 5 min the new pass st
 
 - [ ] **Step 7: Announce to the team**
 
-Drop the Slack canvas (already drafted) into `#mex-sos-text` with the one-line post: *"Coach Max correction loop — what changes + what you'll need to do: <CANVAS_LINK>"*. Pin it.
+Drop the Slack canvas (already drafted) into `#mex-sos-test` with the one-line post: *"Coach Max correction loop — what changes + what you'll need to do: <CANVAS_LINK>"*. Pin it.
 
 ---
 

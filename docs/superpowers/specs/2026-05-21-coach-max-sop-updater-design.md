@@ -9,9 +9,14 @@
 
 ## TL;DR
 
-Coach Max already scores its own answers against MEX-lead corrections and logs gaps to Airtable, but those corrections don't actually update the bot's knowledge base (KB). This spec adds a closed feedback loop: when an approved reviewer replies in a Coach Max thread with a correction, the bot classifies the change type (**enhance / replace / revise**), confirms with the reviewer via emoji reaction, posts a proposed diff in the same thread, and auto-commits to the GitHub repo after a 30-minute quiet veto window.
+Coach Max already scores its own answers against MEX-lead corrections and logs gaps to Airtable, but those corrections don't actually update the bot's knowledge base (KB). This spec adds a closed feedback loop with **two trigger paths**:
 
-All interactions happen in the original thread — no DMs, no GitHub UI, no separate review surfaces. The team sees the KB evolve in real time.
+1. **Thread correction** — approved reviewer replies in a Coach Max thread with a correction to a specific bot answer.
+2. **Channel announcement** — approved reviewer posts a top-level message in `#mex-sos-test` that @-mentions Coach Max, announcing a KB change (with optional PDF attachment + inline blurb).
+
+Either trigger runs the same downstream funnel: bot classifies the change type (**enhance / replace / revise**), confirms with the reviewer via emoji reaction, posts a proposed diff in the same (or spawned) thread, and auto-commits to the GitHub repo after a 30-minute quiet veto window.
+
+All interactions happen in the channel and its threads — no DMs, no GitHub UI, no separate review surfaces. The team sees the KB evolve in real time.
 
 ---
 
@@ -58,42 +63,74 @@ The new pass is independent and idempotent — safe to re-run.
 
 ---
 
-## Trigger & detection
+## Triggers & detection
 
-On each cron tick, the new pass:
+The cron tick now runs **two independent scans** that feed into the same downstream funnel:
+
+### Path A — Thread correction (organic)
 
 1. Scans threads where Coach Max has posted an answer in the last **14 days** (configurable).
-2. Within each thread, finds new thread replies from users in `MEX_BOT_APPROVED_REVIEWERS`.
+2. Within each thread, finds new thread replies from users in `MEX_BOT_APPROVED_REVIEWERS`, posted AFTER the bot's answer.
 3. Skips `(thread_ts, reply_ts)` pairs already in `state.processed_corrections`.
 
-### Filter gate (cheap Haiku call)
-
-Before kicking off the full funnel, classify each candidate reply:
+**Filter gate (Haiku call):**
 
 | Class | Action |
 |---|---|
 | `correction` | Proceed to confirmation flow |
 | `chatter` | Skip ("thanks bot", banter) |
 | `escalation` | Skip ("I'll handle this one") |
-| `unclear` | Skip but log to Airtable for human review |
+| `unclear` | Skip but log |
 
-Only `correction` enters the funnel. Everything else is marked processed and dropped.
+Only `correction` enters the funnel.
 
-### Edge cases at this stage
+### Path B — Channel announcement (proactive)
 
-- **Multiple reviewers reply same thread:** first `correction` wins; subsequent replies append to context but don't start a second funnel.
+A team lead proactively pushes a KB update without waiting for a member question.
+
+1. Scans top-level (non-threaded) messages in `#mex-sos-test` from the last 24 hours.
+2. Keeps messages that **(a) come from a user in `MEX_BOT_APPROVED_REVIEWERS`** AND **(b) @-mention the Coach Max bot user**.
+3. Skips messages already in `state.processed_announcements`.
+
+**Filter gate (Haiku call) — distinguishes update directive from question:**
+
+| Class | Action |
+|---|---|
+| `update_directive` | Proceed to confirmation flow |
+| `question` | Skip (let the existing answer flow handle it) |
+| `chatter` | Skip |
+
+Only `update_directive` enters the funnel.
+
+**Example announcement that triggers the funnel:**
+
+> *Hey team / @Coach Max — we updated the handbook. You'll find it on page 6 of the attached doc. The blurb: "refunds are now illegal as of 4/15."*
+> [📎 handbook-v2.pdf]
+
+**File attachments on the announcement** are handled per the [File ingestion](#file-ingestion) section below.
+
+### Edge cases (both paths)
+
+- **Multiple reviewers reply same thread:** first `correction`/`update_directive` wins; subsequent replies append to context but don't start a second funnel.
 - **Reviewer edits their reply mid-funnel:** detect via edit timestamp change → pause, re-post classification prompt.
-- **Reviewer reply on a thread with no Coach Max answer:** ignored (no KB anchor).
+- **Thread reply on a thread with no Coach Max answer:** ignored (no KB anchor — covered by Path B only).
+- **Announcement from non-approved user (even with @-mention):** ignored. Prevents random users from triggering KB updates.
+
+### Routing rule (avoid double-handling)
+
+Coach Max's existing answer flow (the question-answer behavior) must NOT try to answer an announcement.
+
+The existing `is_question` filter already classifies "general announcements" as **not a question**, so it should pass through naturally. As defense-in-depth: `process_new_threads` (in `channel_monitor.py`) skips any top-level message from an approved reviewer that @-mentions the bot — leaving it for Path B to pick up.
 
 ---
 
 ## Confirmation flow (in-thread)
 
-All bot messages are threaded replies on the original Coach Max thread. No DMs.
+All bot messages are threaded replies on the original Coach Max thread (Path A) or on the thread spawned by the lead's channel announcement (Path B). No DMs.
 
 ### Step 1: Bot classifies and posts confirm prompt
 
-Claude classifies the correction as ADD / REPLACE / EDIT against the source KB file, then bot posts:
+Claude infers the **category** (which KB file: shop, refunds, feather, etc.) and the **change type** (ADD/REPLACE/EDIT) against the source KB file, then bot posts:
 
 > *Hey Kara — looks like a **REPLACE** in `shop.md` § Return Labels.*
 >
@@ -102,17 +139,21 @@ Claude classifies the correction as ADD / REPLACE / EDIT against the source KB f
 >
 > *React with one:*
 > *➕ enhance · 🔁 replace · ✏️ revise · 🚫 not an update*
+>
+> *Wrong file? React 🚫 and re-post with the right category in your message (e.g., "KB update SHOP: ...").*
+
+The bot **suggests the category** — the lead doesn't have to know which file. If the bot picked the wrong file, the lead reacts 🚫 and re-posts with a category hint in the announcement text. Bot will process the new announcement against the right file.
 
 ### Step 2: Reviewer reacts
 
-Bot polls reactions on its own classification message each tick. Reactions have **stable meanings** — the reviewer picks the right one regardless of which the bot proposed:
+Bot polls reactions on its own classification message each tick. **Only the 5 emojis below are recognized — other reactions (👀 / 👍 / etc.) are ignored.** Reactions have stable meanings:
 
 | Emoji | Meaning | Effect |
 |---|---|---|
 | ➕ | Enhance (ADD) | Proceed with ADD diff strategy |
 | 🔁 | Replace (REPLACE) | Proceed with REPLACE diff strategy |
 | ✏️ | Revise (EDIT) | Proceed with EDIT diff strategy |
-| 🚫 | Not an update | Stop. Mark `not_an_update`, log to Airtable |
+| 🚫 | Not an update / wrong file | Stop. Mark `not_an_update`, log |
 
 If the reviewer's reaction differs from the bot's proposed type, the reviewer's choice wins.
 
@@ -131,8 +172,10 @@ Bot posts the diff inline:
 
 ### Step 4: Quiet window
 
+The 30-min countdown starts when the bot posts the **proposed diff** (after the reviewer confirms the change type with an approved emoji). It does NOT start at the classification prompt — silent classification messages don't trigger a commit.
+
 - 🛑 from *any* user in `MEX_BOT_APPROVED_REVIEWERS` → cancel. Bot posts: *"Cancelled by @Kara. No KB change made."*
-- 🛑 from a non-reviewer → ignored, but logged to Airtable.
+- 🛑 from a non-reviewer → ignored, but logged.
 - No 🛑 by deadline → proceed to commit.
 
 ### Stale handling
@@ -202,6 +245,54 @@ Prevents silent stomps when humans edit the KB mid-funnel.
 
 ---
 
+## File ingestion
+
+When a lead's channel announcement includes file attachments (PDF, Word doc, PowerPoint, Excel, or a Google Sheets URL), Coach Max tries to use the file content as additional context for the KB update.
+
+### v1 support — PDF only
+
+PDFs are sent to Claude as native [document content blocks](https://docs.anthropic.com/en/docs/build-with-claude/pdf-support) — no Python PDF library needed, no new project dependencies. Claude reads the PDF directly as part of the proposal + diff-generation prompts.
+
+**Flow for an announcement with a PDF attachment:**
+
+1. Bot detects the PDF in `msg.files` from Slack.
+2. Bot downloads the file bytes via Slack's `url_private` (authenticated with bot token).
+3. Bot includes the PDF as a `document` content block alongside the inline announcement text in calls to `propose_change_type` and `generate_structured_edit`.
+4. Bot's classification prompt explicitly acknowledges the file: *"I see you attached `handbook-v2.pdf` — I'll use both your blurb and the PDF content."*
+
+### v1 graceful failure — Word / PowerPoint / Excel / Google Sheets
+
+These formats are **not supported in v1**. When detected, the bot's classification prompt clearly says so:
+
+> *I see you attached `handbook.docx` — heads up, I can't read Word docs yet. For now please paste the relevant text into your message, OR re-upload as a PDF. (Word/PPT/Excel/Sheets support is on the roadmap — see ticket [...].)*
+
+The lead can react 🚫 and re-post with PDF/inline text.
+
+### File download — Slack auth detail
+
+Slack files have a `url_private` field that requires the bot's OAuth token to download:
+
+```
+GET <url_private>
+Authorization: Bearer <MEX_BOT_SLACK_BOT_TOKEN>
+```
+
+Already covered by the existing `files:read` scope on Coach Max's bot token (see README → Slack App → Required scopes).
+
+### File size limit
+
+PDFs > 32 MB are skipped with a graceful message (Claude API document limit). In practice, NSLS handbooks/SOPs are well under this.
+
+### Error handling
+
+If file download fails, PDF parsing fails, or Claude returns an error while processing the file, the bot:
+1. Logs the error to Railway
+2. Posts in-thread: *"Couldn't read the file you attached — error: [short message]. Please paste the relevant content as text and re-post."*
+3. Marks the funnel entry `conflict_aborted`
+4. The lead can fix and re-post.
+
+---
+
 ## Commit & veto mechanics
 
 ### Per-tick processing
@@ -268,12 +359,23 @@ New keys in `context/state.json`:
 ### Status transitions
 
 ```
-awaiting_confirm → awaiting_window → committed
-                                  → vetoed
-                                  → conflict_aborted
-              → not_an_update
-              → stale (no reaction in 48h)
+awaiting_proposal → awaiting_confirm → awaiting_window → committed
+                                                       → vetoed
+                                                       → conflict_aborted
+                                   → not_an_update
+                                   → stale (no reaction in 48h)
 ```
+
+### Per-entry fields (additions for v1.1)
+
+| Field | Path A (correction) | Path B (announcement) |
+|---|---|---|
+| `trigger_type` | `"correction"` | `"announcement"` |
+| `original_question` | the member's question | `""` |
+| `bot_answer` | Coach Max's reply | `""` |
+| `reviewer_text` | the in-thread correction | the announcement message |
+| `attached_files` | `[]` | list of `{name, url_private, mimetype, size}` |
+| `pdf_blocks` | `[]` | list of base64 PDF blobs ready for Claude |
 
 ---
 
@@ -305,7 +407,7 @@ awaiting_confirm → awaiting_window → committed
 
 ## Rollout
 
-**Single phase — live with full MEX-lead allowlist (today)**
+**Single phase — live with full MEX-lead allowlist (early afternoon 2026-05-22)**
 
 `MEX_BOT_APPROVED_REVIEWERS` includes all five MEX leads from the start:
 
@@ -330,12 +432,22 @@ Look up each Slack member ID before deploy: Slack → click profile → More →
 
 ---
 
-## Open questions / future work
+## Roadmap (post-launch)
 
-- **Weekly synthesis (Approach B from brainstorming):** scan accepted updates weekly, propose structural changes (split a bloated `general.md`, retire dead SOPs). Out of scope for v1.
-- **`/coach-max rollback <commit-sha>` Slack command:** v2.
-- **Block-kit polished UI:** v2.
-- **Pattern detection (Airtable-driven):** if the bot sees the same gap 3+ times without a reviewer correction, proactively prompt for documentation. v2.
+### v1.1 — additional file formats (this week)
+- **Word docs (.docx)** — adds `python-docx` dependency. ~1–2 hours.
+- **PowerPoint (.pptx)** — adds `python-pptx`. ~1–2 hours.
+- **Excel (.xlsx)** — adds `openpyxl`. ~1–2 hours.
+
+Each ships independently behind the same feature flag.
+
+### v2 — bigger lifts
+- **Google Sheets URLs** — requires Google OAuth/service-account setup at org level + Sheets API integration. Half-day to set up auth, then ~2 hours of code.
+- **Weekly synthesis** (Approach B from brainstorming): scan accepted updates weekly, propose structural changes (split a bloated `general.md`, retire dead SOPs).
+- **`/coach-max rollback <commit-sha>` Slack command.**
+- **Block-kit polished UI** (would unlock buttons instead of reactions).
+- **Pattern detection (Airtable-driven):** if the bot sees the same gap 3+ times without a reviewer correction, proactively prompt for documentation.
+- **Thread-reply category override:** instead of "react 🚫 + re-post," let the lead reply in thread with `use [category]` to redirect the funnel without restarting it.
 
 ---
 
