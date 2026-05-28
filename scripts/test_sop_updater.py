@@ -471,5 +471,50 @@ class TestScanForCorrections(unittest.TestCase):
         self.assertEqual(state["sop_updates"], [])
 
 
+class TestAdvanceFunnel(unittest.TestCase):
+    @patch("scripts.sop_updater.github_get_file")
+    @patch("scripts.sop_updater.propose_change_type")
+    @patch("scripts.sop_updater.slack_post_message")
+    @patch("scripts.sop_updater.slack_get_user_info")
+    def test_awaiting_proposal_transitions_to_awaiting_confirm(
+        self, mock_userinfo, mock_post, mock_propose, mock_get_file,
+    ):
+        mock_userinfo.return_value = "Kara Lopez"
+        mock_get_file.return_value = ("## Shop\n\nold content\n", "sha_xyz")
+        mock_propose.return_value = {
+            "change_type": "REPLACE",
+            "section_summary": "Shop",
+            "current_excerpt": "old content",
+            "rationale": "outdated",
+        }
+        mock_post.return_value = "confirm.msg.ts"
+
+        from scripts.sop_updater import advance_funnel
+        state = {
+            "sop_updates": [{
+                "thread_ts": "1.0",
+                "reply_ts": "2.0",
+                "reviewer_user_id": "U_KARA",
+                "reviewer_text": "use Y",
+                "original_question": "how X?",
+                "bot_answer": "X",
+                "bot_category": "shop",
+                "status": "awaiting_proposal",
+                "created_at": datetime.now().isoformat(),
+            }],
+            "processed_corrections": [],
+        }
+        advance_funnel(
+            state=state, slack_token="T", anthropic_key="K", airtable_key=None,
+            base_id=None, github_token="G", github_repo="r/r", channel_id="C0",
+            approved_reviewers={"U_KARA"},
+        )
+        entry = state["sop_updates"][0]
+        self.assertEqual(entry["status"], "awaiting_confirm")
+        self.assertEqual(entry["confirm_msg_ts"], "confirm.msg.ts")
+        self.assertEqual(entry["proposed_type"], "REPLACE")
+        self.assertEqual(entry["source_file_sha"], "sha_xyz")
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -612,3 +612,301 @@ def log_sop_update(airtable_key, base_id, entry):
         logging.info("Logged SOP Update for thread %s (%s)", entry["thread_ts"], entry["status"])
     except Exception as e:
         logging.error("Failed to log SOP Update for %s: %s", entry["thread_ts"], e)
+
+
+def slack_post_message(*args, **kwargs):
+    from scripts.channel_monitor import slack_post_message as _impl
+    return _impl(*args, **kwargs)
+
+
+def slack_get_user_info(*args, **kwargs):
+    from scripts.channel_monitor import slack_get_user_info as _impl
+    return _impl(*args, **kwargs)
+
+
+def _slack_permalink(channel_id, thread_ts):
+    return f"https://thensls.slack.com/archives/{channel_id}/p{thread_ts.replace('.', '')}"
+
+
+def advance_funnel(state, slack_token, anthropic_key, airtable_key, base_id,
+                    github_token, github_repo, channel_id, approved_reviewers):
+    """Process each sop_updates entry one status step forward."""
+    for entry in list(state["sop_updates"]):
+        status = entry.get("status")
+        try:
+            if status == "awaiting_proposal":
+                _advance_awaiting_proposal(
+                    entry, slack_token, anthropic_key, github_token, github_repo, channel_id,
+                )
+            elif status == "awaiting_confirm":
+                _advance_awaiting_confirm(
+                    entry, slack_token, anthropic_key, github_token, github_repo, channel_id,
+                    approved_reviewers, airtable_key, base_id,
+                )
+            elif status == "awaiting_window":
+                _advance_awaiting_window(
+                    entry, slack_token, github_token, github_repo, channel_id,
+                    approved_reviewers, airtable_key, base_id,
+                )
+        except Exception as e:
+            logging.error(
+                "Funnel error on thread %s (status %s): %s",
+                entry.get("thread_ts"), status, e,
+            )
+            # Leave entry in current state; next tick retries.
+
+
+def _advance_awaiting_proposal(entry, slack_token, anthropic_key, github_token,
+                                 github_repo, channel_id):
+    """Fetch source file, ask Claude for proposal, post classification prompt."""
+    source_file = resolve_source_file(entry.get("bot_category"))
+    content, sha = github_get_file(github_repo, source_file, github_token)
+    proposal = propose_change_type(
+        question=entry["original_question"],
+        bot_answer=entry["bot_answer"],
+        reviewer_correction=entry["reviewer_text"],
+        source_file_content=content,
+        api_key=anthropic_key,
+    )
+    reviewer_name = slack_get_user_info(slack_token, entry["reviewer_user_id"])
+    first_name = reviewer_name.split()[0] if reviewer_name else "there"
+
+    prompt_text = format_classification_prompt(
+        reviewer_first_name=first_name,
+        proposed_type=proposal["change_type"],
+        source_file=source_file,
+        section_summary=proposal["section_summary"],
+        current_excerpt=proposal["current_excerpt"],
+    )
+    confirm_ts = slack_post_message(
+        slack_token, channel_id, prompt_text, thread_ts=entry["thread_ts"],
+    )
+
+    entry["source_file"] = source_file
+    entry["source_file_sha"] = sha
+    entry["source_file_content"] = content
+    entry["proposed_type"] = proposal["change_type"]
+    entry["proposal"] = proposal
+    entry["reviewer_name"] = reviewer_name
+    entry["confirm_msg_ts"] = confirm_ts
+    entry["status"] = "awaiting_confirm"
+
+
+def _advance_awaiting_confirm(entry, slack_token, anthropic_key, github_token,
+                                github_repo, channel_id, approved_reviewers,
+                                airtable_key, base_id):
+    """Poll reactions on confirm_msg_ts; if confirmed, generate edit + post diff."""
+    result = slack_request(
+        "reactions.get",
+        {"channel": channel_id, "timestamp": entry["confirm_msg_ts"], "full": "true"},
+        slack_token,
+    )
+    reactions = result.get("message", {}).get("reactions", [])
+    choice = get_classification_choice(reactions, approved_reviewers)
+
+    # Stale check
+    created = datetime.fromisoformat(entry["created_at"])
+    age = datetime.now() - created
+    if not choice:
+        if age > timedelta(hours=STALE_CLOSE_HOURS):
+            entry["status"] = "stale"
+            log_sop_update(airtable_key, base_id, _airtable_payload(entry, channel_id, ""))
+        return  # else wait
+
+    confirmed_type, who = choice
+    entry["confirmed_type"] = confirmed_type
+    entry["confirmed_by"] = who
+
+    if confirmed_type == "NOT_AN_UPDATE":
+        slack_post_message(slack_token, channel_id, format_not_an_update(),
+                            thread_ts=entry["thread_ts"])
+        entry["status"] = "not_an_update"
+        log_sop_update(airtable_key, base_id, _airtable_payload(entry, channel_id, ""))
+        return
+
+    # Generate the actual structured edit
+    style_guide = _load_style_guide()
+    edit = generate_structured_edit(
+        change_type=confirmed_type,
+        source_file_content=entry["source_file_content"],
+        style_guide=style_guide,
+        question=entry["original_question"],
+        bot_answer=entry["bot_answer"],
+        reviewer_correction=entry["reviewer_text"],
+        api_key=anthropic_key,
+    )
+
+    # Compute the new content to validate the edit applies cleanly NOW.
+    try:
+        new_content = apply_structured_edit(entry["source_file_content"], edit)
+    except EditConflictError as e:
+        logging.warning("Edit conflict at generation time for %s: %s",
+                         entry["thread_ts"], e)
+        entry["status"] = "conflict_aborted"
+        slack_post_message(slack_token, channel_id,
+                            "Couldn't generate a clean edit — aborting. "
+                            "You can re-reply in the thread to retry.",
+                            thread_ts=entry["thread_ts"])
+        log_sop_update(airtable_key, base_id, _airtable_payload(entry, channel_id, ""))
+        return
+
+    # Compute the displayable diff
+    if edit["change_type"] == "ADD" and edit.get("create_new_section"):
+        diff_render = render_diff_for_slack("", edit["new"])
+    elif edit["change_type"] == "ADD":
+        diff_render = render_diff_for_slack("", edit["new"])
+    else:
+        diff_render = render_diff_for_slack(edit["old"], edit["new"])
+
+    diff_text = format_diff_post(
+        source_file=entry["source_file"],
+        diff=diff_render,
+        window_minutes=QUIET_WINDOW_MINUTES,
+    )
+    diff_msg_ts = slack_post_message(
+        slack_token, channel_id, diff_text, thread_ts=entry["thread_ts"],
+    )
+
+    entry["edit"] = edit
+    entry["new_content"] = new_content
+    entry["diff_render"] = diff_render
+    entry["diff_msg_ts"] = diff_msg_ts
+    entry["window_expires_at"] = (
+        datetime.now(timezone.utc) + timedelta(minutes=QUIET_WINDOW_MINUTES)
+    ).isoformat()
+    entry["status"] = "awaiting_window"
+
+
+def _advance_awaiting_window(entry, slack_token, github_token, github_repo, channel_id,
+                              approved_reviewers, airtable_key, base_id):
+    """Check veto reactions; if past expiry with no veto, commit."""
+    # Check for veto first
+    try:
+        result = slack_request(
+            "reactions.get",
+            {"channel": channel_id, "timestamp": entry["diff_msg_ts"], "full": "true"},
+            slack_token,
+        )
+        reactions = result.get("message", {}).get("reactions", [])
+    except Exception as e:
+        logging.warning("Could not fetch veto reactions for %s: %s",
+                         entry["thread_ts"], e)
+        return
+
+    veto_user = check_veto(reactions, approved_reviewers)
+    if veto_user:
+        veto_name = slack_get_user_info(slack_token, veto_user)
+        first_name = veto_name.split()[0] if veto_name else "someone"
+        slack_post_message(slack_token, channel_id, format_vetoed(first_name),
+                            thread_ts=entry["thread_ts"])
+        entry["status"] = "vetoed"
+        entry["vetoed_by"] = veto_user
+        log_sop_update(airtable_key, base_id,
+                        _airtable_payload(entry, channel_id, entry.get("diff_render", "")))
+        return
+
+    # Past expiry?
+    expires = datetime.fromisoformat(entry["window_expires_at"])
+    if datetime.now(timezone.utc) < expires:
+        return  # wait
+
+    # Conflict-check: re-fetch source file
+    current_content, current_sha = github_get_file(
+        github_repo, entry["source_file"], github_token,
+    )
+    if current_sha != entry["source_file_sha"]:
+        # Someone else edited the file mid-window — regenerate
+        logging.info("Source file changed for %s — regenerating", entry["thread_ts"])
+        try:
+            new_content = apply_structured_edit(current_content, entry["edit"])
+            entry["source_file_content"] = current_content
+            entry["source_file_sha"] = current_sha
+            entry["new_content"] = new_content
+            entry["window_expires_at"] = (
+                datetime.now(timezone.utc) + timedelta(minutes=QUIET_WINDOW_MINUTES)
+            ).isoformat()
+            slack_post_message(slack_token, channel_id, format_conflict_aborted(),
+                                thread_ts=entry["thread_ts"])
+            return
+        except EditConflictError:
+            entry["status"] = "conflict_aborted"
+            slack_post_message(
+                slack_token, channel_id,
+                "File changed during quiet window and the edit no longer applies — aborting.",
+                thread_ts=entry["thread_ts"],
+            )
+            log_sop_update(airtable_key, base_id,
+                            _airtable_payload(entry, channel_id, entry.get("diff_render", "")))
+            return
+
+    # COMMIT
+    # 1. Snapshot via doc_versioner (run locally — file is in repo)
+    snapshot_path = _snapshot_source_file(entry["source_file"], entry.get("confirmed_type", ""))
+
+    # 2. Push via GitHub API
+    commit_message = (
+        f"Update {os.path.basename(entry['source_file'])} (Coach Max — {entry['confirmed_type']})\n\n"
+        f"Reviewer: {entry.get('reviewer_name', entry['reviewer_user_id'])}\n"
+        f"Thread: {_slack_permalink(channel_id, entry['thread_ts'])}\n"
+        f"Coach Max run: {datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')}"
+    )
+    commit_sha = github_put_file(
+        github_repo, entry["source_file"], entry["new_content"],
+        commit_message, entry["source_file_sha"], github_token,
+    )
+
+    slack_post_message(
+        slack_token, channel_id,
+        format_commit_success(entry["source_file"], commit_sha, snapshot_path or "n/a"),
+        thread_ts=entry["thread_ts"],
+    )
+    entry["status"] = "committed"
+    entry["commit_sha"] = commit_sha
+    entry["snapshot_path"] = snapshot_path
+    log_sop_update(airtable_key, base_id,
+                    _airtable_payload(entry, channel_id, entry.get("diff_render", "")))
+
+
+def _load_style_guide():
+    from scripts.channel_monitor import STYLE_GUIDE
+    if os.path.isfile(STYLE_GUIDE):
+        with open(STYLE_GUIDE) as f:
+            return f.read()
+    return ""
+
+
+def _snapshot_source_file(repo_relative_path, change_type):
+    """Run doc_versioner.py to snapshot the current local copy of the file."""
+    from scripts.channel_monitor import REPO_DIR
+    abs_path = os.path.join(REPO_DIR, repo_relative_path)
+    if not os.path.isfile(abs_path):
+        logging.warning("Source file not present locally; skipping snapshot: %s", abs_path)
+        return ""
+    try:
+        from scripts.doc_versioner import version_document
+        version_path = version_document(
+            abs_path, note=f"{change_type} via Coach Max SOP updater",
+        )
+        if version_path:
+            return os.path.relpath(version_path, REPO_DIR)
+    except Exception as e:
+        logging.warning("Snapshot failed (continuing without): %s", e)
+    return ""
+
+
+def _airtable_payload(entry, channel_id, diff_render):
+    return {
+        "thread_ts": entry["thread_ts"],
+        "thread_link": _slack_permalink(channel_id, entry["thread_ts"]),
+        "reviewer_name": entry.get("reviewer_name", entry.get("reviewer_user_id", "")),
+        "source_file": entry.get("source_file", ""),
+        "change_type": entry.get("confirmed_type", entry.get("proposed_type", "")),
+        "status": entry.get("status", ""),
+        "commit_sha": entry.get("commit_sha", ""),
+        "snapshot_path": entry.get("snapshot_path", ""),
+        "original_question": entry.get("original_question", ""),
+        "bot_answer": entry.get("bot_answer", ""),
+        "reviewer_correction": entry.get("reviewer_text", ""),
+        "final_diff": diff_render,
+        "notes": "",
+    }
