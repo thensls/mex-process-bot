@@ -1399,7 +1399,7 @@ class TestScanForCorrections(unittest.TestCase):
         state = {
             "processed_threads": {
                 "1.0": {
-                    "reporter": "Alex",
+                    "reporter": "Angelica",
                     "question": "How do I X?",
                     "bot_response": "Bot's answer",
                     "bot_category": "shop",
