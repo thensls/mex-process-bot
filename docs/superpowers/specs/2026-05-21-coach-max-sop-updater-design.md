@@ -434,12 +434,12 @@ Look up each Slack member ID before deploy: Slack → click profile → More →
 
 ## Roadmap (post-launch)
 
-### v1.1 — additional file formats (this week)
-- **Word docs (.docx)** — adds `python-docx` dependency. ~1–2 hours.
-- **PowerPoint (.pptx)** — adds `python-pptx`. ~1–2 hours.
-- **Excel (.xlsx)** — adds `openpyxl`. ~1–2 hours.
+### v1.1 — additional file formats (no committed timeline)
+- **Word docs (.docx)** — adds `python-docx` dependency. ~2–3 hours including Dockerfile change + tests.
+- **PowerPoint (.pptx)** — adds `python-pptx`. Similar effort.
+- **Excel (.xlsx)** — adds `openpyxl`. Similar effort.
 
-Each ships independently behind the same feature flag.
+Each ships independently behind the same feature flag. Prioritize based on what the team actually attaches in the first weeks.
 
 ### v2 — bigger lifts
 - **Google Sheets URLs** — requires Google OAuth/service-account setup at org level + Sheets API integration. Half-day to set up auth, then ~2 hours of code.

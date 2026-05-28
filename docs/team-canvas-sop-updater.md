@@ -118,10 +118,10 @@ Coach Max picks it up on the next 5-min tick.
 | Format | Status |
 |---|---|
 | **PDF** ✅ | Supported today. Coach Max reads the PDF content directly. |
-| Word (.docx) ⏳ | On the roadmap (this week). For now: paste the relevant text into your message, or save as PDF. |
+| Word (.docx) ⏳ | On the roadmap. For now: paste the relevant text into your message, or save as PDF. |
 | PowerPoint (.pptx) ⏳ | On the roadmap. Same workaround. |
 | Excel (.xlsx) ⏳ | On the roadmap. Same workaround. |
-| Google Sheets URLs ⏳ | On the roadmap (needs OAuth setup — couple weeks out). |
+| Google Sheets URLs ⏳ | On the roadmap. Same workaround. |
 
 When you attach a non-PDF file, Coach Max will say so in its reply and ask you to either paste the content as text or re-upload as a PDF. **No ticket needed — just retry.**
 
