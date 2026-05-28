@@ -256,5 +256,37 @@ class TestGenerateStructuredEdit(unittest.TestCase):
         self.assertIn("Return Window Extensions", result["new"])
 
 
+class TestSlackMessages(unittest.TestCase):
+    def test_classification_prompt_contains_emojis_and_type(self):
+        from scripts.sop_updater import format_classification_prompt
+        msg = format_classification_prompt(
+            reviewer_first_name="Kara",
+            proposed_type="REPLACE",
+            source_file="references/knowledge-base/shop.md",
+            section_summary="Return Labels",
+            current_excerpt="Issue label via Form A within 24h.",
+        )
+        self.assertIn("Kara", msg)
+        self.assertIn("REPLACE", msg)
+        self.assertIn("shop.md", msg)
+        self.assertIn("➕", msg)
+        self.assertIn("🔁", msg)
+        self.assertIn("✏️", msg)
+        self.assertIn("🚫", msg)
+
+    def test_diff_post_contains_diff_and_window(self):
+        from scripts.sop_updater import format_diff_post
+        msg = format_diff_post(
+            source_file="references/knowledge-base/shop.md",
+            diff="```diff\n- foo\n+ bar\n```",
+            window_minutes=30,
+        )
+        self.assertIn("shop.md", msg)
+        self.assertIn("30 min", msg)
+        self.assertIn("🛑", msg)
+        self.assertIn("- foo", msg)
+        self.assertIn("+ bar", msg)
+
+
 if __name__ == "__main__":
     unittest.main()

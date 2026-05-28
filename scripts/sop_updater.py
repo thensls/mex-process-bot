@@ -370,3 +370,58 @@ def generate_structured_edit(change_type, source_file_content, style_guide,
         max_tokens=2000, json_schema=EDIT_SCHEMA,
     )
     return json.loads(result)
+
+
+# ---------------------------------------------------------------------------
+# Slack Message Templates
+# ---------------------------------------------------------------------------
+
+def format_classification_prompt(reviewer_first_name, proposed_type, source_file,
+                                  section_summary, current_excerpt):
+    """Build the Slack thread reply that asks the reviewer to confirm change type."""
+    type_label = {"ADD": "ENHANCE", "REPLACE": "REPLACE", "EDIT": "REVISE"}[proposed_type]
+    short_file = source_file.split("/")[-1]
+
+    body = (
+        f"Hey {reviewer_first_name} — looks like a *{type_label}* in `{short_file}` "
+        f"§ {section_summary}.\n"
+    )
+    if current_excerpt:
+        body += f"\n_Current:_ {current_excerpt}\n"
+    body += (
+        f"\nReact with one:\n"
+        f"➕ enhance  ·  🔁 replace  ·  ✏️ revise  ·  🚫 not an update"
+    )
+    return body
+
+
+def format_diff_post(source_file, diff, window_minutes):
+    """Build the Slack thread reply showing the proposed diff with veto countdown."""
+    return (
+        f"Proposed update to `{source_file}`:\n\n"
+        f"{diff}\n\n"
+        f"Auto-commits in *{window_minutes} min* unless anyone reacts 🛑."
+    )
+
+
+def format_commit_success(source_file, commit_sha, snapshot_path):
+    short_file = source_file.split("/")[-1]
+    return (
+        f"✅ Committed to `{short_file}` (`{commit_sha[:7]}`). "
+        f"Live in Coach Max in ~3 min. Snapshot: `{snapshot_path}`."
+    )
+
+
+def format_vetoed(reviewer_first_name):
+    return f"Cancelled by {reviewer_first_name}. No KB change made."
+
+
+def format_conflict_aborted():
+    return (
+        "File changed since I proposed this — regenerating diff. "
+        "New 30-min countdown starts now."
+    )
+
+
+def format_not_an_update():
+    return "Got it — not treating this as a KB update. Closing the loop here."
