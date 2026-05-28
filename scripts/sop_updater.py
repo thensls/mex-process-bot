@@ -910,3 +910,36 @@ def _airtable_payload(entry, channel_id, diff_render):
         "final_diff": diff_render,
         "notes": "",
     }
+
+
+FINISHED_STATUSES = {"committed", "vetoed", "stale", "conflict_aborted", "not_an_update"}
+
+
+def prune_finished_entries(state, max_age_days=7):
+    """Drop sop_updates entries that are in a terminal status and older than max_age_days."""
+    cutoff = datetime.now() - timedelta(days=max_age_days)
+    kept = []
+    for entry in state.get("sop_updates", []):
+        if entry.get("status") in FINISHED_STATUSES:
+            try:
+                created = datetime.fromisoformat(entry["created_at"])
+                if created < cutoff:
+                    continue  # prune
+            except (ValueError, KeyError):
+                pass
+        kept.append(entry)
+    state["sop_updates"] = kept
+
+
+def run_sop_updater(state, slack_token, anthropic_key, airtable_key, base_id,
+                     github_token, github_repo, channel_id, approved_reviewers, bot_user_id):
+    """Top-level SOP-updater pass: scan, advance, prune."""
+    ensure_sop_state_keys(state)
+    scan_for_corrections(
+        state, slack_token, anthropic_key, channel_id, approved_reviewers, bot_user_id,
+    )
+    advance_funnel(
+        state, slack_token, anthropic_key, airtable_key, base_id,
+        github_token, github_repo, channel_id, approved_reviewers,
+    )
+    prune_finished_entries(state)

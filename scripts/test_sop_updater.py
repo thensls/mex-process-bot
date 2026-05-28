@@ -3,7 +3,7 @@
 import base64
 import json
 import unittest
-from datetime import datetime
+from datetime import datetime, timedelta
 from io import BytesIO
 from unittest.mock import MagicMock, patch
 
@@ -514,6 +514,39 @@ class TestAdvanceFunnel(unittest.TestCase):
         self.assertEqual(entry["confirm_msg_ts"], "confirm.msg.ts")
         self.assertEqual(entry["proposed_type"], "REPLACE")
         self.assertEqual(entry["source_file_sha"], "sha_xyz")
+
+
+class TestRunSopUpdater(unittest.TestCase):
+    @patch("scripts.sop_updater.advance_funnel")
+    @patch("scripts.sop_updater.scan_for_corrections")
+    def test_calls_scan_then_advance(self, mock_scan, mock_advance):
+        from scripts.sop_updater import run_sop_updater
+        state = {"sop_updates": [], "processed_corrections": [], "processed_threads": {}}
+        run_sop_updater(
+            state=state, slack_token="T", anthropic_key="K",
+            airtable_key=None, base_id=None,
+            github_token="G", github_repo="r/r", channel_id="C0",
+            approved_reviewers={"U1"}, bot_user_id="BOT",
+        )
+        mock_scan.assert_called_once()
+        mock_advance.assert_called_once()
+
+    def test_prunes_finished_entries_older_than_7_days(self):
+        from scripts.sop_updater import prune_finished_entries
+        old = (datetime.now() - timedelta(days=10)).isoformat()
+        recent = datetime.now().isoformat()
+        state = {
+            "sop_updates": [
+                {"thread_ts": "1", "status": "committed", "created_at": old},
+                {"thread_ts": "2", "status": "committed", "created_at": recent},
+                {"thread_ts": "3", "status": "awaiting_confirm", "created_at": old},
+            ]
+        }
+        prune_finished_entries(state)
+        ids = [e["thread_ts"] for e in state["sop_updates"]]
+        self.assertNotIn("1", ids)  # old + committed → pruned
+        self.assertIn("2", ids)      # recent + committed → kept
+        self.assertIn("3", ids)      # not finished → kept regardless of age
 
 
 if __name__ == "__main__":
