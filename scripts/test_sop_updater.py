@@ -213,5 +213,48 @@ class TestProposeChangeType(unittest.TestCase):
         self.assertEqual(result["section_summary"], "Return Labels")
 
 
+class TestGenerateStructuredEdit(unittest.TestCase):
+    @patch("scripts.sop_updater.claude_request")
+    def test_replace_returns_old_and_new(self, mock_claude):
+        mock_claude.return_value = json.dumps({
+            "change_type": "REPLACE",
+            "old": "Issue label via Form A within 24h.",
+            "new": "Issue label via Form B within 24h (Form A deprecated 2026-04-15).",
+        })
+        from scripts.sop_updater import generate_structured_edit
+        result = generate_structured_edit(
+            change_type="REPLACE",
+            source_file_content="## Return Labels\n\nIssue label via Form A within 24h.\n",
+            style_guide="Slack-formatted bold uses *single asterisks*.",
+            question="How do I issue a return label?",
+            bot_answer="Use Form A within 24h.",
+            reviewer_correction="Use Form B; A was deprecated 4/15.",
+            api_key="API_KEY",
+        )
+        self.assertEqual(result["change_type"], "REPLACE")
+        self.assertIn("Form B", result["new"])
+        self.assertIn("Form A", result["old"])
+
+    @patch("scripts.sop_updater.claude_request")
+    def test_add_with_create_new_section(self, mock_claude):
+        mock_claude.return_value = json.dumps({
+            "change_type": "ADD",
+            "create_new_section": True,
+            "new": "## Return Window Extensions\n\nRequests beyond 30 days require Director approval.\n",
+        })
+        from scripts.sop_updater import generate_structured_edit
+        result = generate_structured_edit(
+            change_type="ADD",
+            source_file_content="## Existing Section\n\nstuff\n",
+            style_guide="",
+            question="Can we extend a return past 30 days?",
+            bot_answer="I don't have this in my SOP.",
+            reviewer_correction="Yes, but only with Director approval.",
+            api_key="API_KEY",
+        )
+        self.assertTrue(result["create_new_section"])
+        self.assertIn("Return Window Extensions", result["new"])
+
+
 if __name__ == "__main__":
     unittest.main()

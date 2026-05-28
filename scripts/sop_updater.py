@@ -283,3 +283,90 @@ def propose_change_type(question, bot_answer, reviewer_correction, source_file_c
         max_tokens=600, json_schema=PROPOSAL_SCHEMA,
     )
     return json.loads(result)
+
+
+# ---------------------------------------------------------------------------
+# Structured Edit Generation
+# ---------------------------------------------------------------------------
+
+EDIT_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "change_type": {"type": "string", "enum": ["ADD", "REPLACE", "EDIT"]},
+        "old": {"type": "string"},
+        "new": {"type": "string"},
+        "anchor_after": {"type": "string"},
+        "create_new_section": {"type": "boolean"},
+    },
+    "required": ["change_type", "new"],
+    "additionalProperties": False,
+}
+
+
+def generate_structured_edit(change_type, source_file_content, style_guide,
+                              question, bot_answer, reviewer_correction, api_key):
+    """Generate the actual structured edit Claude will apply.
+
+    Returns dict suitable for apply_structured_edit():
+      REPLACE/EDIT → {change_type, old, new}
+      ADD (existing section) → {change_type:"ADD", anchor_after, new}
+      ADD (new section) → {change_type:"ADD", create_new_section: true, new}
+    """
+    from scripts.channel_monitor import CLAUDE_MODEL
+
+    type_instructions = {
+        "ADD": (
+            "Decide whether to APPEND to an existing section (preferred when there's a "
+            "natural anchor) or CREATE a new section.\n"
+            "  - Append: return {change_type:'ADD', anchor_after:'<exact existing text "
+            "to insert after — usually a section heading or the last line of the section>', "
+            "new:'<the new content to insert>'}. `anchor_after` MUST appear exactly once "
+            "in the file content.\n"
+            "  - New section: return {change_type:'ADD', create_new_section:true, "
+            "new:'## <heading>\\n\\n<content>\\n'}.\n"
+            "Do NOT include `old` for ADD."
+        ),
+        "REPLACE": (
+            "Identify the exact text block being replaced (full heading + body if a whole "
+            "section is changing) and the replacement.\n"
+            "Return {change_type:'REPLACE', old:'<exact text to remove — must appear "
+            "exactly once>', new:'<replacement text>'}.\n"
+            "Preserve heading levels and any callouts."
+        ),
+        "EDIT": (
+            "Smallest-possible change. Touch as few characters as possible (a number, a "
+            "date, a single phrase).\n"
+            "Return {change_type:'EDIT', old:'<exact small string to find — must appear "
+            "exactly once>', new:'<replacement>'}."
+        ),
+    }
+
+    system = (
+        f"You are generating a structured edit to a Coach Max MEX bot knowledge-base file.\n"
+        f"\n"
+        f"STYLE GUIDE — keep the file in this voice:\n{style_guide}\n"
+        f"\n"
+        f"RULES:\n"
+        f"- Preserve Slack-flavored markdown: *bold* (single asterisks), _italic_, `code`.\n"
+        f"- Preserve heading levels (## section, ### subsection).\n"
+        f"- Preserve numbered step formatting.\n"
+        f"- Never invent escalation contacts, phone numbers, or SOP references not in the "
+        f"reviewer's correction or current file.\n"
+        f"- `old` (or `anchor_after`) MUST be an EXACT substring of the file. No paraphrase, "
+        f"no whitespace changes. Copy it verbatim.\n"
+        f"\n"
+        f"CHANGE TYPE: {change_type}\n"
+        f"{type_instructions[change_type]}"
+    )
+
+    user_msg = (
+        f"ORIGINAL QUESTION:\n{question}\n\n"
+        f"COACH MAX'S ANSWER (the wrong/incomplete one):\n{bot_answer}\n\n"
+        f"REVIEWER'S CORRECTION (the canonical answer):\n{reviewer_correction}\n\n"
+        f"CURRENT FILE CONTENT:\n{source_file_content}"
+    )
+    result = claude_request(
+        CLAUDE_MODEL, system, user_msg, api_key,
+        max_tokens=2000, json_schema=EDIT_SCHEMA,
+    )
+    return json.loads(result)
