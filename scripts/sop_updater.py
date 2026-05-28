@@ -207,6 +207,19 @@ CORRECTION_CLASS_SCHEMA = {
 }
 
 
+PROPOSAL_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "change_type": {"type": "string", "enum": ["ADD", "REPLACE", "EDIT"]},
+        "section_summary": {"type": "string"},
+        "current_excerpt": {"type": "string"},
+        "rationale": {"type": "string"},
+    },
+    "required": ["change_type", "section_summary", "current_excerpt", "rationale"],
+    "additionalProperties": False,
+}
+
+
 def claude_request(*args, **kwargs):
     """Lazily imports from channel_monitor so the dependency is one-way."""
     from scripts.channel_monitor import claude_request as _impl
@@ -233,3 +246,40 @@ def classify_correction(reply_text, api_key):
         max_tokens=50, json_schema=CORRECTION_CLASS_SCHEMA,
     )
     return json.loads(result)["class"]
+
+
+def propose_change_type(question, bot_answer, reviewer_correction, source_file_content, api_key):
+    """Have Claude propose how to classify the change.
+
+    Returns dict with change_type, section_summary (heading or 'NEW SECTION'),
+    current_excerpt (the existing line/block to be touched, or empty if ADD-new-section),
+    rationale (1-sentence why).
+    """
+    from scripts.channel_monitor import CLAUDE_MODEL
+
+    system = (
+        "You are classifying a knowledge-base update for the Coach Max MEX bot.\n"
+        "Given the original question, the bot's answer, the reviewer's correction, "
+        "and the current KB file content, decide the change type:\n"
+        "  - ADD: net-new info on top of existing content (no contradiction)\n"
+        "  - REPLACE: the existing content is wrong/outdated; swap it for new\n"
+        "  - EDIT: small detail change (number, date, step number) — minimal touch\n"
+        "\n"
+        "Also identify the section that will be touched (heading text) and an excerpt "
+        "of the current text (1-3 lines) for the confirmation message. "
+        "If the topic isn't in the KB at all and you'd be creating a NEW section, "
+        "use ADD and set section_summary='NEW SECTION: <proposed heading>' and "
+        "current_excerpt=''."
+    )
+
+    user_msg = (
+        f"ORIGINAL QUESTION:\n{question}\n\n"
+        f"COACH MAX'S ANSWER:\n{bot_answer}\n\n"
+        f"REVIEWER'S CORRECTION:\n{reviewer_correction}\n\n"
+        f"CURRENT KB FILE CONTENT:\n{source_file_content}"
+    )
+    result = claude_request(
+        CLAUDE_MODEL, system, user_msg, api_key,
+        max_tokens=600, json_schema=PROPOSAL_SCHEMA,
+    )
+    return json.loads(result)

@@ -192,5 +192,26 @@ class TestClassifyCorrection(unittest.TestCase):
         self.assertEqual(result, "chatter")
 
 
+class TestProposeChangeType(unittest.TestCase):
+    @patch("scripts.sop_updater.claude_request")
+    def test_returns_proposal_with_type_and_section(self, mock_claude):
+        mock_claude.return_value = json.dumps({
+            "change_type": "REPLACE",
+            "section_summary": "Return Labels",
+            "current_excerpt": "Issue label via Form A within 24h.",
+            "rationale": "Process changed; Form A deprecated.",
+        })
+        from scripts.sop_updater import propose_change_type
+        result = propose_change_type(
+            question="How do I issue a return label?",
+            bot_answer="Use Form A within 24h.",
+            reviewer_correction="Use Form B; A was deprecated 4/15.",
+            source_file_content="## Return Labels\n\nIssue label via Form A within 24h.\n",
+            api_key="API_KEY",
+        )
+        self.assertEqual(result["change_type"], "REPLACE")
+        self.assertEqual(result["section_summary"], "Return Labels")
+
+
 if __name__ == "__main__":
     unittest.main()
