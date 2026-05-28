@@ -49,3 +49,10 @@ GITHUB_API_BASE = "https://api.github.com"
 
 # Source for shared models / API base / repo dirs — re-imported from monitor
 # at runtime to avoid duplication. See run_sop_updater() for the wiring.
+
+
+def parse_approved_reviewers(env_value):
+    """Parse MEX_BOT_APPROVED_REVIEWERS env var (comma-separated) into a set of Slack user IDs."""
+    if not env_value:
+        return set()
+    return {part.strip() for part in env_value.split(",") if part.strip()}
