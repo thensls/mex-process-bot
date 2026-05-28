@@ -1124,5 +1124,45 @@ class TestRunSopUpdaterIncludesAnnouncements(unittest.TestCase):
         self.assertTrue(bot_id_seen, f"bot_user_id 'BOT' should be passed to scan_for_announcements; got args={ba_args}, kwargs={ba_kwargs}")
 
 
+class TestShouldRouteToSopUpdater(unittest.TestCase):
+    def test_routes_when_all_conditions_met(self):
+        from scripts.sop_updater import should_route_to_sop_updater
+        self.assertTrue(should_route_to_sop_updater(
+            reporter_id="U_KARA",
+            text="<@BOT> please update the SOP",
+            bot_user_id="BOT",
+            approved_reviewers={"U_KARA"},
+            sop_enabled=True,
+        ))
+
+    def test_does_not_route_when_flag_off(self):
+        from scripts.sop_updater import should_route_to_sop_updater
+        self.assertFalse(should_route_to_sop_updater(
+            "U_KARA", "<@BOT> please update",
+            "BOT", {"U_KARA"}, sop_enabled=False,
+        ))
+
+    def test_does_not_route_for_non_approved_reviewer(self):
+        from scripts.sop_updater import should_route_to_sop_updater
+        self.assertFalse(should_route_to_sop_updater(
+            "U_RANDOM", "<@BOT> please update",
+            "BOT", {"U_KARA"}, sop_enabled=True,
+        ))
+
+    def test_does_not_route_without_mention(self):
+        from scripts.sop_updater import should_route_to_sop_updater
+        self.assertFalse(should_route_to_sop_updater(
+            "U_KARA", "please update the SOP",
+            "BOT", {"U_KARA"}, sop_enabled=True,
+        ))
+
+    def test_does_not_route_when_bot_user_id_missing(self):
+        from scripts.sop_updater import should_route_to_sop_updater
+        self.assertFalse(should_route_to_sop_updater(
+            "U_KARA", "<@BOT> please update",
+            "", {"U_KARA"}, sop_enabled=True,
+        ))
+
+
 if __name__ == "__main__":
     unittest.main()

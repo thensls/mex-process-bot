@@ -1293,3 +1293,25 @@ def scan_for_announcements(state, slack_token, anthropic_key, channel_id,
             "(%d attachments)",
             ts, user_id, len(attached_files),
         )
+
+
+def should_route_to_sop_updater(reporter_id, text, bot_user_id, approved_reviewers,
+                                 sop_enabled):
+    """Decide whether a top-level channel message should bypass the answer flow
+    and be handled by the SOP-updater pass instead.
+
+    Returns True only when ALL of these are true:
+      - SOP updater feature flag is on
+      - Reporter is an approved reviewer
+      - Message @-mentions the bot
+      - bot_user_id is known
+    """
+    if not sop_enabled:
+        return False
+    if not bot_user_id:
+        return False
+    if reporter_id not in approved_reviewers:
+        return False
+    if not text or not bot_user_id:
+        return False
+    return f"<@{bot_user_id}>" in text

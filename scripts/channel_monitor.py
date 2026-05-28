@@ -665,6 +665,29 @@ def process_new_threads(state, slack_token, anthropic_key, airtable_key, base_id
         reporter_name = slack_get_user_info(slack_token, reporter_id)
         issue_text = msg.get("text", "")
 
+        # If this is an SOP-update announcement (approved reviewer + bot @-mention),
+        # skip the answer flow entirely — let the SOP updater pass handle it.
+        try:
+            from scripts.sop_updater import (
+                parse_approved_reviewers as _parse_approved,
+                should_route_to_sop_updater as _should_route,
+            )
+            _sop_enabled = os.environ.get("MEX_BOT_SOP_UPDATER_ENABLED", "").lower() == "true"
+            _approved = _parse_approved(os.environ.get("MEX_BOT_APPROVED_REVIEWERS", ""))
+            if _should_route(reporter_id, issue_text, _bot_user_id, _approved, _sop_enabled):
+                logging.info("Routing %s to SOP updater (approved reviewer + bot mention)", ts)
+                state["processed_threads"][ts] = {
+                    "reporter": reporter_name,
+                    "bot_response": None,
+                    "comparison_scored": "sop_announcement",
+                    "processed_at": datetime.now().isoformat(),
+                }
+                save_state(state)
+                continue
+        except Exception as e:
+            # Don't let SOP-updater routing errors break the answer flow.
+            logging.warning("SOP-updater routing check failed for %s: %s", ts, e)
+
         # Skip messages directed at a specific person (e.g. "@Kimberly can you check this?")
         # Slack encodes mentions as <@UXXXXXXX>. If the message opens with a mention of
         # someone who is NOT the bot, it's a direct ask to that person — not for Coach Max.
