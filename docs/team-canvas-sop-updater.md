@@ -2,23 +2,85 @@
 
 ## TL;DR
 
-Coach Max is closing the feedback loop. When you correct it in a thread *or* announce a KB change in the channel, the bot will propose the exact update, show it to the team, and auto-commit after 30 minutes unless someone vetoes.
+Coach Max is closing the feedback loop. When you correct it in a thread *or* announce a KB change in the channel, the bot will propose the exact update, **you give an explicit ✅ to approve it**, and after a 30-minute veto window (for the rest of the team to review), it auto-commits.
 
-**Two ways to trigger an update — pick whichever fits the moment:**
+All in the open — the whole team can see the playbook evolve in real time.
 
-1. **In-thread correction** — reply to a Coach Max answer with the right info.
-2. **Channel announcement** — post a top-level message in `#mex-sos-test` that **@-mentions Coach Max** and explains the update.
-
-Either path runs the same downstream funnel: classify → confirm → diff → 30-min veto window → commit. All in the open — the whole team can see the playbook evolve in real time.
+**Important:** Coach Max **never** commits anything to the KB without an explicit ✅ from an approved lead.
 
 ---
 
-## How it works — 4 steps
+## 🚦 Two ways to start an update
 
-1. **You trigger the update** (one of two ways below).
-2. Coach Max replies in the thread asking you to confirm the change type (**enhance / replace / revise**).
-3. You react with one emoji. Coach Max posts the exact proposed change and starts a **30-minute quiet window.**
-4. If nobody reacts 🛑, the playbook updates automatically. Coach Max uses the new version on the next question (~3 min later).
+### 💬 PATH A — Thread correction
+You catch Coach Max being wrong → reply in the thread with the right info.
+
+### 📣 PATH B — Channel announcement
+You want to push an update proactively → post a top-level message in `#mex-sos-test`, @-mention **Coach Max**, and explain the change.
+
+**Either way, the same flow runs.** Pick whichever feels natural in the moment.
+
+---
+
+## 🔄 The flow at a glance
+
+**STEP 1 — You trigger** 💬 or 📣
+Reply in-thread (Path A) or @-mention Coach Max in the channel (Path B). Include the actual correction text.
+
+⬇️
+
+**STEP 2 — Coach Max asks: "What kind of change?"** 🤖
+*"Is this an enhance, a replace, or a revise? I'm guessing it goes in `shop.md`."*
+**⏰ No timer.**
+
+⬇️
+
+**STEP 3 — You react with ONE emoji** 👆
+**➕** enhance · **🔁** replace · **✏️** revise · **🚫** not an update / wrong file
+Coach Max now goes off to generate the actual edit. *(Can take a few minutes — bot wakes up every 5 minutes.)*
+**⏰ Still no timer.**
+
+⬇️
+
+**STEP 4 — Coach Max posts the exact proposed edit** 📝
+The before/after, right in the thread, ready for you to review.
+**⏰ Still no timer running — nothing will commit until you say so.**
+
+⬇️
+
+**STEP 5 — You explicitly approve with ✅** ✅
+React **✅** on Coach Max's diff message to approve the edit.
+React **🚫** to cancel the whole thing.
+**⏰ THE 30-MINUTE TIMER STARTS NOW** — at the moment of your ✅.
+
+⬇️
+
+**STEP 6 — Team can veto** 🛑
+Any approved lead reacts 🛑 within those 30 minutes → cancelled, nothing changes.
+Silence for 30 minutes → commits.
+
+⬇️
+
+**STEP 7 — Committed ✅**
+📚 Coach Max uses the new info within ~3 minutes.
+
+---
+
+## 🕐 About the 30-minute timer — read this once
+
+The 30-minute window **starts ONLY after you (or any approved lead) reacts ✅** on Coach Max's proposed edit (Step 5).
+
+It does NOT start:
+- ❌ When you trigger the update (Step 1)
+- ❌ When Coach Max asks you to classify (Step 2)
+- ❌ When you react with the classification emoji (Step 3)
+- ❌ When Coach Max posts the proposed edit (Step 4)
+
+**Nothing commits without an explicit ✅ reaction first.** Take all the time you need to review the proposed edit. The clock doesn't start until you arm it.
+
+Once you ✅, the 30-min veto window gives the rest of the team a chance to 🛑 if something looks wrong. Silence after 30 min = commits.
+
+**Coach Max will never auto-commit anything without (a) your ✅ approval AND (b) a 30-min silent veto window.**
 
 ---
 
@@ -36,22 +98,22 @@ Coach Max picks it up on the next 5-min tick.
 
 ## Path B — Channel announcement (proactive)
 
-You don't need to wait for a member to ask. To proactively push a KB update, post a top-level message in `#mex-sos-test` that **@-mentions Coach Max** and describes the change. You can include a PDF attachment if helpful — the bot will read it.
+You don't need to wait for a member to ask. Post a top-level message in `#mex-sos-test` that **@-mentions Coach Max** and describes the change. You can include a PDF attachment if helpful — the bot will read it.
 
 > ***You:*** Hey team / @Coach Max — we updated the handbook (attached). Page 6, refunds are now illegal as of 4/15.
 > 📎 *handbook-v2.pdf*
 
-Coach Max picks it up on the next 5-min tick, replies in the thread of your announcement asking you to confirm the change type, and runs the same funnel as Path A.
+Coach Max picks it up on the next 5-min tick.
 
 ### Important rules for announcements
 
-- **Must @-mention Coach Max.** Without the mention, the bot won't pick it up (this prevents accidental KB edits from random channel chatter).
-- **Must be from a MEX lead** on the approved list (Kara, Kimberly, Alejandro, Monica, Alaynie). Other people's @-mentions get treated as normal questions.
-- **Post at the top level** (not as a thread reply). Top-level posts are the trigger for Path B.
+- **Must @-mention Coach Max.** Without the mention, the bot won't pick it up.
+- **Must be from a MEX lead** on the approved list (Kara, Kimberly, Alejandro, Monica, Alaynie).
+- **Post at the top level** — not as a thread reply.
 
 ---
 
-## File attachments — what Coach Max can read
+## 📎 File attachments — what Coach Max can read
 
 | Format | Status |
 |---|---|
@@ -61,33 +123,43 @@ Coach Max picks it up on the next 5-min tick, replies in the thread of your anno
 | Excel (.xlsx) ⏳ | On the roadmap. Same workaround. |
 | Google Sheets URLs ⏳ | On the roadmap (needs OAuth setup — couple weeks out). |
 
-**When you attach a non-PDF file, Coach Max will tell you in its response that it can't read it yet and ask you to either paste the content as text or re-upload as a PDF.** No need to file a ticket — just retry.
+When you attach a non-PDF file, Coach Max will say so in its reply and ask you to either paste the content as text or re-upload as a PDF. **No ticket needed — just retry.**
 
 ---
 
 ## ✅ Exactly what you need to do
 
-### Step 1 — When Coach Max asks for classification, react with ONE emoji:
+### Step A — When Coach Max asks "what kind of change?", react with ONE emoji:
 
 | React | Use when... |
 |---|---|
-| ➕ **Enhance** | You're adding *new* info on top of what's already there |
-| 🔁 **Replace** | The old process is wrong/outdated — swap it out entirely |
+| ➕ **Enhance** | Adding *new* info on top of what's already there |
+| 🔁 **Replace** | Old process is wrong/outdated — swap it out entirely |
 | ✏️ **Revise** | Just tweaking a detail (a number, a date, a step name) |
-| 🚫 **Not an update** | The reply wasn't a correction — drop it |
+| 🚫 **Not an update / wrong file** | Drop it, or re-post with the right category |
 
-Coach Max will *also* suggest which KB file it thinks should be updated (e.g., `shop.md`, `refunds.md`). **If it picked the wrong file**, react 🚫 and re-post your announcement with the right category in the text — e.g., "KB update SHOP: ..."
+Coach Max suggests which KB file it thinks should be updated (e.g., `shop.md`). **If it picked the wrong file**, react 🚫 and re-post with the right category in your text (e.g., "KB update SHOP: ...").
 
-Coach Max ignores all other reactions (👀, 👍, etc.) — only the 4 emojis above count.
+Other reactions (👀, 👍, etc.) are ignored — only the 4 emojis above count.
 
-### Step 2 — Coach Max posts the proposed change. You have 30 minutes:
+**⏰ No timer is running.** Take as long as you need.
+
+### Step B — Coach Max posts the proposed edit. Review it carefully. Then react:
+
+| React | Effect |
+|---|---|
+| ✅ **Approve** | Arms the commit. Starts a 30-min veto window for the team. |
+| 🚫 **Cancel** | Stops the whole thing. Nothing changes in the KB. |
+| (nothing) | Proposal sits there indefinitely. Nothing commits. |
+
+**Nothing happens until you ✅ — the bot will not commit on its own.**
+
+### Step C — After your ✅, the 30-minute veto window runs:
 
 | React | When to use |
 |---|---|
-| 🛑 **Veto** | Something looks wrong — bot cancels, no change made |
-| (nothing) | You're good with it — silence = approved after 30 min |
-
-The 30-min countdown starts **when Coach Max posts the diff**, not when you first @-mention it. So no rush on the emoji confirm — the timer doesn't start until you pick a type.
+| 🛑 **Veto** | Anyone on the approved lead list spots an issue — cancels the commit |
+| (nothing) | Silence = approval confirmed, commits after 30 min |
 
 That's it. No forms, no DMs, no GitHub.
 
@@ -95,34 +167,44 @@ That's it. No forms, no DMs, no GitHub.
 
 ## 👥 Who can approve or veto
 
-Kara, Kimberly, Alejandro, Monica, Alaynie.
+**Kara · Kimberly · Alejandro · Monica · Alaynie**
 
-**Any one of you** can trigger an update or veto one — you're not waiting on a single person. Regular team members (non-leads) can still ask questions and use the existing ✅/❌ reactions on bot answers for quality scoring; nothing changes there.
+Any one of you can trigger an update, ✅ approve a diff, or 🛑 veto a pending commit — you're not waiting on a single person.
+
+Regular team members (non-leads) keep asking questions like always and the existing ✅/❌ reactions on bot answers for *quality scoring* still work — nothing changes there.
+
+**Heads up on dual-use of ✅:** Coach Max uses ✅ in two different places. On a bot's *answer*, ✅ means "this answer was correct" (existing quality-scoring loop). On a bot's *proposed edit*, ✅ means "approve this KB commit." They're on different messages, so the bot can tell them apart — but it's worth knowing they're both green checkmarks.
 
 ---
 
 ## ❓ Quick FAQ
 
 **Do I need to learn this if I'm not a lead?**
-No. If you're not on the MEX lead list, just keep asking Coach Max questions like always. Nothing changes for you.
+No. Just keep asking Coach Max questions like always. Nothing changes for you.
 
-**What if I miss the 30-min window?**
-No harm — the update just commits. We can always roll back via snapshot.
+**When exactly does the 30-minute timer start?**
+Only after an approved lead reacts ✅ on Coach Max's proposed edit. Not at any earlier step.
+
+**Can Coach Max commit anything without my ✅?**
+No. The bot will never auto-commit unless an approved lead reacts ✅ on the proposed edit AND the 30-min veto window passes silently.
+
+**What if nobody reacts ✅?**
+The proposal sits in the thread. Nothing commits. (After 48 hours of no reaction, the bot marks it stale and stops watching.)
+
+**What if I miss the 30-min veto window after I approved?**
+The update commits. We can always roll back via snapshot if it turns out wrong.
 
 **What if Coach Max picks the wrong file?**
-React 🚫 and re-post your announcement with the category in the text (e.g., "KB update REFUNDS: ..."). The bot will re-process against the right file.
+React 🚫 (at the classification step OR at the diff step) and re-post your message with the right category in the text (e.g., "KB update REFUNDS: ...").
 
 **What if I attach a Word doc or PowerPoint?**
-Coach Max will tell you it can't read it (yet — that's coming) and ask you to paste the relevant text into your message or save it as a PDF. Just retry.
+Coach Max will tell you it can't read it yet and ask you to paste the text or save as a PDF. Just retry.
 
 **What if two of us react with different emojis?**
-First emoji wins; the bot processes that and moves on. If it's a real disagreement, chat in-thread.
+First emoji wins; the bot processes that and moves on. Real disagreement? Chat in-thread.
 
 **Can I see what changed historically?**
 Yes — every update creates a timestamped snapshot in the repo + a commit on GitHub linking back to the Slack thread. Angelica monitors this from the backend.
-
-**Where do bug reports / "this isn't working" go?**
-Tag Alex in the channel or DM. Don't file a help desk ticket for normal updates — only file one if the bot fails to ingest a file you expected it to handle.
 
 ---
 
@@ -130,7 +212,7 @@ Tag Alex in the channel or DM. Don't file a help desk ticket for normal updates 
 
 - Coach Max still answers MEX questions the same way
 - Escalation chain unchanged (SOS-trained → Team Lead → Workforce → Director)
-- Bot's self-scoring and existing ✅/❌ reactions continue as-is
+- Bot's self-scoring and existing ✅/❌ reactions on regular answers continue as-is
 - Regular team members don't need to learn anything new
 
-We're just adding the missing piece — turning your corrections and announcements into permanent improvements to the playbooks Coach Max reads from.
+We're just adding the missing piece — turning your corrections and announcements into permanent improvements to the playbooks Coach Max reads from, with you in control of every commit.
