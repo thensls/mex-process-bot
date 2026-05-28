@@ -1192,6 +1192,34 @@ def main():
     check_followup_questions(state, slack_token, anthropic_key)
     check_comparison_responses(state, slack_token, anthropic_key, airtable_key, base_id)
     check_reaction_scores(state, slack_token, airtable_key, base_id)
+
+    # SOP Updater pass — feature-flagged
+    if os.environ.get("MEX_BOT_SOP_UPDATER_ENABLED", "").lower() == "true":
+        try:
+            from scripts.sop_updater import run_sop_updater, parse_approved_reviewers
+            global _bot_user_id
+            if not _bot_user_id:
+                _bot_user_id = get_bot_user_id(slack_token)
+            run_sop_updater(
+                state=state,
+                slack_token=slack_token,
+                anthropic_key=anthropic_key,
+                airtable_key=airtable_key,
+                base_id=base_id,
+                github_token=os.environ.get("GITHUB_TOKEN", ""),
+                github_repo=os.environ.get("GITHUB_REPO", ""),
+                channel_id=LIVE_CHANNEL_ID,
+                approved_reviewers=parse_approved_reviewers(
+                    os.environ.get("MEX_BOT_APPROVED_REVIEWERS", "")
+                ),
+                bot_user_id=_bot_user_id,
+            )
+            save_state(state)
+        except Exception as e:
+            logging.error("SOP updater pass failed: %s", e)
+    else:
+        logging.info("SOP updater disabled (MEX_BOT_SOP_UPDATER_ENABLED != 'true')")
+
     prune_old_threads(state)
 
     duration = round(time.time() - start_time, 1)
