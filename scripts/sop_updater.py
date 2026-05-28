@@ -425,3 +425,33 @@ def format_conflict_aborted():
 
 def format_not_an_update():
     return "Got it — not treating this as a KB update. Closing the loop here."
+
+
+def get_classification_choice(reactions, approved_reviewers):
+    """Scan reactions list (from reactions.get) for an approved-reviewer choice.
+
+    Returns (change_type_or_NOT_AN_UPDATE, user_id) tuple, or None if no valid choice yet.
+    Priority: first valid emoji from any approved user wins (Slack returns earliest first).
+    """
+    for r in reactions:
+        name = r.get("name", "")
+        users = r.get("users", [])
+        approved_users = [u for u in users if u in approved_reviewers]
+        if not approved_users:
+            continue
+        if name in EMOJI_TO_TYPE:
+            return (EMOJI_TO_TYPE[name], approved_users[0])
+        if name == EMOJI_NOT_AN_UPDATE:
+            return ("NOT_AN_UPDATE", approved_users[0])
+    return None
+
+
+def check_veto(reactions, approved_reviewers):
+    """Return the Slack user ID of the first approved reviewer who reacted 🛑, or None."""
+    for r in reactions:
+        if r.get("name") != EMOJI_VETO:
+            continue
+        for u in r.get("users", []):
+            if u in approved_reviewers:
+                return u
+    return None

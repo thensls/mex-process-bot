@@ -288,5 +288,39 @@ class TestSlackMessages(unittest.TestCase):
         self.assertIn("+ bar", msg)
 
 
+class TestReactionPolling(unittest.TestCase):
+    def test_get_classification_choice_picks_first_valid(self):
+        from scripts.sop_updater import get_classification_choice
+        reactions = [
+            {"name": "repeat", "users": ["U123"]},  # 🔁 from approved
+            {"name": "thumbsup", "users": ["U999"]},  # ignored
+        ]
+        approved = {"U123"}
+        result = get_classification_choice(reactions, approved)
+        self.assertEqual(result, ("REPLACE", "U123"))
+
+    def test_get_classification_choice_not_an_update(self):
+        from scripts.sop_updater import get_classification_choice
+        reactions = [{"name": "no_entry_sign", "users": ["U123"]}]
+        result = get_classification_choice(reactions, {"U123"})
+        self.assertEqual(result, ("NOT_AN_UPDATE", "U123"))
+
+    def test_get_classification_choice_none_from_non_approved(self):
+        from scripts.sop_updater import get_classification_choice
+        reactions = [{"name": "repeat", "users": ["U999"]}]  # non-approved
+        result = get_classification_choice(reactions, {"U123"})
+        self.assertIsNone(result)
+
+    def test_check_veto_returns_user_id(self):
+        from scripts.sop_updater import check_veto
+        reactions = [{"name": "octagonal_sign", "users": ["U456"]}]
+        self.assertEqual(check_veto(reactions, {"U123", "U456"}), "U456")
+
+    def test_check_veto_ignores_non_approved(self):
+        from scripts.sop_updater import check_veto
+        reactions = [{"name": "octagonal_sign", "users": ["U999"]}]
+        self.assertIsNone(check_veto(reactions, {"U123"}))
+
+
 if __name__ == "__main__":
     unittest.main()
