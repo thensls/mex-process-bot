@@ -474,6 +474,104 @@ def airtable_request(*args, **kwargs):
     return _impl(*args, **kwargs)
 
 
+def slack_request(*args, **kwargs):
+    from scripts.channel_monitor import slack_request as _impl
+    return _impl(*args, **kwargs)
+
+
+CORRECTION_LOOKBACK_DAYS = 14
+
+
+def scan_for_corrections(state, slack_token, anthropic_key, channel_id,
+                          approved_reviewers, bot_user_id):
+    """For each recent Coach Max thread, find new approved-reviewer replies,
+    filter them via Haiku, create sop_updates entries for genuine corrections.
+    """
+    now = datetime.now()
+
+    for thread_ts, thread_data in state.get("processed_threads", {}).items():
+        # Skip threads older than lookback
+        processed_at = thread_data.get("processed_at", "")
+        if processed_at:
+            try:
+                age = (now - datetime.fromisoformat(processed_at)).days
+                if age > CORRECTION_LOOKBACK_DAYS:
+                    continue
+            except (ValueError, TypeError):
+                pass
+
+        # Need a bot reply to anchor on
+        bot_msg_ts = thread_data.get("bot_message_ts")
+        if not bot_msg_ts:
+            continue
+
+        # Skip threads where a sop_update is already in flight
+        if any(u["thread_ts"] == thread_ts for u in state["sop_updates"]):
+            continue
+
+        try:
+            result = slack_request(
+                "conversations.replies",
+                {"channel": channel_id, "ts": thread_ts},
+                slack_token,
+            )
+        except Exception as e:
+            logging.warning("Could not fetch replies for %s: %s", thread_ts, e)
+            continue
+
+        replies = result.get("messages", [])
+        for r in replies:
+            reply_ts = r.get("ts", "")
+            if reply_ts == thread_ts:
+                continue  # the original message itself
+            user_id = r.get("user", "")
+            if user_id not in approved_reviewers:
+                continue
+            # Must be AFTER the bot's reply (corrections to the bot's answer)
+            try:
+                if float(reply_ts) <= float(bot_msg_ts):
+                    continue
+            except (ValueError, TypeError):
+                continue
+
+            pair_key = f"{thread_ts}:{reply_ts}"
+            if pair_key in state["processed_corrections"]:
+                continue
+
+            reply_text = r.get("text", "")
+            try:
+                classification = classify_correction(reply_text, anthropic_key)
+            except Exception as e:
+                logging.warning("Filter gate failed for %s — deferring: %s", pair_key, e)
+                continue  # Don't mark processed; retry next tick.
+
+            state["processed_corrections"].append(pair_key)
+
+            if classification != "correction":
+                logging.info("Skipping %s reply %s as %s", thread_ts, reply_ts, classification)
+                continue
+
+            # Create the funnel entry
+            entry = {
+                "thread_ts": thread_ts,
+                "reply_ts": reply_ts,
+                "reviewer_user_id": user_id,
+                "reviewer_text": reply_text,
+                "original_question": thread_data.get("question", ""),
+                "bot_answer": thread_data.get("bot_response", ""),
+                "bot_category": thread_data.get("bot_category", "other"),
+                "status": "awaiting_proposal",
+                "created_at": now.isoformat(),
+            }
+            state["sop_updates"].append(entry)
+            logging.info(
+                "Created sop_update entry for thread %s reply %s (user %s)",
+                thread_ts, reply_ts, user_id,
+            )
+            # Only the FIRST correction per thread wins this tick
+            break
+
+
 def log_sop_update(airtable_key, base_id, entry):
     """Write/upsert one row to the SOP Updates Airtable table.
 

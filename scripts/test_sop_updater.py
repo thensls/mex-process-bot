@@ -3,6 +3,7 @@
 import base64
 import json
 import unittest
+from datetime import datetime
 from io import BytesIO
 from unittest.mock import MagicMock, patch
 
@@ -374,6 +375,100 @@ class TestLogSopUpdate(unittest.TestCase):
         # Verify the table is "SOP Updates" (URL-encoded). The path is the
         # second positional arg (method, path, ...).
         self.assertIn("SOP%20Updates", call_args[0][1])
+
+
+class TestScanForCorrections(unittest.TestCase):
+    @patch("scripts.sop_updater.classify_correction")
+    @patch("scripts.sop_updater.slack_request")
+    def test_creates_state_entry_for_correction(self, mock_slack, mock_classify):
+        # conversations.replies returns one reviewer reply
+        mock_slack.return_value = {
+            "messages": [
+                {"ts": "1.0", "user": "ORIG", "text": "How do I X?"},
+                {"ts": "1.5", "user": "BOT", "text": "Bot's answer"},
+                {"ts": "2.0", "user": "U_KARA", "text": "Actually use Y."},
+            ]
+        }
+        mock_classify.return_value = "correction"
+
+        from scripts.sop_updater import scan_for_corrections
+        state = {
+            "processed_threads": {
+                "1.0": {
+                    "reporter": "Alex",
+                    "question": "How do I X?",
+                    "bot_response": "Bot's answer",
+                    "bot_category": "shop",
+                    "bot_message_ts": "1.5",
+                    "processed_at": datetime.now().isoformat(),
+                }
+            },
+            "sop_updates": [],
+            "processed_corrections": [],
+        }
+        scan_for_corrections(
+            state=state,
+            slack_token="TOKEN",
+            anthropic_key="KEY",
+            channel_id="C0",
+            approved_reviewers={"U_KARA"},
+            bot_user_id="BOT",
+        )
+        # One sop_updates entry created in awaiting_proposal status
+        self.assertEqual(len(state["sop_updates"]), 1)
+        self.assertEqual(state["sop_updates"][0]["status"], "awaiting_proposal")
+        self.assertEqual(state["sop_updates"][0]["reviewer_user_id"], "U_KARA")
+        # processed_corrections has the (thread, reply) pair
+        self.assertIn("1.0:2.0", state["processed_corrections"])
+
+    @patch("scripts.sop_updater.classify_correction")
+    @patch("scripts.sop_updater.slack_request")
+    def test_skips_chatter(self, mock_slack, mock_classify):
+        mock_slack.return_value = {
+            "messages": [
+                {"ts": "1.0", "user": "ORIG", "text": "Q"},
+                {"ts": "1.5", "user": "BOT", "text": "A"},
+                {"ts": "2.0", "user": "U_KARA", "text": "thx!"},
+            ]
+        }
+        mock_classify.return_value = "chatter"
+
+        from scripts.sop_updater import scan_for_corrections
+        state = {
+            "processed_threads": {
+                "1.0": {"reporter": "x", "question": "Q", "bot_response": "A",
+                         "bot_category": "shop", "bot_message_ts": "1.5",
+                         "processed_at": datetime.now().isoformat()}
+            },
+            "sop_updates": [],
+            "processed_corrections": [],
+        }
+        scan_for_corrections(state, "T", "K", "C0", {"U_KARA"}, "BOT")
+        self.assertEqual(state["sop_updates"], [])
+        # Still marked processed so we don't re-classify
+        self.assertIn("1.0:2.0", state["processed_corrections"])
+
+    @patch("scripts.sop_updater.slack_request")
+    def test_skips_already_processed(self, mock_slack):
+        mock_slack.return_value = {
+            "messages": [
+                {"ts": "1.0", "user": "ORIG", "text": "Q"},
+                {"ts": "1.5", "user": "BOT", "text": "A"},
+                {"ts": "2.0", "user": "U_KARA", "text": "actually..."},
+            ]
+        }
+        from scripts.sop_updater import scan_for_corrections
+        state = {
+            "processed_threads": {
+                "1.0": {"reporter": "x", "question": "Q", "bot_response": "A",
+                         "bot_category": "shop", "bot_message_ts": "1.5",
+                         "processed_at": datetime.now().isoformat()}
+            },
+            "sop_updates": [],
+            "processed_corrections": ["1.0:2.0"],  # already done
+        }
+        scan_for_corrections(state, "T", "K", "C0", {"U_KARA"}, "BOT")
+        self.assertEqual(state["sop_updates"], [])
 
 
 if __name__ == "__main__":
