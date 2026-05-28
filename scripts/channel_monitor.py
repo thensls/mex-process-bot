@@ -695,7 +695,7 @@ def process_new_threads(state, slack_token, anthropic_key, airtable_key, base_id
         # If this is an SOP-update announcement (approved reviewer + bot @-mention),
         # skip the answer flow entirely — let the SOP updater pass handle it.
         try:
-            from scripts.sop_updater import (
+            from sop_updater import (
                 parse_approved_reviewers as _parse_approved,
                 should_route_to_sop_updater as _should_route,
             )
@@ -1246,7 +1246,7 @@ def main():
     # SOP Updater pass — feature-flagged
     if os.environ.get("MEX_BOT_SOP_UPDATER_ENABLED", "").lower() == "true":
         try:
-            from scripts.sop_updater import run_sop_updater, parse_approved_reviewers
+            from sop_updater import run_sop_updater, parse_approved_reviewers
             global _bot_user_id
             if not _bot_user_id:
                 _bot_user_id = get_bot_user_id(slack_token)

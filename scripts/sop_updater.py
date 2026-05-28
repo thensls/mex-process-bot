@@ -20,11 +20,20 @@ import json
 import logging
 import os
 import re
+import sys
 import time
 import urllib.error
 import urllib.parse
 import urllib.request
 from datetime import datetime, timedelta, timezone
+
+# Ensure the directory containing this file (and channel_monitor.py) is on
+# sys.path so bare imports like `from channel_monitor import X` resolve in
+# both runtime (Railway runs `python3 scripts/channel_monitor.py`) and test
+# (loaded as `scripts.sop_updater`) contexts.
+_THIS_DIR = os.path.dirname(os.path.abspath(__file__))
+if _THIS_DIR not in sys.path:
+    sys.path.insert(0, _THIS_DIR)
 
 # ---------------------------------------------------------------------------
 # Constants
@@ -224,13 +233,13 @@ PROPOSAL_SCHEMA = {
 
 def claude_request(*args, **kwargs):
     """Lazily imports from channel_monitor so the dependency is one-way."""
-    from scripts.channel_monitor import claude_request as _impl
+    from channel_monitor import claude_request as _impl
     return _impl(*args, **kwargs)
 
 
 def classify_correction(reply_text, api_key):
     """Filter a reviewer thread reply: correction / chatter / escalation / unclear."""
-    from scripts.channel_monitor import CLAUDE_CLASSIFIER
+    from channel_monitor import CLAUDE_CLASSIFIER
 
     system = (
         "You are filtering a Slack thread reply from a MEX (Member Experience) lead "
@@ -268,7 +277,7 @@ def classify_announcement(message_text, api_key):
       - question: a regular question being asked of Coach Max
       - chatter: announcements unrelated to KB updates (greetings, status updates, anything else)
     """
-    from scripts.channel_monitor import CLAUDE_CLASSIFIER
+    from channel_monitor import CLAUDE_CLASSIFIER
 
     system = (
         "You are filtering a top-level Slack channel message from a MEX (Member Experience) "
@@ -307,7 +316,7 @@ def propose_change_type(question, bot_answer, reviewer_correction, source_file_c
     If `pdf_blocks` is provided (list of Anthropic document content blocks), they are
     sent alongside the text prompt so Claude can read PDF contents.
     """
-    from scripts.channel_monitor import CLAUDE_MODEL
+    from channel_monitor import CLAUDE_MODEL
 
     system = (
         "You are classifying a knowledge-base update for the Coach Max MEX bot.\n"
@@ -373,7 +382,7 @@ def generate_structured_edit(change_type, source_file_content, style_guide,
 
     If `pdf_blocks` is provided, they are sent alongside the text prompt.
     """
-    from scripts.channel_monitor import CLAUDE_MODEL
+    from channel_monitor import CLAUDE_MODEL
 
     type_instructions = {
         "ADD": (
@@ -571,7 +580,7 @@ def resolve_source_file(category):
 
     Unknown / 'other' / None all fall back to general.md.
     """
-    from scripts.channel_monitor import KB_CATEGORIES
+    from channel_monitor import KB_CATEGORIES
     if category in KB_CATEGORIES and category != "other":
         return f"references/knowledge-base/{category}.md"
     return "references/knowledge-base/general.md"
@@ -579,18 +588,18 @@ def resolve_source_file(category):
 
 def airtable_request(*args, **kwargs):
     """Lazy import from channel_monitor."""
-    from scripts.channel_monitor import airtable_request as _impl
+    from channel_monitor import airtable_request as _impl
     return _impl(*args, **kwargs)
 
 
 def classify_issue(*args, **kwargs):
     """Lazy import from channel_monitor — used in Path B to infer category from announcement text."""
-    from scripts.channel_monitor import classify_issue as _impl
+    from channel_monitor import classify_issue as _impl
     return _impl(*args, **kwargs)
 
 
 def slack_request(*args, **kwargs):
-    from scripts.channel_monitor import slack_request as _impl
+    from channel_monitor import slack_request as _impl
     return _impl(*args, **kwargs)
 
 
@@ -730,12 +739,12 @@ def log_sop_update(airtable_key, base_id, entry):
 
 
 def slack_post_message(*args, **kwargs):
-    from scripts.channel_monitor import slack_post_message as _impl
+    from channel_monitor import slack_post_message as _impl
     return _impl(*args, **kwargs)
 
 
 def slack_get_user_info(*args, **kwargs):
-    from scripts.channel_monitor import slack_get_user_info as _impl
+    from channel_monitor import slack_get_user_info as _impl
     return _impl(*args, **kwargs)
 
 
@@ -1089,7 +1098,7 @@ def _advance_awaiting_window(entry, slack_token, github_token, github_repo, chan
 
 
 def _load_style_guide():
-    from scripts.channel_monitor import STYLE_GUIDE
+    from channel_monitor import STYLE_GUIDE
     if os.path.isfile(STYLE_GUIDE):
         with open(STYLE_GUIDE) as f:
             return f.read()
@@ -1098,13 +1107,13 @@ def _load_style_guide():
 
 def _snapshot_source_file(repo_relative_path, change_type):
     """Run doc_versioner.py to snapshot the current local copy of the file."""
-    from scripts.channel_monitor import REPO_DIR
+    from channel_monitor import REPO_DIR
     abs_path = os.path.join(REPO_DIR, repo_relative_path)
     if not os.path.isfile(abs_path):
         logging.warning("Source file not present locally; skipping snapshot: %s", abs_path)
         return ""
     try:
-        from scripts.doc_versioner import version_document
+        from doc_versioner import version_document
         version_path = version_document(
             abs_path, note=f"{change_type} via Coach Max SOP updater",
         )
