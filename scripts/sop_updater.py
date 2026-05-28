@@ -248,6 +248,52 @@ def classify_correction(reply_text, api_key):
     return json.loads(result)["class"]
 
 
+ANNOUNCEMENT_CLASS_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "class": {"type": "string", "enum": ["update_directive", "question", "chatter"]},
+    },
+    "required": ["class"],
+    "additionalProperties": False,
+}
+
+
+def classify_announcement(message_text, api_key):
+    """Filter a top-level channel message from an approved reviewer.
+
+    Returns one of:
+      - update_directive: explicit KB update instruction ("we updated X", "the process is now Y", "Coach Max please update Z")
+      - question: a regular question being asked of Coach Max
+      - chatter: announcements unrelated to KB updates (greetings, status updates, anything else)
+    """
+    from scripts.channel_monitor import CLAUDE_CLASSIFIER
+
+    system = (
+        "You are filtering a top-level Slack channel message from a MEX (Member Experience) "
+        "team lead who has @-mentioned the Coach Max bot. Decide what the message is:\n"
+        "\n"
+        "  - update_directive: the lead is announcing or instructing a knowledge-base change. "
+        "Examples: 'we updated the handbook — refunds are now illegal', 'Coach Max please update "
+        "the shop SOP, returns are now Form B', 'FYI the cutoff just moved from 5pm to 6pm', "
+        "'we have a new escalation contact for billing'.\n"
+        "\n"
+        "  - question: the lead is asking Coach Max a regular process question, even though "
+        "they're a lead. Examples: 'Coach Max how do I process this refund?', 'what's the SOP "
+        "for X?'.\n"
+        "\n"
+        "  - chatter: anything else — greetings, banter, status updates, FYI messages that "
+        "don't change a documented process, calling out a teammate.\n"
+        "\n"
+        "Be conservative: when in doubt between update_directive and question, choose question "
+        "(the bot will answer it; no risk of an unintended KB edit)."
+    )
+    result = claude_request(
+        CLAUDE_CLASSIFIER, system, message_text[:2000], api_key,
+        max_tokens=50, json_schema=ANNOUNCEMENT_CLASS_SCHEMA,
+    )
+    return json.loads(result)["class"]
+
+
 def propose_change_type(question, bot_answer, reviewer_correction, source_file_content, api_key):
     """Have Claude propose how to classify the change.
 

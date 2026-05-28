@@ -549,5 +549,27 @@ class TestRunSopUpdater(unittest.TestCase):
         self.assertIn("3", ids)      # not finished → kept regardless of age
 
 
+class TestClassifyAnnouncement(unittest.TestCase):
+    @patch("scripts.sop_updater.claude_request")
+    def test_returns_update_directive_for_kb_change(self, mock_claude):
+        mock_claude.return_value = json.dumps({"class": "update_directive"})
+        from scripts.sop_updater import classify_announcement
+        result = classify_announcement(
+            "Hey team / @Coach Max we updated the handbook - refunds are now illegal",
+            "API_KEY",
+        )
+        self.assertEqual(result, "update_directive")
+
+    @patch("scripts.sop_updater.claude_request")
+    def test_returns_question_for_member_inquiry(self, mock_claude):
+        mock_claude.return_value = json.dumps({"class": "question"})
+        from scripts.sop_updater import classify_announcement
+        result = classify_announcement(
+            "@Coach Max how do I process a refund for member X?",
+            "API_KEY",
+        )
+        self.assertEqual(result, "question")
+
+
 if __name__ == "__main__":
     unittest.main()
