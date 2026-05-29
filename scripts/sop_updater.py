@@ -1467,15 +1467,26 @@ def scan_for_announcements(state, slack_token, anthropic_key, channel_id,
 
 
 def should_route_to_sop_updater(reporter_id, text, bot_user_id, approved_reviewers,
-                                 sop_enabled):
+                                 sop_enabled, anthropic_key=None):
     """Decide whether a top-level channel message should bypass the answer flow
     and be handled by the SOP-updater pass instead.
+
+    The decision is now *semantic*: an approved-reviewer @-mention isn't enough
+    on its own — the message must also actually look like an update directive
+    (classify_announcement → "update_directive"). Otherwise legitimate questions
+    from approved reviewers that mention the bot would be silently dropped
+    (neither answered nor processed as updates).
 
     Returns True only when ALL of these are true:
       - SOP updater feature flag is on
       - Reporter is an approved reviewer
       - Message @-mentions the bot
       - bot_user_id is known
+      - anthropic_key provided AND classify_announcement returns "update_directive"
+
+    If classify_announcement raises or anthropic_key is missing, defaults to
+    NOT routing — better to risk over-answering than to silently drop a real
+    question from a lead.
     """
     if not sop_enabled:
         return False
@@ -1483,6 +1494,22 @@ def should_route_to_sop_updater(reporter_id, text, bot_user_id, approved_reviewe
         return False
     if reporter_id not in approved_reviewers:
         return False
-    if not text or not bot_user_id:
+    if not text:
         return False
-    return f"<@{bot_user_id}>" in text
+    if f"<@{bot_user_id}>" not in text:
+        return False
+
+    # Structural checks passed. Now do the semantic check.
+    if not anthropic_key:
+        return False
+    try:
+        classification = classify_announcement(text, anthropic_key)
+    except Exception as e:
+        logging.warning(
+            "should_route_to_sop_updater: classify_announcement failed for "
+            "approved-reviewer @-mention — defaulting to NOT routing so the "
+            "answer flow can handle it: %s",
+            e,
+        )
+        return False
+    return classification == "update_directive"

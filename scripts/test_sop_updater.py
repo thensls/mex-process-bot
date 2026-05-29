@@ -1125,7 +1125,9 @@ class TestRunSopUpdaterIncludesAnnouncements(unittest.TestCase):
 
 
 class TestShouldRouteToSopUpdater(unittest.TestCase):
-    def test_routes_when_all_conditions_met(self):
+    @patch("scripts.sop_updater.classify_announcement")
+    def test_routes_when_classify_says_update_directive(self, mock_classify):
+        mock_classify.return_value = "update_directive"
         from scripts.sop_updater import should_route_to_sop_updater
         self.assertTrue(should_route_to_sop_updater(
             reporter_id="U_KARA",
@@ -1133,34 +1135,85 @@ class TestShouldRouteToSopUpdater(unittest.TestCase):
             bot_user_id="BOT",
             approved_reviewers={"U_KARA"},
             sop_enabled=True,
+            anthropic_key="API_KEY",
+        ))
+
+    @patch("scripts.sop_updater.classify_announcement")
+    def test_does_not_route_when_classify_says_question(self, mock_classify):
+        """The bug fix: approved-reviewer @-mention that's actually a question
+        should NOT be routed away from the answer flow."""
+        mock_classify.return_value = "question"
+        from scripts.sop_updater import should_route_to_sop_updater
+        self.assertFalse(should_route_to_sop_updater(
+            reporter_id="U_KARA",
+            text="<@BOT> how do I process a refund?",
+            bot_user_id="BOT",
+            approved_reviewers={"U_KARA"},
+            sop_enabled=True,
+            anthropic_key="API_KEY",
+        ))
+
+    @patch("scripts.sop_updater.classify_announcement")
+    def test_does_not_route_when_classify_says_chatter(self, mock_classify):
+        mock_classify.return_value = "chatter"
+        from scripts.sop_updater import should_route_to_sop_updater
+        self.assertFalse(should_route_to_sop_updater(
+            reporter_id="U_KARA",
+            text="<@BOT> thanks!",
+            bot_user_id="BOT",
+            approved_reviewers={"U_KARA"},
+            sop_enabled=True,
+            anthropic_key="API_KEY",
+        ))
+
+    @patch("scripts.sop_updater.classify_announcement")
+    def test_does_not_route_when_classify_raises(self, mock_classify):
+        """If Haiku fails, default to NOT routing so the answer flow handles it."""
+        mock_classify.side_effect = RuntimeError("API down")
+        from scripts.sop_updater import should_route_to_sop_updater
+        self.assertFalse(should_route_to_sop_updater(
+            reporter_id="U_KARA",
+            text="<@BOT> please update",
+            bot_user_id="BOT",
+            approved_reviewers={"U_KARA"},
+            sop_enabled=True,
+            anthropic_key="API_KEY",
         ))
 
     def test_does_not_route_when_flag_off(self):
         from scripts.sop_updater import should_route_to_sop_updater
         self.assertFalse(should_route_to_sop_updater(
             "U_KARA", "<@BOT> please update",
-            "BOT", {"U_KARA"}, sop_enabled=False,
+            "BOT", {"U_KARA"}, sop_enabled=False, anthropic_key="API_KEY",
         ))
 
     def test_does_not_route_for_non_approved_reviewer(self):
         from scripts.sop_updater import should_route_to_sop_updater
         self.assertFalse(should_route_to_sop_updater(
             "U_RANDOM", "<@BOT> please update",
-            "BOT", {"U_KARA"}, sop_enabled=True,
+            "BOT", {"U_KARA"}, sop_enabled=True, anthropic_key="API_KEY",
         ))
 
     def test_does_not_route_without_mention(self):
         from scripts.sop_updater import should_route_to_sop_updater
         self.assertFalse(should_route_to_sop_updater(
             "U_KARA", "please update the SOP",
-            "BOT", {"U_KARA"}, sop_enabled=True,
+            "BOT", {"U_KARA"}, sop_enabled=True, anthropic_key="API_KEY",
         ))
 
     def test_does_not_route_when_bot_user_id_missing(self):
         from scripts.sop_updater import should_route_to_sop_updater
         self.assertFalse(should_route_to_sop_updater(
             "U_KARA", "<@BOT> please update",
-            "", {"U_KARA"}, sop_enabled=True,
+            "", {"U_KARA"}, sop_enabled=True, anthropic_key="API_KEY",
+        ))
+
+    def test_does_not_route_when_no_anthropic_key(self):
+        """Without an anthropic_key we can't run classify — default to NOT routing."""
+        from scripts.sop_updater import should_route_to_sop_updater
+        self.assertFalse(should_route_to_sop_updater(
+            "U_KARA", "<@BOT> please update",
+            "BOT", {"U_KARA"}, sop_enabled=True, anthropic_key=None,
         ))
 
 

@@ -701,7 +701,7 @@ def process_new_threads(state, slack_token, anthropic_key, airtable_key, base_id
             )
             _sop_enabled = os.environ.get("MEX_BOT_SOP_UPDATER_ENABLED", "").lower() == "true"
             _approved = _parse_approved(os.environ.get("MEX_BOT_APPROVED_REVIEWERS", ""))
-            if _should_route(reporter_id, issue_text, _bot_user_id, _approved, _sop_enabled):
+            if _should_route(reporter_id, issue_text, _bot_user_id, _approved, _sop_enabled, anthropic_key):
                 logging.info("Routing %s to SOP updater (approved reviewer + bot mention)", ts)
                 state["processed_threads"][ts] = {
                     "reporter": reporter_name,
