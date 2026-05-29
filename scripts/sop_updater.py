@@ -603,6 +603,55 @@ def slack_request(*args, **kwargs):
     return _impl(*args, **kwargs)
 
 
+# A recognizable marker phrase in our classification prompt template. We use this
+# to detect whether Coach Max has already posted a classification prompt in a
+# given thread, so we can dedup even when state.json is lost (Railway's
+# ephemeral filesystem wipes it on redeploy). Slack is the source of truth.
+CLASSIFICATION_PROMPT_MARKER = "React with one:"
+
+
+def _has_classification_prompt_in_messages(messages, bot_user_id):
+    """Return True if any bot-authored message in the given list contains the
+    classification-prompt marker. Pure function — for callers that already have
+    the thread replies in hand.
+    """
+    if not bot_user_id:
+        return False
+    for msg in messages or []:
+        if msg.get("user") != bot_user_id:
+            continue
+        text = msg.get("text", "") or ""
+        if CLASSIFICATION_PROMPT_MARKER in text:
+            return True
+    return False
+
+
+def _classification_prompt_already_in_thread(slack_token, channel_id, thread_ts,
+                                              bot_user_id):
+    """Fetch the thread's replies and check whether Coach Max has already
+    posted a classification prompt there.
+
+    Durable dedup signal that survives state.json loss across Railway redeploys.
+    On Slack API error, returns False (safer to risk a rare duplicate than to
+    silently drop a real correction/announcement).
+    """
+    if not bot_user_id:
+        return False
+    try:
+        result = slack_request(
+            "conversations.replies",
+            {"channel": channel_id, "ts": thread_ts, "limit": 50},
+            slack_token,
+        )
+    except Exception as e:
+        logging.warning(
+            "_classification_prompt_already_in_thread: replies fetch failed for %s: %s",
+            thread_ts, e,
+        )
+        return False
+    return _has_classification_prompt_in_messages(result.get("messages", []), bot_user_id)
+
+
 CORRECTION_LOOKBACK_DAYS = 14
 
 
@@ -644,6 +693,18 @@ def scan_for_corrections(state, slack_token, anthropic_key, channel_id,
             continue
 
         replies = result.get("messages", [])
+
+        # Durable dedup: if Coach Max has already posted a classification prompt
+        # in this thread, a funnel was already triggered (possibly completed or
+        # cancelled before state.json was wiped on a redeploy). Don't start a
+        # second one for the same thread.
+        if _has_classification_prompt_in_messages(replies, bot_user_id):
+            logging.info(
+                "scan_for_corrections: classification prompt already in thread %s — skipping",
+                thread_ts,
+            )
+            continue
+
         for r in replies:
             reply_ts = r.get("ts", "")
             if reply_ts == thread_ts:
@@ -1338,6 +1399,20 @@ def scan_for_announcements(state, slack_token, anthropic_key, channel_id,
             continue
         # Skip if a sop_update already in-flight for this thread
         if any(u["thread_ts"] == ts for u in state["sop_updates"]):
+            continue
+
+        # Durable dedup (survives state.json loss across Railway redeploys):
+        # if Coach Max has already posted a classification prompt in this
+        # message's thread, a funnel was already triggered for this
+        # announcement. Don't start a second one — mark processed and skip.
+        if _classification_prompt_already_in_thread(
+            slack_token, channel_id, ts, bot_user_id,
+        ):
+            state["processed_announcements"].append(ts)
+            logging.info(
+                "scan_for_announcements: classification prompt already in thread %s — skipping",
+                ts,
+            )
             continue
 
         # Filter gate
