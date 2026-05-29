@@ -1025,7 +1025,16 @@ def check_followup_questions(state, slack_token, anthropic_key):
         # Load KB using the original category
         category = thread_data.get("bot_category", "other")
         knowledge_base = load_knowledge_base(category)
-        reporter_name = thread_data.get("reporter", "teammate")
+
+        # Use the actual follow-up poster's name — NOT the original thread starter.
+        # Otherwise the bot greets the wrong person when someone other than the
+        # thread starter replies in-thread (e.g., a teammate joining to congratulate
+        # or ask their own follow-up).
+        followup_user_id = latest.get("user", "")
+        if followup_user_id:
+            reporter_name = slack_get_user_info(slack_token, followup_user_id)
+        else:
+            reporter_name = thread_data.get("reporter", "teammate")
 
         try:
             bot_result = generate_response(
