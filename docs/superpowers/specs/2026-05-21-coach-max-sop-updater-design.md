@@ -12,7 +12,7 @@
 Coach Max already scores its own answers against MEX-lead corrections and logs gaps to Airtable, but those corrections don't actually update the bot's knowledge base (KB). This spec adds a closed feedback loop with **two trigger paths**:
 
 1. **Thread correction** — approved reviewer replies in a Coach Max thread with a correction to a specific bot answer.
-2. **Channel announcement** — approved reviewer posts a top-level message in `#mex-sos-test` that @-mentions Coach Max, announcing a KB change (with optional PDF attachment + inline blurb).
+2. **Channel announcement** — approved reviewer posts a top-level message in `#mex-sos-escalations` that @-mentions Coach Max, announcing a KB change (with optional PDF attachment + inline blurb).
 
 Either trigger runs the same downstream funnel: bot classifies the change type (**enhance / replace / revise**), confirms with the reviewer via emoji reaction, posts a proposed diff in the same (or spawned) thread, and auto-commits to the GitHub repo after a 30-minute quiet veto window.
 
@@ -88,7 +88,7 @@ Only `correction` enters the funnel.
 
 A team lead proactively pushes a KB update without waiting for a member question.
 
-1. Scans top-level (non-threaded) messages in `#mex-sos-test` from the last 24 hours.
+1. Scans top-level (non-threaded) messages in `#mex-sos-escalations` from the last 24 hours.
 2. Keeps messages that **(a) come from a user in `MEX_BOT_APPROVED_REVIEWERS`** AND **(b) @-mention the Coach Max bot user**.
 3. Skips messages already in `state.processed_announcements`.
 

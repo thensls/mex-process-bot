@@ -1,6 +1,6 @@
 # Coach Max — MEX Process Bot
 
-AI-powered Slack bot that monitors `#mex-sos-test`, answers MEX process questions
+AI-powered Slack bot that monitors `#mex-sos-escalations`, answers MEX process questions
 from your knowledge base, logs response quality to Airtable for review, and
 (when enabled) lets MEX leads update its knowledge base directly from Slack
 through a feedback loop.
@@ -12,7 +12,7 @@ through a feedback loop.
 ### Answer flow (always on)
 
 1. **Cron trigger** — Railway runs the bot every 5 minutes
-2. **Channel poll** — Bot fetches new top-level messages from `#mex-sos-test`
+2. **Channel poll** — Bot fetches new top-level messages from `#mex-sos-escalations`
 3. **Question gate** — Claude Haiku classifies whether the message is a genuine
    process question (skips announcements, chatter, etc.)
 4. **KB classification** — Haiku identifies which category the question belongs to
@@ -33,7 +33,7 @@ between MEX-lead corrections and the actual KB files. **Two trigger paths**:
 - **Path A — Thread correction:** an approved reviewer replies in a Coach Max
   thread with the right info. Bot picks up the correction on the next 5-min tick.
 - **Path B — Channel announcement:** an approved reviewer posts a top-level
-  message in `#mex-sos-test` that @-mentions Coach Max with a KB update directive
+  message in `#mex-sos-escalations` that @-mentions Coach Max with a KB update directive
   (optionally with a PDF attachment).
 
 Both paths run the same downstream funnel:
@@ -211,7 +211,7 @@ No new scopes are needed for the SOP updater — `files:read` was already in pla
 
 If `MEX_BOT_SOP_UPDATER_ENABLED=true`, you can update the KB without touching
 GitHub at all. Either correct Coach Max in a thread, or post a top-level
-announcement in `#mex-sos-test` that @-mentions the bot. See
+announcement in `#mex-sos-escalations` that @-mentions the bot. See
 `docs/team-canvas-sop-updater.md` for the full team-facing guide.
 
 ### Manual KB edits (always works, no feature flag needed)
@@ -306,7 +306,7 @@ test dependencies). Should pass on any Python 3.12 install.
 
 | Setting | Value |
 |---|---|
-| Live channel | `#mex-sos-test` |
+| Live channel | `#mex-sos-escalations` |
 | Scoring-loop reviewer | Angelica (Slack ID `U02EQ4E2WDC`) |
 | SOP-updater approved reviewers | Kara, Kimberly, Alejandro, Monica, Alaynie |
 | Cron interval | Every 5 minutes |

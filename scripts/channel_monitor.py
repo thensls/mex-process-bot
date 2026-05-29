@@ -2,7 +2,7 @@
 """
 MEX Process Bot — Coach Max: Channel Monitor.
 
-Polls #mex-sos-test every 10 minutes via Railway cron.
+Polls #mex-sos-escalations every 10 minutes via Railway cron.
 For new threads: generates a sourced process response and replies directly in the thread.
 For threads the reviewer has replied to: runs comparison scoring and logs to Airtable.
 
@@ -33,11 +33,11 @@ SLACK_API_BASE = "https://slack.com/api"
 ANTHROPIC_API_URL = "https://api.anthropic.com/v1/messages"
 AIRTABLE_API_BASE = "https://api.airtable.com/v0"
 
-# TODO: Update LIVE_CHANNEL_ID with the actual Slack channel ID for #mex-sos-test
-#       (Right-click #mex-sos-test in Slack sidebar → "Copy link" — the ID is the last segment, e.g. C012AB3CD)
+# TODO: Update LIVE_CHANNEL_ID with the actual Slack channel ID for #mex-sos-escalations
+#       (Right-click #mex-sos-escalations in Slack sidebar → "Copy link" — the ID is the last segment, e.g. C012AB3CD)
 # TODO: Update REVIEWER_USER_ID with the MEX reviewer's Slack user ID
 #       (Open their profile → "More" → "Copy member ID")
-LIVE_CHANNEL_ID = "C08KTBAABT2"  # Slack channel ID for #mex-sos-test
+LIVE_CHANNEL_ID = "C04Q7P5JB5J"  # Slack channel ID for #mex-sos-escalations
 REVIEWER_USER_ID = "U02EQ4E2WDC"  # MEX reviewer Slack ID (Angelica — temporary until permanent reviewer is set)
 
 # Map KB category slugs to Airtable Issue Category display names

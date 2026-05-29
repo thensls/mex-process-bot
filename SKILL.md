@@ -30,7 +30,7 @@ When the bot cannot answer from the knowledge base or the situation requires hum
 3. **Workforce Specialist** (Alaynie) — scheduling/staffing questions
 4. **Director** (Kimberly Campbell) — final escalation for high-severity or partner issues
 
-The bot may tag team members directly when escalating in `#mex-sos-test`.
+The bot may tag team members directly when escalating in `#mex-sos-escalations`.
 
 ## Source Citation
 

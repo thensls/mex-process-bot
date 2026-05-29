@@ -2,7 +2,7 @@
 
 ## TL;DR
 
-Coach Max is an AI bot that lives in `#mex-sos-test`. When you have a question about an MEX process — refunds, Feather, shop, scholarships, induction kits, anything — just ask it in the channel and it'll reply in a thread with the answer, citing the SOP it came from.
+Coach Max is an AI bot that lives in `#mex-sos-escalations`. When you have a question about an MEX process — refunds, Feather, shop, scholarships, induction kits, anything — just ask it in the channel and it'll reply in a thread with the answer, citing the SOP it came from.
 
 Think of it as a friend who's read every SOP in the handbook and can find the answer in seconds.
 
@@ -12,7 +12,7 @@ Think of it as a friend who's read every SOP in the handbook and can find the an
 
 ## 📍 Where does Coach Max live?
 
-In the `#mex-sos-test` Slack channel.
+In the `#mex-sos-escalations` Slack channel.
 
 Coach Max checks the channel every 5 minutes for new messages. When you post a question, you'll usually have an answer within 5 minutes.
 
@@ -23,7 +23,7 @@ Coach Max checks the channel every 5 minutes for new messages. When you post a q
 ### The simple version: just post
 
 **STEP 1 — You post a question** ✋
-In `#mex-sos-test`, write your question normally. Don't worry about formatting or wording — just describe what you need.
+In `#mex-sos-escalations`, write your question normally. Don't worry about formatting or wording — just describe what you need.
 
 ⬇️
 
@@ -101,7 +101,7 @@ Up to 5 minutes between when you ask and when it replies (it wakes up every 5 mi
 
 ### Does Coach Max see DMs?
 
-No, it only watches `#mex-sos-test`. If you DM it, nothing will happen.
+No, it only watches `#mex-sos-escalations`. If you DM it, nothing will happen.
 
 ---
 

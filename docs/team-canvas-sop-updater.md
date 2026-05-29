@@ -16,7 +16,7 @@ All in the open — the whole team can see the playbook evolve in real time.
 You catch Coach Max being wrong → reply in the thread with the right info.
 
 ### 📣 PATH B — Channel announcement
-You want to push an update proactively → post a top-level message in `#mex-sos-test`, @-mention **Coach Max**, and explain the change.
+You want to push an update proactively → post a top-level message in `#mex-sos-escalations`, @-mention **Coach Max**, and explain the change.
 
 **Either way, the same flow runs.** Pick whichever feels natural in the moment.
 
@@ -86,7 +86,7 @@ Once you ✅, the 30-min veto window gives the rest of the team a chance to 🛑
 
 ## Path A — Thread correction (organic)
 
-A member asks something in `#mex-sos-test`. Coach Max replies in the thread. You see the bot's answer is wrong or outdated. Just reply in the thread with the correct info.
+A member asks something in `#mex-sos-escalations`. Coach Max replies in the thread. You see the bot's answer is wrong or outdated. Just reply in the thread with the correct info.
 
 > *Member:* How do I issue a return label?
 > *Coach Max:* Use Form A within 24h.
@@ -98,7 +98,7 @@ Coach Max picks it up on the next 5-min tick.
 
 ## Path B — Channel announcement (proactive)
 
-You don't need to wait for a member to ask. Post a top-level message in `#mex-sos-test` that **@-mentions Coach Max** and describes the change. You can include a PDF attachment if helpful — the bot will read it.
+You don't need to wait for a member to ask. Post a top-level message in `#mex-sos-escalations` that **@-mentions Coach Max** and describes the change. You can include a PDF attachment if helpful — the bot will read it.
 
 > ***You:*** Hey team / @Coach Max — we updated the handbook (attached). Page 6, refunds are now illegal as of 4/15.
 > 📎 *handbook-v2.pdf*
