@@ -1349,10 +1349,16 @@ def _ensure_announcement_state_keys(state):
 
 
 def _message_mentions_bot(text, bot_user_id):
-    """True if the message contains an <@BOT_USER_ID> mention anywhere in the body."""
+    """True if the message contains a Slack @-mention of the bot anywhere in the body.
+
+    Slack stores mentions in two equivalent forms depending on context:
+      <@USERID>             — bare form
+      <@USERID|DisplayName> — pipe form (when the client sent a labeled mention)
+    We accept either.
+    """
     if not text or not bot_user_id:
         return False
-    return f"<@{bot_user_id}>" in text
+    return (f"<@{bot_user_id}>" in text) or (f"<@{bot_user_id}|" in text)
 
 
 def scan_for_announcements(state, slack_token, anthropic_key, channel_id,
@@ -1496,7 +1502,8 @@ def should_route_to_sop_updater(reporter_id, text, bot_user_id, approved_reviewe
         return False
     if not text:
         return False
-    if f"<@{bot_user_id}>" not in text:
+    # Accept both <@USERID> and <@USERID|DisplayName> mention forms
+    if (f"<@{bot_user_id}>" not in text) and (f"<@{bot_user_id}|" not in text):
         return False
 
     # Structural checks passed. Now do the semantic check.
