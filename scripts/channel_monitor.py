@@ -1062,52 +1062,29 @@ def check_followup_questions(state, slack_token, anthropic_key):
 
         logging.info("Follow-up question detected in thread %s", thread_ts)
 
+        # Build full thread context
+        thread_context = "\n".join(
+            f"{r.get('user', 'unknown')}: {r.get('text', '')[:300]}"
+            for r in replies[1:]  # skip the original message
+        )
+
+        # Load KB using the original category
+        category = thread_data.get("bot_category", "other")
+        knowledge_base = load_knowledge_base(category)
+
         # Use the actual follow-up poster's name — NOT the original thread starter.
         # Otherwise the bot greets the wrong person when someone other than the
-        # thread starter replies in-thread.
+        # thread starter replies in-thread (e.g., a teammate joining to congratulate
+        # or ask their own follow-up).
         followup_user_id = latest.get("user", "")
         if followup_user_id:
             reporter_name = slack_get_user_info(slack_token, followup_user_id)
         else:
             reporter_name = thread_data.get("reporter", "teammate")
 
-        if rescue_mode:
-            # The "question" Coach Max needs to answer is the ORIGINAL thread
-            # message (the actual situation), not the @-mention reply ("hey
-            # Coach Max, do you have info?"). Otherwise the bot sees only the
-            # rescue ask with no context for what "this" refers to.
-            parent_msg = replies[0] if replies else {}
-            parent_text = parent_msg.get("text", "")
-            issue_text_for_bot = (
-                f"{parent_text}\n\n"
-                f"[A teammate explicitly asked Coach Max to weigh in on this "
-                f"thread by replying: \"{followup_text.strip()}\"]"
-            )
-            # Re-classify the parent text to pick the right KB category (the
-            # original handler skipped this since it didn't classify the
-            # message as a question).
-            try:
-                category = classify_issue(parent_text, anthropic_key) or "other"
-            except Exception:
-                category = "other"
-            # No supplementary thread context — the relevant content is in the
-            # question itself. (Past replies between original and the rescue
-            # @-mention are unlikely to matter for the answer.)
-            thread_context = ""
-        else:
-            issue_text_for_bot = followup_text
-            category = thread_data.get("bot_category", "other")
-            # Build full thread context from replies AFTER the original
-            thread_context = "\n".join(
-                f"{r.get('user', 'unknown')}: {r.get('text', '')[:300]}"
-                for r in replies[1:]  # skip the original message
-            )
-
-        knowledge_base = load_knowledge_base(category)
-
         try:
             bot_result = generate_response(
-                issue_text_for_bot, reporter_name, thread_context, knowledge_base, anthropic_key,
+                followup_text, reporter_name, thread_context, knowledge_base, anthropic_key,
             )
         except Exception as e:
             logging.error("Failed to generate followup response for %s: %s", thread_ts, e)
@@ -1124,12 +1101,6 @@ def check_followup_questions(state, slack_token, anthropic_key):
             continue
 
         thread_data["bot_last_reply_ts"] = str(time.time())
-        if rescue_mode:
-            # Thread is no longer "skipped" now that Coach Max has engaged.
-            # Subsequent follow-ups should be handled by the normal path,
-            # not rescue mode.
-            thread_data["comparison_scored"] = False
-            thread_data["bot_category"] = category
         save_state(state)
         logging.info("Posted follow-up response in thread %s", thread_ts)
         time.sleep(1.0)
