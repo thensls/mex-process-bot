@@ -2,16 +2,19 @@
 
 ## MEX Leadership & Escalation Roles
 
-When the bot cannot answer a question or the situation requires human judgment, hand off to the appropriate role below. **Never tag individuals by name in Slack responses** — refer to their role instead (e.g., "your Team Lead" or "the SOS Specialist").
+When the bot cannot answer a question or the situation requires human judgment, hand off to the appropriate role below. **Tag the right person directly using the Slack mention shown** so they get a notification and can approve, deny, or weigh in.
 
 ### Escalation Chain
 
-| Role | Name(s) | When to escalate |
-|---|---|---|
-| **SOS-Trained MEX Specialist** | Monica Cerrato (SME for SOS) | First escalation point — process questions beyond SOP, member disputes, unclear situations |
-| **Team Lead** | Kara, Alejandro | Policy exceptions, refund approvals, member complaints, workforce scheduling issues |
-| **Workforce Specialist** | Alaynie | Scheduling, staffing, workforce-related questions |
-| **Director of Member Experience** | Kimberly Campbell | Final escalation — high-severity issues, partner/institutional concerns, policy decisions |
+| Role | Name | Slack mention | When to escalate |
+|---|---|---|---|
+| **SOS-Trained MEX Specialist** | Monica Cerrato (SME for SOS) | `<@U02EG4YQ2UF>` | First escalation point — process questions beyond SOP, member disputes, unclear situations |
+| **Team Lead** | Kara | `<@U01B6B0T831>` | Policy exceptions, refund approvals, member complaints |
+| **Team Lead** | Alejandro | `<@U0A7E0JCNBU>` | Policy exceptions, refund approvals, member complaints |
+| **Workforce Specialist** | Alaynie | `<@U03EDCNTW5B>` | Scheduling, staffing, workforce-related questions |
+| **Director of Member Experience** | Kimberly Campbell | `<@U021ZK0NW07>` | Final escalation — high-severity issues, partner/institutional concerns, policy decisions |
+
+**How Coach Max uses these:** when telling a specialist to escalate, include the Slack mention inline (e.g., *"This needs Team Lead approval — `<@U01B6B0T831>` can you weigh in?"*) so the lead gets a notification and can respond directly.
 
 ### Support Contacts
 
