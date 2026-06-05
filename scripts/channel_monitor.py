@@ -115,14 +115,18 @@ def load_state():
             state = json.load(f)
         # Auto-correct any malformed last_processed_ts saved by an older code
         # path. Slack rejects values with != 6 decimal places — see
-        # _format_slack_ts for the gory detail.
+        # _format_slack_ts for the gory detail. Logged at WARNING so it
+        # surfaces in Railway logs (it indicates the bot was previously
+        # broken).
         ts = state.get("last_processed_ts", "")
         if ts and "." in ts:
             decimals = ts.split(".", 1)[1]
             if len(decimals) != 6:
                 fixed = _format_slack_ts(ts)
-                logging.info(
-                    "load_state: corrected malformed last_processed_ts %s → %s",
+                logging.warning(
+                    "load_state: corrected malformed last_processed_ts %s → %s "
+                    "(this means the previous run was likely receiving empty "
+                    "Slack results — see Slack ts-format bug)",
                     ts, fixed,
                 )
                 state["last_processed_ts"] = fixed
@@ -136,6 +140,86 @@ def load_state():
             "processed_threads": {},
         }
     return state
+
+
+# Threshold beyond which we consider state stale and alert the owner.
+# 24 hours is generous enough that legitimate quiet periods (overnight,
+# weekends) won't trip the alarm, but tight enough that real silent
+# failures (like the ts-format bug that took 3+ days to notice) get
+# flagged within a day.
+STALE_STATE_THRESHOLD_HOURS = 24
+
+# Throttle: re-alert at most once every N hours to avoid spamming the
+# owner every cron tick while the issue persists.
+STALE_STATE_ALERT_THROTTLE_HOURS = 4
+
+
+def check_state_health(state, slack_token):
+    """Detect silent-failure conditions and DM the owner if found.
+
+    Alarm fires when `last_processed_ts` is more than STALE_STATE_THRESHOLD_HOURS
+    behind current time. Common causes: Slack silently rejecting a malformed
+    `oldest` param, Anthropic outage, channel ID misconfiguration, or any
+    other condition where the bot is running but not picking up new messages.
+
+    Throttled to one DM per STALE_STATE_ALERT_THROTTLE_HOURS to avoid spam.
+    Resets the throttle once state recovers (ts becomes fresh again).
+    """
+    ts_str = state.get("last_processed_ts", "")
+    if not ts_str:
+        return
+    try:
+        ts_float = float(ts_str)
+    except (TypeError, ValueError):
+        return  # malformed; auto-correct in load_state should have fixed it
+
+    age_seconds = time.time() - ts_float
+    age_hours = age_seconds / 3600.0
+
+    if age_hours <= STALE_STATE_THRESHOLD_HOURS:
+        # Healthy — clear any prior alert marker so the next stale period
+        # alerts cleanly.
+        if "last_health_dm_ts" in state:
+            state.pop("last_health_dm_ts", None)
+        return
+
+    # Stale. Throttle DMs.
+    last_dm = state.get("last_health_dm_ts")
+    if last_dm:
+        try:
+            if (time.time() - float(last_dm)) < STALE_STATE_ALERT_THROTTLE_HOURS * 3600:
+                logging.warning(
+                    "check_state_health: ts is %.1fh stale (%s) but alert "
+                    "throttled (last DM %.1fh ago)",
+                    age_hours, ts_str,
+                    (time.time() - float(last_dm)) / 3600.0,
+                )
+                return
+        except (TypeError, ValueError):
+            pass
+
+    msg = (
+        f"⚠️ *Coach Max health alert — state is stuck*\n\n"
+        f"`state.last_processed_ts` is *{age_hours:.1f} hours behind* current time "
+        f"(value: `{ts_str}`).\n\n"
+        f"This usually means the bot is *running* (cron looks green) but *not "
+        f"actually processing new messages*. Most likely causes:\n"
+        f"• Slack silently rejecting the `oldest` param (ts-format bug)\n"
+        f"• Anthropic API outage\n"
+        f"• Channel ID misconfigured\n"
+        f"• Bot kicked from the channel\n\n"
+        f"Check Railway → Cron Runs → latest log, and look at "
+        f"`#mex-sos-escalations` for backlogged questions."
+    )
+    try:
+        slack_dm_user(slack_token, REVIEWER_USER_ID, msg)
+        state["last_health_dm_ts"] = str(time.time())
+        logging.warning(
+            "check_state_health: ts is %.1fh stale (%s) — DMed reviewer",
+            age_hours, ts_str,
+        )
+    except Exception as e:
+        logging.warning("check_state_health: could not DM stuck-state alert: %s", e)
 
 
 def save_state(state):
@@ -1272,6 +1356,11 @@ def main():
         logging.warning("Airtable not configured — scores won't be stored")
 
     state = load_state()
+
+    # Detect silent-failure conditions (e.g. state is stuck behind current
+    # time) and DM the owner if found. Runs before any work so we catch
+    # issues even if downstream passes throw.
+    check_state_health(state, slack_token)
 
     process_new_threads(state, slack_token, anthropic_key, airtable_key, base_id)
     check_followup_questions(state, slack_token, anthropic_key)
