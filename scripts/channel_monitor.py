@@ -943,36 +943,19 @@ def check_comparison_responses(state, slack_token, anthropic_key, airtable_key, 
 # ---------------------------------------------------------------------------
 
 def check_followup_questions(state, slack_token, anthropic_key):
-    """Monitor active threads for follow-up questions and respond in-thread.
-
-    Also rescues threads that were initially classified as 'skipped' (the
-    original message wasn't a question) when a later reply @-mentions the bot
-    with an actual ask. Without this rescue, a status update followed by
-    "Coach Max, any info on this?" would be silently ignored.
-    """
+    """Monitor active threads for follow-up questions and respond in-thread."""
     global _bot_user_id
     if not _bot_user_id:
         _bot_user_id = get_bot_user_id(slack_token)
 
     now = datetime.now()
-    bot_mention_token = f"<@{_bot_user_id}>" if _bot_user_id else None
 
     for thread_ts, thread_data in list(state["processed_threads"].items()):
-        scored = thread_data.get("comparison_scored")
-        # Skip threads in terminal/handed-off states
-        if scored is True:
-            continue  # fully scored
-        if scored == "expired":
+        # Only check threads that are still active (not scored/expired/skipped)
+        if thread_data.get("comparison_scored"):
             continue
-        if scored == "sop_announcement":
-            continue  # SOP updater is handling this thread
-
-        # "skipped" means the original message wasn't a question and the bot
-        # never replied. We DON'T skip these any more — but we'll only respond
-        # to follow-up replies that explicitly @-mention the bot. (The rescue
-        # path.)
-        bot_last_ts = thread_data.get("bot_last_reply_ts")
-        rescue_mode = (scored == "skipped") or not bot_last_ts
+        if not thread_data.get("bot_last_reply_ts"):
+            continue
 
         # Skip threads older than expiry
         processed_at = thread_data.get("processed_at", "")
@@ -996,20 +979,12 @@ def check_followup_questions(state, slack_token, anthropic_key):
             continue
 
         replies = replies_result.get("messages", [])
+        bot_last_ts = thread_data["bot_last_reply_ts"]
 
-        # Reference timestamp: in normal mode it's the bot's last reply (we
-        # only process replies posted after it). In rescue mode the bot
-        # hasn't replied, so anything newer than the thread's original message
-        # is fair game — but we'll filter to @-mentions further down.
-        reference_ts = bot_last_ts if not rescue_mode else thread_ts
-
-        # Find new replies since the reference, excluding the bot itself
+        # Find new replies since bot's last message that aren't from the bot itself
         new_replies = []
         for r in replies:
-            try:
-                if float(r["ts"]) <= float(reference_ts):
-                    continue
-            except (ValueError, TypeError):
+            if float(r["ts"]) <= float(bot_last_ts):
                 continue
             user_id = r.get("user", "")
             if user_id == (_bot_user_id or ""):
@@ -1023,33 +998,21 @@ def check_followup_questions(state, slack_token, anthropic_key):
         latest = new_replies[-1]
         followup_text = latest.get("text", "")
 
-        if rescue_mode:
-            # Only rescue a "skipped" thread if the latest reply @-mentions
-            # the bot directly. Otherwise leave it alone — it was filtered
-            # out for a reason.
-            if not bot_mention_token or bot_mention_token not in followup_text:
+        # Skip if the reply @mentions someone other than the bot
+        directed_match = re.match(r"^\s*<@([A-Z0-9]+)>", followup_text)
+        if directed_match:
+            mentioned_id = directed_match.group(1)
+            if mentioned_id != (_bot_user_id or ""):
+                logging.info("Skipping followup directed at another user (%s) in thread %s", mentioned_id, thread_ts)
                 continue
-            logging.info(
-                "Rescuing skipped thread %s — follow-up @-mentions Coach Max",
-                thread_ts,
-            )
-        else:
-            # Skip if the reply @-mentions someone other than the bot
-            directed_match = re.match(r"^\s*<@([A-Z0-9]+)>", followup_text)
-            if directed_match:
-                mentioned_id = directed_match.group(1)
-                if mentioned_id != (_bot_user_id or ""):
-                    logging.info("Skipping followup directed at another user (%s) in thread %s", mentioned_id, thread_ts)
-                    continue
 
-            # Skip non-questions (rescue mode skips this gate since the
-            # @-mention is the explicit signal)
-            if not is_question(followup_text, anthropic_key):
-                logging.info("Skipping non-question followup in thread %s", thread_ts)
-                # Update bot_last_reply_ts so we don't re-check this message
-                thread_data["bot_last_reply_ts"] = latest["ts"]
-                save_state(state)
-                continue
+        # Skip non-questions
+        if not is_question(followup_text, anthropic_key):
+            logging.info("Skipping non-question followup in thread %s", thread_ts)
+            # Update bot_last_reply_ts so we don't re-check this message
+            thread_data["bot_last_reply_ts"] = latest["ts"]
+            save_state(state)
+            continue
 
         logging.info("Follow-up question detected in thread %s", thread_ts)
 
