@@ -96,17 +96,43 @@ def setup_logging():
 # State management
 # ---------------------------------------------------------------------------
 
+def _format_slack_ts(value):
+    """Format a Unix timestamp (float or string) as a Slack-compatible ts string.
+
+    Slack's API parameters (notably `oldest` on conversations.history) only
+    accept exactly 6 decimal places. Python's `str(time.time())` can emit 7+
+    decimals depending on float precision (e.g. "1780638017.6710055"), which
+    causes Slack to silently return zero messages — the bot then thinks nothing
+    new exists and exits in 2 seconds. Always format ts values for Slack
+    through this helper.
+    """
+    return f"{float(value):.6f}"
+
+
 def load_state():
     if os.path.exists(STATE_FILE):
         with open(STATE_FILE) as f:
             state = json.load(f)
+        # Auto-correct any malformed last_processed_ts saved by an older code
+        # path. Slack rejects values with != 6 decimal places — see
+        # _format_slack_ts for the gory detail.
+        ts = state.get("last_processed_ts", "")
+        if ts and "." in ts:
+            decimals = ts.split(".", 1)[1]
+            if len(decimals) != 6:
+                fixed = _format_slack_ts(ts)
+                logging.info(
+                    "load_state: corrected malformed last_processed_ts %s → %s",
+                    ts, fixed,
+                )
+                state["last_processed_ts"] = fixed
     else:
         # No persistent state (Railway cron = fresh container each run).
         # Look back 6 hours to catch any messages since the last working day.
         # Already-processed threads are tracked in Airtable; duplicates are
         # prevented by the processed_threads dict within each run.
         state = {
-            "last_processed_ts": str(time.time() - 21600),
+            "last_processed_ts": _format_slack_ts(time.time() - 21600),
             "processed_threads": {},
         }
     return state
