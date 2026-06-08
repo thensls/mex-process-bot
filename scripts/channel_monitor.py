@@ -1089,7 +1089,16 @@ def check_followup_questions(state, slack_token, anthropic_key):
         _bot_user_id = get_bot_user_id(slack_token)
 
     now = datetime.now()
-    bot_mention_token = f"<@{_bot_user_id}>" if _bot_user_id else None
+    # Slack stores @-mentions in two equivalent forms: <@USERID> (bare) and
+    # <@USERID|DisplayName> (pipe). Accept either.
+    bot_mention_tokens = (
+        (f"<@{_bot_user_id}>", f"<@{_bot_user_id}|") if _bot_user_id else ()
+    )
+
+    def _has_bot_mention(text):
+        if not text or not bot_mention_tokens:
+            return False
+        return any(tok in text for tok in bot_mention_tokens)
 
     for thread_ts, thread_data in list(state["processed_threads"].items()):
         scored = thread_data.get("comparison_scored")
@@ -1161,7 +1170,7 @@ def check_followup_questions(state, slack_token, anthropic_key):
             # Only rescue a "skipped" thread if the latest reply @-mentions
             # the bot directly. Otherwise leave it alone — it was filtered
             # out for a reason.
-            if not bot_mention_token or bot_mention_token not in followup_text:
+            if not _has_bot_mention(followup_text):
                 continue
             logging.info(
                 "Rescuing skipped thread %s — follow-up @-mentions Coach Max",
