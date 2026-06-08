@@ -698,8 +698,16 @@ INSTRUCTIONS:
     if thread_context:
         user_msg += f"\n\nThread context (follow-up messages):\n{thread_context}"
 
+    # Bump max_tokens from the helper's default (4000) so longer multi-option
+    # answers (e.g. "here are 2 paths — early shipping vs refund — with full
+    # steps for each") don't get truncated mid-sentence. The structured-output
+    # JSON envelope eats a few hundred tokens of overhead on top of the
+    # `response` field, so 4000 was tight for complex answers. 8000 gives
+    # plenty of headroom; cost-wise, Sonnet output tokens are ~$15/1M so even
+    # a maxed-out response costs ~$0.12.
     response_text = claude_request(
         CLAUDE_MODEL, system, user_msg, api_key,
+        max_tokens=8000,
         json_schema=RESPONSE_SCHEMA,
     )
     return json.loads(response_text)
