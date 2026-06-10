@@ -174,6 +174,55 @@ Save attempts must be documented in HubSpot (and FOL Saves Tracker when applicab
 
 ## Process: ACH Refunds
 
+---
+
+## Process: Grad Set Refund — Broken or Defective Item (No Return Required)
+
+**Tags:** grad set refund, broken tassel charm, defective grad set, damaged grad set item, graduation item refund, refund no return, broken item refund, grad set service failure, graduation passed refund
+
+**When this comes up:** A member received a grad set item that arrived broken or defective, and either a replacement was never issued or their graduation has since passed, making a replacement no longer useful. In these cases, a full refund — including shipping — can be processed without requiring the member to return the item.
+
+**Core rule:** If a grad set item arrived broken or defective and a replacement was not successfully provided, we can process a full refund (including shipping) without requiring a return. No escalation or leadership approval is needed — this is a documented exception based on the service failure.
+
+---
+
+**Step 1 — Acknowledge the service failure with full empathy:**
+- Don't just apologize for the broken item — acknowledge the full picture: the item arrived damaged, they reached out and didn't get a resolution, and their graduation has now passed. That's a real compounding failure and it deserves a genuine acknowledgment.
+- Example: *"I'm so sorry this happened — receiving a broken item and then not getting a resolution before your graduation is a real letdown, and I completely understand why you're frustrated. Let's make this right."*
+
+**Step 2 — Confirm the situation:**
+- Verify the original grad set purchase in Feather
+- Note the item that was broken (e.g., tassel charm) and confirm no replacement was issued
+- Check HubSpot for any prior contact notes about the reported issue
+
+**Step 3 — Process the refund:**
+- Process a full refund for the grad set purchase, *including shipping*, in Feather
+- No return is required — do not ask the member to send back the item
+- If the original purchase was *120+ days ago*, route through the ACH/RAMP process per Atrayu Polhemus's ACH Refunds SOP rather than refunding to the original payment method
+
+**Step 4 — Document in HubSpot:**
+- Log the broken item, the prior contact with no resolution, and the refund processed
+- Note that no return was required per the broken/defective item exception
+
+---
+
+**Common questions:**
+
+*Can we refund shipping too?*
+- Yes — when a grad set item arrives broken and a replacement was never issued, a full refund including shipping is appropriate.
+
+*Do we need to require a return?*
+- No — no return is required in broken/defective item cases.
+
+*Does this need leadership approval?*
+- No — this is a documented exception for service failures involving broken or defective items. Process it directly.
+
+*What if the original purchase was more than 120 days ago?*
+- Route through ACH/RAMP per the ACH Refunds SOP. Same refund amount — just a different processing method.
+
+**Source:** MEX Process — Grad Set Refund (broken/defective item, no return required)
+
+
 **Tags:** ACH refund, RAMP refund, 120 days refund, original payment unavailable, electronic refund, bank-to-bank refund, billing department refund, ACH form, ACH approval, expired card refund
 
 **When this comes up:** A refund cannot be processed through the original payment method — either because it is no longer available, the member has been with NSLS 120+ days, or an urgent exception was approved.
