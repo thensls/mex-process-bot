@@ -966,3 +966,33 @@ Chapters earn credits by completing pillars in the Pillar Dashboard within the C
 Maximum: **$2,200**. Credits only apply once $1,400 minimum is reached.
 
 **Source:** NSLS Cash Back and Credit Program (2023)
+
+---
+
+## Process: Summit Discount Code — Verification Protocol
+
+**Tags:** Summit, Leadership Summit, discount code, promo code, summit15, Summit registration, Summit enrollment, events@nsls.org
+
+**When this comes up:** A member reports receiving a discount code for Summit registration (e.g., during an induction ceremony) but cannot find a field to enter it during the registration process.
+
+**⚠️ Critical rule:** There is no documented Summit discount code process in the MEX SOP. Do NOT attempt to troubleshoot or confirm the validity of a discount code without verifying proof from the member first.
+
+**First step — always verify the code source:**
+- Ask the member: *Did you receive an email with that code? If so, can you send a screenshot?*
+- Do not assume the code is valid or that a code field exists in the registration flow without confirmation
+- If the member cannot produce documentation (email, screenshot, or written communication), note that and escalate
+
+**If the member provides documentation:**
+- Forward details to events@nsls.org — that is the documented escalation channel for NSLS Summit inquiries
+- Note any expiration date and flag as time-sensitive if applicable
+
+**If the member cannot provide documentation:**
+- Let them know you're not seeing anything about a discount code in your resources and that you want to make sure you have the full picture before escalating
+- Ask them to check for an email with the code, then follow up once they can share a screenshot
+
+**Escalation contact:** events@nsls.org (NSLS Summit inquiries)
+
+*I don't have a full Summit discount code SOP — if documentation is confirmed, route to events@nsls.org for next steps.*
+
+**Source:** Reviewer correction — no standalone Summit discount code SOP exists in the MEX knowledge base
+
