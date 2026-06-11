@@ -996,3 +996,44 @@ Maximum: **$2,200**. Credits only apply once $1,400 minimum is reached.
 
 **Source:** Reviewer correction — no standalone Summit discount code SOP exists in the MEX knowledge base
 
+---
+
+## Process: Induction Ceremony Recognition — Member Not on List
+
+**Tags:** induction ceremony, recognition list, not on list, name missing, RSVP, ceremony list, induction RSVP, ceremony complaint, not recognized, family at ceremony, fall induction
+
+**When this comes up:** A member contacts MEX upset that their name was not included in the recognition list during an induction ceremony — often after inviting family members to watch.
+
+**⚠️ Critical rule:** MEX cannot retroactively edit the list of inducted members for any chapter's completed ceremony. Do not imply that a correction to the past ceremony is possible.
+
+**What you can and cannot do:**
+
+- ❌ Cannot view or pull the RSVP list for a completed ceremony
+- ❌ Cannot edit or retroactively add the member to a past recognition list
+- ✅ Can acknowledge the situation with full empathy
+- ✅ Can let the member know they will be a priority for the *next* induction ceremony (fall)
+- ✅ Can share that preliminary information is available about the upcoming fall ceremony, but that no confirmed date has been announced yet
+- ✅ Can commit to helping them RSVP for the next ceremony in time
+
+**Recommended response flow:**
+
+1. *Acknowledge and empathize* — This is a meaningful and emotionally significant situation. Don't minimize it. Lead with genuine empathy.
+2. *Be honest about what can't be done* — Let the member know that unfortunately, MEX is not able to go back and edit the recognized member list for a completed ceremony.
+3. *Offer the forward-looking solution* — Let them know they are a priority for the next induction ceremony coming up in the fall. Preliminary information is available and a ceremony is planned, but no confirmed date has been set yet.
+4. *Commit to following up* — Agree to do your best to help them RSVP for the upcoming fall ceremony in time so this doesn't happen again.
+5. *Escalation path* — If the member escalates and requests to speak with a supervisor, a MEX Team Lead or MEX Leadership will be happy to take over.
+
+**Sample language:**
+
+> "I am so sorry this happened — I completely understand how disappointing and frustrating this must have been, especially with 20 family members there to celebrate you. That's a big moment, and you deserved to be recognized."
+>
+> "Unfortunately, I'm not able to go back and edit the recognition list for a ceremony that's already taken place — that's not something our team is able to change after the fact. I know that's not what you were hoping to hear, and I'm truly sorry."
+>
+> "What I *can* tell you is that you are absolutely a priority for our next induction ceremony, which is coming up in the fall. We do have preliminary information that a ceremony is planned, though a confirmed date hasn't been set yet. I want to make sure we help you get registered for that one in time — you deserve that recognition."
+
+**Escalation:** If the member requests a supervisor, route to MEX Leadership. No formal escalation channel is required for the initial handling — MEX Specialists can manage this with empathy and the forward-looking resolution.
+
+**Source:** Reviewer correction — no standalone RSVP/recognition list SOP exists in the MEX knowledge base
+
+
+
