@@ -950,6 +950,39 @@ def process_new_threads(state, slack_token, anthropic_key, airtable_key, base_id
             "processed_at": datetime.now().isoformat(),
         }
         logging.info("Posted bot response for thread %s", ts)
+
+        # Write a baseline row to Airtable so EVERY answered question is logged
+        # (not just ones that later get a reviewer reply or reaction). Scoring
+        # fields stay empty until check_comparison_responses / check_reaction_scores
+        # fill them in via upsert on Thread ID.
+        if base_id:
+            try:
+                permalink = f"https://thensls.slack.com/archives/{LIVE_CHANNEL_ID}/p{ts.replace('.', '')}"
+                baseline_fields = {
+                    "Thread ID": ts,
+                    "Issue Date": datetime.now().isoformat()[:10],
+                    "Reporter": reporter_name,
+                    "Question Summary": issue_text[:10000],
+                    "Bot Response": bot_result["response"][:10000],
+                    "Thread Link": permalink,
+                    "Issue Category": CATEGORY_DISPLAY.get(bot_result.get("category", "other"), "Other"),
+                    "Bot Priority": bot_result.get("priority", "Medium"),
+                    "Source References": bot_result.get("source_references", ""),
+                    "Is Undocumented": bot_result.get("is_undocumented", False),
+                }
+                airtable_request(
+                    "PATCH",
+                    f"{base_id}/Response%20Comparisons",
+                    data={
+                        "records": [{"fields": baseline_fields}],
+                        "performUpsert": {"fieldsToMergeOn": ["Thread ID"]},
+                    },
+                    api_key=airtable_key,
+                )
+                logging.info("Wrote baseline Airtable row for %s", ts)
+            except Exception as e:
+                logging.error("Baseline Airtable write failed for %s: %s", ts, e)
+
         time.sleep(1.0)
 
     # Advance last_processed_ts past threads we handled
@@ -1478,6 +1511,60 @@ def create_audit_record(airtable_key, base_id, run_stats):
         logging.warning("Audit record write failed: %s", e)
 
 
+def backfill_airtable_from_state(state, airtable_key, base_id):
+    """One-time backfill: every thread we've ever answered gets a baseline
+    Airtable row, even if no reviewer ever replied and no one reacted.
+
+    Idempotent — upserts on Thread ID, so re-runs just no-op on rows that
+    already exist with the same data. Only writes rows for threads that
+    actually have a bot_response (skips 'skipped' threads where we never
+    replied)."""
+    if not base_id or not airtable_key:
+        return
+
+    backfilled = 0
+    failed = 0
+    for thread_ts, thread_data in state.get("processed_threads", {}).items():
+        bot_response = thread_data.get("bot_response")
+        if not bot_response:
+            continue  # bot never replied (skipped thread, classified as non-question)
+
+        try:
+            permalink = f"https://thensls.slack.com/archives/{LIVE_CHANNEL_ID}/p{thread_ts.replace('.', '')}"
+            processed_at = thread_data.get("processed_at", "")
+            issue_date = processed_at[:10] if processed_at else ""
+
+            baseline_fields = {
+                "Thread ID": thread_ts,
+                "Issue Date": issue_date,
+                "Reporter": thread_data.get("reporter", ""),
+                "Question Summary": (thread_data.get("question") or "")[:10000],
+                "Bot Response": bot_response[:10000],
+                "Thread Link": permalink,
+                "Issue Category": CATEGORY_DISPLAY.get(thread_data.get("bot_category", "other"), "Other"),
+                "Bot Priority": thread_data.get("bot_priority", "Medium"),
+                "Source References": thread_data.get("source_references", ""),
+                "Is Undocumented": thread_data.get("is_undocumented", False),
+            }
+            airtable_request(
+                "PATCH",
+                f"{base_id}/Response%20Comparisons",
+                data={
+                    "records": [{"fields": baseline_fields}],
+                    "performUpsert": {"fieldsToMergeOn": ["Thread ID"]},
+                },
+                api_key=airtable_key,
+            )
+            backfilled += 1
+            time.sleep(0.25)  # rate-limit safety
+        except Exception as e:
+            logging.warning("Backfill failed for %s: %s", thread_ts, e)
+            failed += 1
+
+    if backfilled or failed:
+        logging.info("Airtable backfill: %d rows upserted, %d failed", backfilled, failed)
+
+
 def main():
     setup_logging()
     start_time = time.time()
@@ -1506,6 +1593,11 @@ def main():
     # time) and DM the owner if found. Runs before any work so we catch
     # issues even if downstream passes throw.
     check_state_health(state, slack_token)
+
+    # One-time backfill: any thread already in state.processed_threads but
+    # never written to Airtable (because it never got a reviewer reply or
+    # reaction) gets a baseline row now. Idempotent via upsert on Thread ID.
+    backfill_airtable_from_state(state, airtable_key, base_id)
 
     process_new_threads(state, slack_token, anthropic_key, airtable_key, base_id)
     check_followup_questions(state, slack_token, anthropic_key)
