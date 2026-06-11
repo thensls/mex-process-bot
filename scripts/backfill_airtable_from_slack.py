@@ -35,6 +35,8 @@ if _script_dir not in sys.path:
 
 from channel_monitor import (
     LIVE_CHANNEL_ID,
+    REACTION_CORRECT,
+    REACTION_WRONG,
     airtable_request,
     slack_request,
     get_bot_user_id,
@@ -85,15 +87,57 @@ def fetch_all_channel_messages(slack_token, channel_id, oldest):
     return messages
 
 
-def get_parent_message(slack_token, channel_id, thread_ts):
-    """Fetch the FIRST message of a thread (the original question)."""
-    result = slack_request(
-        "conversations.replies",
-        {"channel": channel_id, "ts": thread_ts, "limit": 1},
-        slack_token,
-    )
-    msgs = result.get("messages", [])
-    return msgs[0] if msgs else None
+def get_thread_messages(slack_token, channel_id, thread_ts):
+    """Fetch ALL messages in a thread (paginated). Returns list of msgs."""
+    all_msgs = []
+    cursor = None
+    while True:
+        params = {"channel": channel_id, "ts": thread_ts, "limit": 200}
+        if cursor:
+            params["cursor"] = cursor
+        result = slack_request("conversations.replies", params, slack_token)
+        all_msgs.extend(result.get("messages", []))
+        cursor = result.get("response_metadata", {}).get("next_cursor", "")
+        if not cursor:
+            break
+        time.sleep(0.3)
+    return all_msgs
+
+
+def fetch_reaction_score(slack_token, channel_id, bot_msg_ts):
+    """Mirror of check_reaction_scores logic: return (score, feedback) or None
+    if there are no relevant reactions yet."""
+    try:
+        result = slack_request(
+            "reactions.get",
+            {"channel": channel_id, "timestamp": bot_msg_ts, "full": "true"},
+            slack_token,
+        )
+    except Exception as e:
+        logging.warning("reactions.get failed for %s: %s", bot_msg_ts, e)
+        return None
+
+    reactions = result.get("message", {}).get("reactions", [])
+    correct_count = 0
+    wrong_count = 0
+    for r in reactions:
+        if r.get("name") == REACTION_CORRECT:
+            correct_count = r.get("count", 0)
+        elif r.get("name") == REACTION_WRONG:
+            wrong_count = r.get("count", 0)
+
+    if correct_count == 0 and wrong_count == 0:
+        return None
+
+    total = correct_count + wrong_count
+    score = round((correct_count / total) * 100)
+    if wrong_count == 0:
+        feedback = f"✅ correct ({correct_count} vote{'s' if correct_count != 1 else ''})"
+    elif correct_count == 0:
+        feedback = f"❌ wrong ({wrong_count} vote{'s' if wrong_count != 1 else ''})"
+    else:
+        feedback = f"mixed ({correct_count}✅ / {wrong_count}❌)"
+    return score, feedback
 
 
 def get_user_display_name(slack_token, user_id, cache):
@@ -137,45 +181,37 @@ def main():
     oldest = date_to_slack_oldest(args.since)
     logging.info("Pulling #mex-sos-escalations history since %s (oldest=%s)", args.since, oldest)
 
-    all_messages = fetch_all_channel_messages(slack_token, LIVE_CHANNEL_ID, oldest)
-    logging.info("Total messages in window: %d", len(all_messages))
+    top_level = fetch_all_channel_messages(slack_token, LIVE_CHANNEL_ID, oldest)
+    logging.info("Top-level messages in window: %d", len(top_level))
 
-    # Find every bot reply (in any thread). We want the FIRST bot reply per
-    # thread — that's the Coach Max answer to the original question.
-    threads_seen = {}  # thread_ts -> bot's first reply message
-    for msg in all_messages:
-        if msg.get("user") != bot_user_id:
-            continue
-        thread_ts = msg.get("thread_ts")
-        if not thread_ts:
-            # Bot message at the top level (not a reply). Skip — those are
-            # announcements, classification prompts, SOP funnel messages, etc.
-            continue
-        if thread_ts == msg.get("ts"):
-            # Bot started the thread itself — also not a Q&A answer
-            continue
-        # Keep the EARLIEST bot reply per thread (first answer wins)
-        existing = threads_seen.get(thread_ts)
-        if not existing or float(msg.get("ts", "0")) < float(existing.get("ts", "0")):
-            threads_seen[thread_ts] = msg
-
-    logging.info("Unique question threads where bot replied: %d", len(threads_seen))
+    # conversations.history ONLY returns root/standalone messages. Coach Max's
+    # answers are thread REPLIES — so we have to walk each thread that has
+    # replies and look inside for a bot message.
+    candidate_threads = [
+        m for m in top_level
+        if m.get("reply_count", 0) > 0 and m.get("user") and m.get("user") != bot_user_id
+    ]
+    logging.info("Top-level questions with threaded replies: %d", len(candidate_threads))
 
     user_cache = {}
     written = 0
     skipped = 0
     failed = 0
 
-    for thread_ts, bot_msg in sorted(threads_seen.items()):
+    for parent in sorted(candidate_threads, key=lambda m: float(m.get("ts", "0"))):
+        thread_ts = parent.get("ts")
         try:
-            parent = get_parent_message(slack_token, LIVE_CHANNEL_ID, thread_ts)
-            if not parent:
-                logging.warning("No parent message for thread %s, skipping", thread_ts)
-                skipped += 1
-                continue
+            thread_msgs = get_thread_messages(slack_token, LIVE_CHANNEL_ID, thread_ts)
 
-            # Don't include threads the BOT itself started (no human question)
-            if parent.get("user") == bot_user_id:
+            # Find the FIRST bot reply in this thread (Coach Max's answer)
+            bot_msg = None
+            for m in thread_msgs:
+                if m.get("user") == bot_user_id and m.get("ts") != thread_ts:
+                    bot_msg = m
+                    break
+            if not bot_msg:
+                # Question thread but bot never answered (probably classified
+                # as non-question, or SOP-routed). Skip.
                 skipped += 1
                 continue
 
@@ -206,9 +242,16 @@ def main():
                 "Bot Response": bot_msg.get("text", "")[:10000],
                 "Thread Link": permalink,
                 # Category / Priority / Source Refs aren't recoverable from Slack
-                # text alone — leave empty. Scoring fields stay empty too;
-                # any existing reaction/reviewer data is preserved by upsert.
+                # text alone — leave empty.
             }
+
+            # ALSO recover reactions on the bot's reply — these are the
+            # ✅/❌ accuracy votes the lead asked for.
+            reaction_result = fetch_reaction_score(slack_token, LIVE_CHANNEL_ID, bot_msg.get("ts"))
+            if reaction_result:
+                score, feedback = reaction_result
+                fields["Reaction Score"] = score
+                fields["Reaction Feedback"] = feedback
 
             if args.dry_run:
                 logging.info(
