@@ -966,8 +966,38 @@ THREAD_EXPIRY_DAYS = 14
 
 
 def check_comparison_responses(state, slack_token, anthropic_key, airtable_key, base_id):
-    """Check if the reviewer has responded — score silently and log to Airtable."""
+    """Check if an approved reviewer has responded — score the bot's reply
+    against theirs and log to Airtable.
+
+    The pool of "reviewers" used for scoring is the same as the SOP-updater
+    approved-reviewer list (env: MEX_BOT_APPROVED_REVIEWERS). This includes
+    the senior MEX leads + senior specialists — anyone whose answer we'd
+    treat as the canonical reference. This used to be a hardcoded single
+    user (Angelica), which meant scoring only ran when she specifically
+    replied. The wider pool gives meaningful scoring coverage so leadership
+    can build metrics on Coach Max's quality.
+
+    First-wins: if multiple approved reviewers reply in the same thread, the
+    earliest reply is used as the canonical reviewer response.
+    """
     now = datetime.now()
+
+    # Load the scorer pool once per cron run. Falls back to REVIEWER_USER_ID
+    # alone if the env var is unset (preserves prior behavior for safety).
+    try:
+        from sop_updater import parse_approved_reviewers
+        scorer_pool = parse_approved_reviewers(
+            os.environ.get("MEX_BOT_APPROVED_REVIEWERS", "")
+        )
+    except Exception as e:
+        logging.warning(
+            "check_comparison_responses: could not load approved-reviewer "
+            "pool, falling back to REVIEWER_USER_ID only: %s",
+            e,
+        )
+        scorer_pool = set()
+    if not scorer_pool:
+        scorer_pool = {REVIEWER_USER_ID}
 
     for thread_ts, thread_data in list(state["processed_threads"].items()):
         if thread_data.get("comparison_scored"):
@@ -996,15 +1026,23 @@ def check_comparison_responses(state, slack_token, anthropic_key, airtable_key, 
             continue
 
         replies = replies_result.get("messages", [])
-        reviewer_replies = [
-            r for r in replies
-            if r.get("user") == REVIEWER_USER_ID and r["ts"] != thread_ts
-        ]
+        # Earliest-first ordering (Slack returns oldest first in
+        # conversations.replies, but be defensive).
+        reviewer_replies = sorted(
+            [
+                r for r in replies
+                if r.get("user") in scorer_pool and r["ts"] != thread_ts
+            ],
+            key=lambda r: float(r.get("ts", "0")),
+        )
 
         if not reviewer_replies:
             continue
 
-        reviewer_text = "\n\n".join(r.get("text", "") for r in reviewer_replies)
+        # First-wins: use the earliest approved-reviewer reply as the
+        # canonical reviewer response for scoring.
+        canonical_reply = reviewer_replies[0]
+        reviewer_text = canonical_reply.get("text", "")
         original_issue = replies[0].get("text", "") if replies else ""
 
         logging.info("Reviewer responded to %s — scoring comparison", thread_ts)
