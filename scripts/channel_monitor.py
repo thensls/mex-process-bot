@@ -944,7 +944,11 @@ def process_new_threads(state, slack_token, anthropic_key, airtable_key, base_id
             "bot_category": bot_result["category"],
             "source_references": bot_result.get("source_references", ""),
             "is_undocumented": bot_result.get("is_undocumented", False),
-            "bot_last_reply_ts": str(time.time()),
+            # Use Slack's authoritative ts for the bot's reply — NOT
+            # str(time.time()). Railway's local clock can drift behind
+            # Slack's, which would make every human reply look "new" on
+            # the next cron tick and cause an infinite reply loop.
+            "bot_last_reply_ts": bot_reply_ts or _format_slack_ts(time.time()),
             "bot_message_ts": bot_reply_ts,   # actual Slack TS of bot's reply (for reactions.get)
             "comparison_scored": False,
             "processed_at": datetime.now().isoformat(),
@@ -1245,6 +1249,30 @@ def check_followup_questions(state, slack_token, anthropic_key):
         latest = new_replies[-1]
         followup_text = latest.get("text", "")
 
+        # LOOP GUARD: if the bot has ALREADY replied AFTER this follow-up
+        # (meaning we previously responded but state.bot_last_reply_ts is
+        # stale due to clock skew), sync state and skip without re-posting.
+        # This is the defense against repeated replies to the same message.
+        already_replied = None
+        for r in replies:
+            if r.get("user") != (_bot_user_id or ""):
+                continue
+            try:
+                if float(r["ts"]) > float(latest["ts"]):
+                    already_replied = r
+                    break
+            except (ValueError, TypeError):
+                continue
+        if already_replied:
+            logging.warning(
+                "Loop guard: bot already replied to %s in thread %s "
+                "(stale bot_last_reply_ts=%s, syncing to %s)",
+                latest["ts"], thread_ts, bot_last_ts, already_replied["ts"],
+            )
+            thread_data["bot_last_reply_ts"] = already_replied["ts"]
+            save_state(state)
+            continue
+
         if rescue_mode:
             # Only rescue a "skipped" thread if the latest reply @-mentions
             # the bot directly. Otherwise leave it alone — it was filtered
@@ -1331,12 +1359,14 @@ def check_followup_questions(state, slack_token, anthropic_key):
             reply_msg += "\n\n⚠️ _I don't have this in my SOP — flagging for the team._"
 
         try:
-            slack_post_message(slack_token, LIVE_CHANNEL_ID, reply_msg, thread_ts=thread_ts)
+            posted_ts = slack_post_message(slack_token, LIVE_CHANNEL_ID, reply_msg, thread_ts=thread_ts)
         except Exception as e:
             logging.error("Failed to post followup response: %s", e)
             continue
 
-        thread_data["bot_last_reply_ts"] = str(time.time())
+        # Use the Slack-assigned ts of the bot's reply (authoritative time)
+        # rather than local Railway clock — see process_new_threads for why.
+        thread_data["bot_last_reply_ts"] = posted_ts or _format_slack_ts(time.time())
         if rescue_mode:
             # Thread is no longer "skipped" now that Coach Max has engaged.
             # Subsequent follow-ups should be handled by the normal path,
