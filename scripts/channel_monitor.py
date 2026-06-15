@@ -157,10 +157,17 @@ STALE_STATE_ALERT_THROTTLE_HOURS = 4
 def check_state_health(state, slack_token):
     """Detect silent-failure conditions and DM the owner if found.
 
-    Alarm fires when `last_processed_ts` is more than STALE_STATE_THRESHOLD_HOURS
-    behind current time. Common causes: Slack silently rejecting a malformed
-    `oldest` param, Anthropic outage, channel ID misconfiguration, or any
-    other condition where the bot is running but not picking up new messages.
+    Alarm fires when BOTH:
+      (a) `last_processed_ts` is more than STALE_STATE_THRESHOLD_HOURS behind, AND
+      (b) the channel actually has unprocessed top-level messages newer than it.
+
+    Condition (b) is what distinguishes "bot is stuck" from "channel is quiet"
+    — a weekend or holiday lull is not a bug.
+
+    Common true-positive causes: Slack silently rejecting a malformed `oldest`
+    param, Anthropic outage, channel ID misconfiguration, bot kicked from
+    channel, or any other condition where the bot is running but not picking
+    up posted messages.
 
     Throttled to one DM per STALE_STATE_ALERT_THROTTLE_HOURS to avoid spam.
     Resets the throttle once state recovers (ts becomes fresh again).
@@ -183,7 +190,41 @@ def check_state_health(state, slack_token):
             state.pop("last_health_dm_ts", None)
         return
 
-    # Stale. Throttle DMs.
+    # Wall-clock says stale, but the channel might just be quiet. Confirm there
+    # are unprocessed messages before alarming.
+    try:
+        result = slack_request(
+            "conversations.history",
+            {"channel": LIVE_CHANNEL_ID, "limit": 10, "oldest": ts_str},
+            slack_token,
+        )
+        unprocessed = result.get("messages", [])
+        if not unprocessed:
+            # Channel is quiet — no backlog, bot is fine. Don't alarm.
+            logging.info(
+                "check_state_health: ts is %.1fh stale (%s) but channel has "
+                "no new messages — quiet, not stuck. Skipping alarm.",
+                age_hours, ts_str,
+            )
+            # Also clear the prior alert marker — next genuine stale period
+            # should alert cleanly.
+            state.pop("last_health_dm_ts", None)
+            return
+        logging.warning(
+            "check_state_health: ts is %.1fh stale AND %d unprocessed "
+            "messages in channel — genuine backlog",
+            age_hours, len(unprocessed),
+        )
+    except Exception as e:
+        # If we can't check the channel, fail safe by NOT alarming (avoids
+        # noisy false positives if Slack API is briefly down).
+        logging.warning(
+            "check_state_health: couldn't verify backlog (%s) — skipping alarm",
+            e,
+        )
+        return
+
+    # Stale AND backlog confirmed. Throttle DMs.
     last_dm = state.get("last_health_dm_ts")
     if last_dm:
         try:
