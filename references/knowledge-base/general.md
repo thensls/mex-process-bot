@@ -1002,6 +1002,38 @@ Maximum: **$2,200**. Credits only apply once $1,400 minimum is reached.
 
 **Tags:** induction ceremony, recognition list, not on list, name missing, RSVP, ceremony list, induction RSVP, ceremony complaint, not recognized, family at ceremony, fall induction
 
+---
+
+## Process: Non-Chapter School Requesting Communications Timeline or Contact Info
+
+**Tags:** non-chapter school, non-member school, institution requesting information, school not in chapter, open records request, communications timeline, contact information request, chapter help, chapterhelp@nsls.org, Chapter Success Team, school contacting NSLS, advisor requesting info, Nazareth University
+
+**When this comes up:** A staff member, advisor, or representative from a school that does NOT have an active NSLS chapter reaches out requesting a timeline of communications, contact information for anyone NSLS has engaged with at their school, or information about why students are still being contacted by NSLS.
+
+**⚠️ Critical rule:** Before escalating to Director-level, MEX agents should first route to the Chapter Success Team for advisement. Do NOT attempt to provide a communications timeline or share contact details without direction from Chapter Success.
+
+**First step — route to Chapter Success:**
+- Email: *chapterhelp@nsls.org*
+- The Chapter Success Team will advise MEX on next steps for communicating with staff at a non-chapter school who are requesting more information
+
+**What MEX can communicate to the advisor or school representative (if needed while awaiting advisement):**
+
+MEX agents are able to inform advisors and students that through an *open records request*, NSLS was able to see who was eligible to join the National Online Chapter based on academic success and leadership potential. That is the basis for outreach to students at non-chapter schools.
+
+**Escalation path:**
+1. *First:* Email *chapterhelp@nsls.org* for advisement from the Chapter Success Team
+2. *If unresolved or situation escalates:* Route to Director-level (MEX Leadership)
+
+**Tone guidance:**
+- These situations are sensitive — a school requesting a communications timeline or contact info may involve institutional relationship concerns
+- Acknowledge the inquiry warmly and let them know you're looping in the right team to get them proper support
+- Do not speculate about outreach decisions or volunteer information beyond what's documented here
+
+**Source:** Reviewer correction — escalation path confirmed via MEX Leadership advisement
+
+---
+
+
 **When this comes up:** A member contacts MEX upset that their name was not included in the recognition list during an induction ceremony — often after inviting family members to watch.
 
 **⚠️ Critical rule:** MEX cannot retroactively edit the list of inducted members for any chapter's completed ceremony. Do not imply that a correction to the past ceremony is possible.
