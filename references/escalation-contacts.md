@@ -6,15 +6,25 @@ When the bot cannot answer a question or the situation requires human judgment, 
 
 ### Escalation Chain
 
-| Role | Name | Slack mention | When to escalate |
-|---|---|---|---|
-| **SOS-Trained MEX Specialist** | Monica Cerrato (SME for SOS) | `<@U02EG4YQ2UF>` | First escalation point — process questions beyond SOP, member disputes, unclear situations |
-| **Team Lead** | Kara | `<@U01B6B0T831>` | Policy exceptions, refund approvals, member complaints |
-| **Team Lead** | Alejandro | `<@U0A7E0JCNBU>` | Policy exceptions, refund approvals, member complaints |
-| **Workforce Specialist** | Alaynie | `<@U03EDCNTW5B>` | Scheduling, staffing, workforce-related questions |
-| **Director of Member Experience** | Kimberly Campbell | `<@U021ZK0NW07>` | Final escalation — high-severity issues, partner/institutional concerns, policy decisions |
+**Default — the SOS pod.** Almost every SOS that needs a human goes to all three together so any of them can grab it. **Tag the whole pod — never single out one person.**
 
-**How Coach Max uses these:** when telling a specialist to escalate, include the Slack mention inline (e.g., *"This needs Team Lead approval — `<@U01B6B0T831>` can you weigh in?"*) so the lead gets a notification and can respond directly.
+| Role | Name | Slack mention |
+|---|---|---|
+| **SOS-Trained MEX Specialist** | Monica Cerrato (SME for SOS) | `<@U02EG4YQ2UF>` |
+| **Team Lead** | Kara | `<@U01B6B0T831>` |
+| **Team Lead** | Alejandro | `<@U0A7E0JCNBU>` |
+
+Use the pod for: process questions beyond SOP, member disputes, refund/policy exceptions, member complaints, benefits/enrollment/induction/scholarship edge cases, data-removal and card-charge cases, and anything unclear or undocumented.
+
+**Scheduling / staffing / workforce questions:** there is no current owner for this role. Do **not** tag the pod — tell the person to reach out to their manager directly.
+
+**Escalate higher — only for these specific cases:**
+
+| Role | Name | Slack mention | When |
+|---|---|---|---|
+| **Director of Member Experience** | Kimberly Campbell | `<@U021ZK0NW07>` | High-severity issues, partner/institutional concerns, top-level policy decisions |
+
+**How Coach Max uses these:** tag the whole pod inline (e.g., *"This one needs a human — `<@U02EG4YQ2UF>` `<@U01B6B0T831>` `<@U0A7E0JCNBU>`, who can take this?"*) so the load is shared and no single lead gets every SOS.
 
 ### Support Contacts
 
@@ -49,16 +59,16 @@ When the bot cannot answer a question or the situation requires human judgment, 
 | Category | Route |
 |---|---|
 | Transcript requests | Walk member through KB steps; escalate to registrar@nsls.org for credit/eligibility edge cases |
-| Refunds | Check refunds KB; escalate to Team Lead for exceptions |
+| Refunds | Check refunds KB; escalate to the SOS pod for exceptions |
 | Feather platform issues | Check feather KB; route bugs to `#mex-help-desk` for tech team |
 | Shop orders / returns / warranty | Check shop KB; use documented shop communication channel |
-| Benefits (badges, LOR) | Check benefits KB; escalate to Team Lead for special handling |
-| Enrollment / graduation | Check enrollment KB; escalate to Team Lead for record errors |
-| Induction kit shipment | Check induction-kits KB; escalate to Team Lead for lost/damaged kits |
-| Scholarships | Check scholarships KB; escalate to Team Lead for status and decision questions |
-| Data removal requests | **Always escalate to Team Lead** — compliance-sensitive |
-| Card charges (Authorize) | **Always get authorization first** — escalate unclear cases to Team Lead |
-| Former OA advisor calls | Follow the OA Advisors FAQ call scripts; escalate to MEX Leadership if member is upset |
+| Benefits (badges, LOR) | Check benefits KB; escalate to the SOS pod for special handling |
+| Enrollment / graduation | Check enrollment KB; escalate to the SOS pod for record errors |
+| Induction kit shipment | Check induction-kits KB; escalate to the SOS pod for lost/damaged kits |
+| Scholarships | Check scholarships KB; escalate to the SOS pod for status and decision questions |
+| Data removal requests | **Always escalate to the SOS pod** — compliance-sensitive |
+| Card charges (Authorize) | **Always get authorization first** — escalate unclear cases to the SOS pod |
+| Former OA advisor calls | Follow the OA Advisors FAQ call scripts; escalate to the SOS pod if member is upset |
 | SNHU partner issues | Follow SNHU SOP; escalate to Director for institutional relationship concerns |
-| Process not documented | Honestly say so; route to SOS Specialist or Team Lead for human answer |
-| Urgent / time-sensitive | Flag immediately for Team Lead or Director attention |
+| Process not documented | Honestly say so; route to the SOS pod for a human answer |
+| Urgent / time-sensitive | Flag the SOS pod immediately; escalate to Director if high-severity |

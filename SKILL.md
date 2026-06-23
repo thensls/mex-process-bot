@@ -27,12 +27,10 @@ When given a new question from the MEX team, you:
 ## Human Gates
 
 When the bot cannot answer from the knowledge base or the situation requires human judgment, it escalates to the MEX team. The escalation chain is:
-1. **SOS-Trained MEX Specialist** (Monica Cerrato) — first point of escalation
-2. **Team Lead** (Kara, Alejandro) — policy exceptions, approvals, complaints
-3. **Workforce Specialist** (Alaynie) — scheduling/staffing questions
-4. **Director** (Kimberly Campbell) — final escalation for high-severity or partner issues
+1. **SOS pod** (Monica Cerrato, Kara, Alejandro) — default for almost every SOS that needs a human. The bot tags all three together so any of them can grab it and no single lead gets every escalation.
+2. **Director** (Kimberly Campbell) — only for high-severity, partner/institutional, or top-level policy issues.
 
-The bot may tag team members directly when escalating in `#mex-sos-escalations`.
+The bot tags the whole pod directly when escalating in `#mex-sos-escalations`.
 
 ## Source Citation
 
