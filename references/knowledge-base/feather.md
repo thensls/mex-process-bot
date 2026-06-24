@@ -244,6 +244,11 @@ This file (`feather.md`) covers operations **inside the Feather admin platform**
 
 **Source:** MEX_SOP_Credit for a Step
 
+*Note on LTD / Orientation / SNT pending steps:* When a member's LTD (Leadership Training Day), Orientation, or SNT step is stuck in "pending" status and the member says they submitted it a while ago with no grade received, that is a Chapter Leader review issue — not something MEX can approve directly. Direct the member to follow up with their Chapter Leaders. If there's been no response after 72 hours, escalate to the chapter's NOR. MEX should *not* email Chapter Leaders directly. See also: Credit for a Step process above.
+
+*Quick tip for teammates:* When pasting a HubSpot link into Slack, make sure you're only sharing it once — no need to duplicate the URL in the same message. Format it as `<https://app.hubspot.com/...|View HubSpot Record>` for a clean, clickable link.
+
+
 ---
 
 ## Process: Tech Issues with Videos in Members Area
