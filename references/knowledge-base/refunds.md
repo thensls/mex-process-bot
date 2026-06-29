@@ -151,6 +151,10 @@ Save attempts must be documented in HubSpot (and FOL Saves Tracker when applicab
 *Can we refund the Grad Set or Parent Package?*
 - Parent Packages can be refunded at any time. Grad Sets follow the Enrollment Grad Set SOP. Personalized items are non-refundable.
 
+*Can we refund a member who completed all the induction steps?*
+- That's a question for *<@U0AR9BA8M7Z>* — I don't have this in my SOP. Tag them directly for guidance before making any commitments to the member.
+
+
 *Can we refund a plaque?*
 - **Yes — plaques can be refunded at any time and are not subject to the 30-day refund policy.** Process as a normal refund.
 
