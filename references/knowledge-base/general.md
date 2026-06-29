@@ -973,6 +973,44 @@ Maximum: **$2,200**. Credits only apply once $1,400 minimum is reached.
 
 **Tags:** Summit, Leadership Summit, discount code, promo code, summit15, Summit registration, Summit enrollment, events@nsls.org
 
+---
+
+## Process: Job Bank Support
+
+**Tags:** Job Bank, job bank support, job search, job platform, job bank technical issue, job bank profile, job bank resume, job bank registration, tech tracker, help desk, job bank troubleshooting
+
+**When this comes up:** A member calls or contacts MEX with questions about Job Bank — how to use the platform, how to create a profile, or if they're experiencing technical difficulties.
+
+**Context:** MEX was not formally trained on Job Bank, so the level of support we can provide is limited but not zero. Here's how to handle it depending on what the member needs.
+
+---
+
+*Two scenarios — know which one you're in:*
+
+**Scenario 1 — Member has a general question (no technical issue):**
+- Do your best to troubleshoot and help! General guidance you can share:
+  - Members need to *register directly with Job Bank* to create a profile
+  - They'll input the type of jobs they're looking for
+  - They'll need to upload a resume
+- If you don't have the answer to a general question, *do not guess* — post it in the *SOS Chat* so the right person can assist
+
+**Scenario 2 — Member is experiencing a technical difficulty:**
+1. *Send to Help Desk* — Route the issue to `#mex-help-desk` for a Help Desk team member to assist
+2. *Add to the Tech Tracker* — Log the issue in the MEx Tech Issues spreadsheet
+
+**Quick decision guide:**
+
+| Situation | Action |
+|---|---|
+| General question you can partially answer | Troubleshoot with member using the guidance above |
+| General question you *don't* have the answer to | Post in *SOS Chat* |
+| Technical difficulty | Route to Help Desk + log in Tech Tracker |
+
+**Note:** There is no full Job Bank SOP at this time. If questions come up frequently, this is worth flagging so we can get it better documented!
+
+**Source:** Reviewer correction — MEX Leadership advisement via SOS Chat
+
+
 **When this comes up:** A member reports receiving a discount code for Summit registration (e.g., during an induction ceremony) but cannot find a field to enter it during the registration process.
 
 **⚠️ Critical rule:** There is no documented Summit discount code process in the MEX SOP. Do NOT attempt to troubleshoot or confirm the validity of a discount code without verifying proof from the member first.
