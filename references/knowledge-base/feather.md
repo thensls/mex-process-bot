@@ -405,3 +405,37 @@ This file (`feather.md`) covers operations **inside the Feather admin platform**
 **Last updated:** June 18, 2025 — Written by KK
 
 **Source:** SOP- Invitations Report in Feather
+
+## Process: Chapter Leader Dashboard — Bulk Email Delivery Questions
+
+**Tags:** chapter leader dashboard, bulk email, CL bulk email, email not received, email inbox, chapter leader email, CSM, customer success manager, chapter leader sending emails, bulk email delivery, email only in dashboard
+
+**When this comes up:** A Chapter Leader (CL) reports an issue with the Chapter Leader Dashboard — including bulk email delivery questions, emails only appearing inside the dashboard inbox, or members not receiving emails sent through the dashboard.
+
+**Key rule:** Chapter Leader Dashboard questions are *not* handled directly by MEX. These should be routed to the *Customer Success Manager (CSM)* assigned to the chapter's school.
+
+**Steps:**
+
+1. *Identify the school* — Pull up the member's profile in Feather and note which school/chapter they belong to
+
+2. *Find the CSM* — Click the school name in Feather and look for the *"Representative"* field — this is the assigned CSM for that chapter
+
+3. *Route to the CSM* — Let the teammate know who the CSM is so they can loop that person in to assist the Chapter Leader directly with the dashboard question
+
+**Example response language:**
+> "For Chapter Leader Dashboard questions like this one, you'll want to reach out to the CSM assigned to that school — they're the right person to help the CL navigate this. You can find the CSM by clicking the school name in Feather and looking for the 'Representative' field!"
+
+**Common questions:**
+
+*Why can't MEX handle Chapter Leader Dashboard issues directly?*
+- Chapter Leader tools and dashboard support fall under the CSM's scope, not MEX. Routing to the CSM ensures the CL gets the right expert.
+
+*What if I can't find a CSM listed for the school?*
+- I don't have this in my SOP — flag it in `#sos-escalation` for a Team Lead to advise on routing.
+
+**Note:** This process applies to any Chapter Leader Dashboard question — not just bulk email. If a CL is having trouble with any dashboard feature, the CSM is the first point of contact.
+
+**Source:** Reviewer guidance — MEx team
+
+---
+
