@@ -98,6 +98,44 @@ If an enrollment question is not covered, say so and escalate.
 
 ---
 
+## Process: A&E Expired — Extension Request / Extenuating Circumstances
+
+**Tags:** A&E expired, A&E extension, A&E extenuating circumstances, A&E bereavement, A&E reinstate, A&E reactivate, A&E archived course, A&E latest version, A&E progress lost, A&E exception, A&E re-enroll
+
+**When this comes up:** A member's A&E course has expired and they are requesting an extension or reinstatement due to extenuating circumstances (e.g., bereavement, medical leave, family emergency).
+
+**Key rule:** The *same* A&E program *cannot* be reinstated. If the member's course has expired, the resolution is to enroll them in the *updated version* of A&E — not to reactivate the original one.
+
+**What this means for the member:**
+- Any previous progress will be *lost*
+- Modules they already completed will need to be completed again in the new version
+- The member will receive the *latest version* of the A&E content
+
+**What to do:**
+
+1. *Check what was completed* — Look at the member's Feather profile to confirm which A&E course(s) they were enrolled in and what, if any, modules they completed (e.g., `FA2024: Advanced Leadership (Archived)`).
+
+2. *Confirm the exception is appropriate* — MEx can make this exception for extenuating circumstances. You do not need leadership approval to approve the re-enrollment itself, but use good judgment and document the situation.
+
+3. *Set the member's expectations before proceeding* — Before enrolling them, make sure the member understands:
+   - Their previous A&E course cannot be reinstated
+   - They will be enrolled in the latest version
+   - All prior progress is lost — they will need to redo any previously completed modules
+   - Ask if they want to proceed given these conditions
+
+4. *Enroll in the updated A&E* — Once the member confirms they want to proceed, enroll them in the current version of the A&E program in Feather.
+
+5. *Document the exception* — Note the extenuating circumstance and the action taken in the member's record.
+
+**Important:** Do not promise reinstatement of the original course or preservation of prior progress — neither is possible. Be warm and empathetic, but be clear about what the re-enrollment actually looks like so the member can make an informed decision.
+
+**Source:** MEx team guidance — A&E expired/extension handling
+
+**Last updated:** May 2026 — Added based on escalation review; documents that expired A&E cannot be reinstated but re-enrollment in updated version is an available exception.
+
+
+---
+
 ## Process: Enrollment Graduation Set — Early Shipping
 
 **Tags:** graduation set, grad set, early shipping, ship grad set early, before steps, graduation ceremony, ceremony coming up, expedited grad set, stole, cords, medallion, engraved medallion, personalized medallion, Grad Set Dashboard, Rebecca Hebert, 9:30 ET cutoff, 12 PM EST cutoff, standard ground grad set, 3-5 day grad set, 2-day rush grad set, Authorize.net grad set shipping, Shopify grad set comment
