@@ -979,6 +979,40 @@ Maximum: **$2,200**. Credits only apply once $1,400 minimum is reached.
 
 **Tags:** Job Bank, job bank support, job search, job platform, job bank technical issue, job bank profile, job bank resume, job bank registration, tech tracker, help desk, job bank troubleshooting
 
+---
+
+## Process: Unverifiable Transaction — Receipt Request
+
+**Tags:** receipt request, can't find member, transaction not found, unverified charge, Authorize receipt, last 4 digits, proof of payment, billing, different society
+
+**When this comes up:** A requester asks for a receipt for a transaction they believe is from NSLS, but you cannot locate any membership record under the information they provided (e.g., last 4 digits of card + transaction date).
+
+**⚠️ Critical rule:** Do NOT share any transaction details or confirm a charge without first positively identifying the person in our system.
+
+**Steps:**
+
+1. *Request proof of payment* — Ask the requester to send a screenshot or photo of their bank statement or confirmation showing the charge. This is your starting point — you can't move forward without it.
+
+2. *Review the proof of payment* — Once received, the documentation may:
+   - Reveal they enrolled under a *different society* (not NSLS)
+   - Reveal a *different email or name* than what was originally provided, allowing you to locate them in the system
+   - Confirm the charge does appear to be from NSLS and you can continue investigating
+
+3. *If the charge appears to be NSLS but still can't be located:*
+   - Send to *billing* for further research — they have deeper access to transaction history
+
+4. *If the charge appears to be from a different organization:*
+   - Let the requester know you weren't able to locate a matching record and that the charge may be from a different society or vendor — suggest they check with their bank for merchant details
+
+**Sample language:**
+
+> "Thanks for reaching out! Since I wasn't able to locate a record under the information provided, could you send over a screenshot or photo of the charge on your bank statement? That'll help us figure out exactly where it came from and get you pointed in the right direction!"
+
+**Source:** Reviewer correction — MEX Leadership advisement via SOS Chat
+
+---
+
+
 **When this comes up:** A member calls or contacts MEX with questions about Job Bank — how to use the platform, how to create a profile, or if they're experiencing technical difficulties.
 
 **Context:** MEX was not formally trained on Job Bank, so the level of support we can provide is limited but not zero. Here's how to handle it depending on what the member needs.
