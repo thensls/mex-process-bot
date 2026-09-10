@@ -719,7 +719,7 @@ DEFAULT — tag the SOS pod (all three together). Almost every SOS that needs a 
 ESCALATE HIGHER — only for these specific cases:
 - Director: Kimberly Campbell `<@U021ZK0NW07>` — high-severity issues, partner/institutional concerns, top-level policy decisions
 
-SCHEDULING / STAFFING / WORKFORCE questions — do NOT tag anyone. There's no current owner for this, so tell the person to reach out to their manager directly. (Do not tag the pod or invent a contact.)
+SCHEDULING / STAFFING / WORKFORCE questions — tag the Workforce Specialist, Eliana Santos `<@U0BAK4ZT3EF>`. Do NOT tag the SOS pod for these.
 
 When escalating, write the mentions INLINE as part of a natural sentence, and tag the WHOLE pod (all three) — never just one person. Examples:
 - "This one needs a human — `<@U02EG4YQ2UF>` `<@U01B6B0T831>` `<@U0A7E0JCNBU>`, who can take this?"

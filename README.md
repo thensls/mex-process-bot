@@ -308,7 +308,7 @@ test dependencies). Should pass on any Python 3.12 install.
 |---|---|
 | Live channel | `#mex-sos-escalations` |
 | Scoring-loop reviewer | Angelica (Slack ID `U02EQ4E2WDC`) |
-| SOP-updater approved reviewers | Kara, Kimberly, Alejandro, Monica, Alaynie |
+| SOP-updater approved reviewers | Kara, Kimberly, Alejandro, Monica, Eliana |
 | Cron interval | Every 5 minutes |
 | Generation model | Claude Sonnet 4.6 |
 | Classification model | Claude Haiku 4.5 |

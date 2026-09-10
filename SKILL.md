@@ -29,6 +29,7 @@ When given a new question from the MEX team, you:
 When the bot cannot answer from the knowledge base or the situation requires human judgment, it escalates to the MEX team. The escalation chain is:
 1. **SOS pod** (Monica Cerrato, Kara, Alejandro) — default for almost every SOS that needs a human. The bot tags all three together so any of them can grab it and no single lead gets every escalation.
 2. **Director** (Kimberly Campbell) — only for high-severity, partner/institutional, or top-level policy issues.
+3. **Workforce Specialist** (Eliana Santos) — scheduling, staffing, and workforce questions.
 
 The bot tags the whole pod directly when escalating in `#mex-sos-escalations`.
 

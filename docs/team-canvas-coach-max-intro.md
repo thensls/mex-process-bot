@@ -111,9 +111,8 @@ Coach Max is great for "what's the process?" questions, but some things need a p
 
 | Need | Who to go to |
 |---|---|
-| **Process question beyond SOP** | Monica Cerrato (SOS-Trained MEX Specialist) |
-| **Policy exception, refund approval, member complaint** | Team Lead → Kara or Alejandro |
-| **Scheduling / staffing** | Alaynie (Workforce Specialist) |
+| **Most SOS's that need a human** (process beyond SOP, policy exception, refund approval, member complaint, member dispute) | The **SOS pod** — Monica Cerrato, Kara & Alejandro, tagged together so any of them can grab it |
+| **Scheduling / staffing** | Eliana Santos (Workforce Specialist) |
 | **High-severity issue, partner concern, policy decision** | Kimberly Campbell (Director) |
 
 Coach Max will often *tell you* who to escalate to — but use your judgment.
@@ -144,7 +143,7 @@ Built by Angelica Villalobos with the MEX team. Going forward, **the team mainta
 
 ## 👀 For MEX leads only
 
-If you're on the MEX lead team (Kara, Kimberly, Alejandro, Monica, Alaynie), there's a second flow that lets you **directly update Coach Max's playbooks** through Slack — no GitHub, no engineering required.
+If you're on the MEX lead team (Kara, Kimberly, Alejandro, Monica, Eliana), there's a second flow that lets you **directly update Coach Max's playbooks** through Slack — no GitHub, no engineering required.
 
 See the **"Coach Max KB update workflow"** canvas for the full guide on how to enhance / replace / revise the bot's knowledge base from a thread or channel announcement.
 

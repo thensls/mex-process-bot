@@ -108,7 +108,7 @@ Coach Max picks it up on the next 5-min tick.
 ### Important rules for announcements
 
 - **Must @-mention Coach Max.** Without the mention, the bot won't pick it up.
-- **Must be from a MEX lead** on the approved list (Kara, Kimberly, Alejandro, Monica, Alaynie).
+- **Must be from a MEX lead** on the approved list (Kara, Kimberly, Alejandro, Monica, Eliana).
 - **Post at the top level** — not as a thread reply.
 
 ---
@@ -167,7 +167,7 @@ That's it. No forms, no DMs, no GitHub.
 
 ## 👥 Who can approve or veto
 
-**Kara · Kimberly · Alejandro · Monica · Alaynie**
+**Kara · Kimberly · Alejandro · Monica · Eliana**
 
 Any one of you can trigger an update, ✅ approve a diff, or 🛑 veto a pending commit — you're not waiting on a single person.
 
