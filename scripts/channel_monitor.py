@@ -317,6 +317,112 @@ def slack_dm_user(token, user_id, text):
     return slack_post_message(token, dm_channel, text)
 
 
+# ---------------------------------------------------------------------------
+# Reply health
+# ---------------------------------------------------------------------------
+
+# Slack renders a user mention inside a code span as an EMPTY message. Its
+# rich-text parser can't nest a `user` element inside `code`, so the whole
+# message body comes back blank -- and no notification fires, so the person
+# tagged never learns they were tagged. chat.postMessage still accepts the
+# text and Slack search still indexes it, which is why this went unnoticed:
+# the content is in Airtable and in search, but the thread shows an empty
+# bubble. Repair it before posting.
+_CODE_SPAN_RE = re.compile(r"(`{1,3})([^`\n]*?)\1")
+_MENTION_RE = re.compile(r"<@[A-Z0-9]+(?:\|[^>]*)?>")
+
+REPLY_STATUS_POSTED = "Posted"
+REPLY_STATUS_REPAIRED = "Posted (repaired)"
+REPLY_STATUS_BLANK = "Blank \u2014 not posted"
+REPLY_STATUS_GEN_FAILED = "Generation failed"
+REPLY_STATUS_POST_FAILED = "Post failed"
+
+
+def sanitize_slack_text(text):
+    """Repair constructs Slack cannot render.
+
+    Returns (clean_text, repairs); repairs is a list of human-readable
+    descriptions of what changed, empty when nothing needed fixing.
+    """
+    if not text:
+        return text or "", []
+
+    unwrapped = 0
+
+    def _unwrap(match):
+        nonlocal unwrapped
+        inner = match.group(2)
+        if _MENTION_RE.search(inner):
+            unwrapped += 1
+            return inner
+        return match.group(0)
+
+    clean = _CODE_SPAN_RE.sub(_unwrap, text)
+    repairs = []
+    if unwrapped:
+        repairs.append(f"unwrapped {unwrapped} backticked mention span(s)")
+    return clean, repairs
+
+
+# Characters that carry no visible content on their own -- a message made
+# entirely of these renders as an empty bubble.
+_MARKUP_ONLY_RE = re.compile(r"[\s`*_~>#\-\u200b\u00a0]")
+
+
+def is_effectively_blank(text):
+    """True if Slack would render this message as an empty bubble."""
+    if not text or not text.strip():
+        return True
+    return not _MARKUP_ONLY_RE.sub("", text)
+
+
+def compose_reply(bot_result):
+    """Build the Slack message body from a generate_response result."""
+    result = bot_result or {}
+    response = result.get("response") or ""
+    if not response:
+        return ""
+    if result.get("is_undocumented"):
+        response += "\n\n\u26a0\ufe0f _I don't have this in my SOP \u2014 flagging for the team._"
+    return response
+
+
+def log_reply_outcome(airtable_key, base_id, thread_ts, reporter, question,
+                      status, error=""):
+    """Record how a reply attempt ended so blank and failed replies land in
+    Airtable instead of vanishing. Upserts on Thread ID, so this is safe to
+    call before, after, or instead of the baseline row write.
+    """
+    if not base_id or not airtable_key:
+        return
+    fields = {
+        "Thread ID": thread_ts,
+        "Issue Date": datetime.now().isoformat()[:10],
+        "Reporter": reporter or "",
+        "Thread Link": (
+            f"https://thensls.slack.com/archives/{LIVE_CHANNEL_ID}"
+            f"/p{thread_ts.replace('.', '')}"
+        ),
+        "Reply Status": status,
+        "Reply Error": (error or "")[:10000],
+    }
+    if question:
+        fields["Question Summary"] = question[:10000]
+    try:
+        airtable_request(
+            "PATCH",
+            f"{base_id}/Response%20Comparisons",
+            data={
+                "records": [{"fields": fields}],
+                "performUpsert": {"fieldsToMergeOn": ["Thread ID"]},
+            },
+            api_key=airtable_key,
+        )
+        logging.info("Logged reply status '%s' for %s", status, thread_ts)
+    except Exception as e:
+        logging.error("Reply-status Airtable write failed for %s: %s", thread_ts, e)
+
+
 def slack_post_message(token, channel, text, thread_ts=None):
     payload = {
         "channel": channel,
@@ -712,19 +818,21 @@ CRITICAL — SOURCE CITATION:
 ESCALATION — WHEN TO HAND OFF TO A HUMAN:
 When a question is beyond the SOP or requires human judgment, *tag the right people using Slack mention syntax* so they get a notification and can step in. Use the EXACT mention strings below — Slack will turn them into clickable @-tags.
 
+FORMATTING RULE — CRITICAL: write every mention BARE, exactly as <@UXXXXXXXX>. NEVER wrap a mention in backticks, code formatting, quotes, or any other markup. A mention inside backticks makes Slack render your ENTIRE message as blank and sends no notification — the person you tagged never finds out. Backticks are fine around filenames like refunds.md; they are never acceptable around a mention.
+
 DEFAULT — tag the SOS pod (all three together). Almost every SOS that needs a human goes here. Tag all three so any of them can grab it — DO NOT single out one person:
-  Monica Cerrato `<@U02EG4YQ2UF>` · Kara `<@U01B6B0T831>` · Alejandro `<@U0A7E0JCNBU>`
+  Monica Cerrato <@U02EG4YQ2UF> · Kara <@U01B6B0T831> · Alejandro <@U0A7E0JCNBU>
   Use the pod for: process questions beyond SOP, member disputes, refund/policy exceptions, member complaints, benefits/enrollment/induction/scholarship edge cases, data-removal and card-charge cases, and anything unclear or undocumented.
 
 ESCALATE HIGHER — only for these specific cases:
-- Director: Kimberly Campbell `<@U021ZK0NW07>` — high-severity issues, partner/institutional concerns, top-level policy decisions
+- Director: Kimberly Campbell <@U021ZK0NW07> — high-severity issues, partner/institutional concerns, top-level policy decisions
 
-SCHEDULING / STAFFING / WORKFORCE questions — tag the Workforce Specialist, Eliana Santos `<@U0BAK4ZT3EF>`. Do NOT tag the SOS pod for these.
+SCHEDULING / STAFFING / WORKFORCE questions — tag the Workforce Specialist, Eliana Santos <@U0BAK4ZT3EF>. Do NOT tag the SOS pod for these.
 
 When escalating, write the mentions INLINE as part of a natural sentence, and tag the WHOLE pod (all three) — never just one person. Examples:
-- "This one needs a human — `<@U02EG4YQ2UF>` `<@U01B6B0T831>` `<@U0A7E0JCNBU>`, who can take this?"
-- "Refund exception here — flagging the SOS pod: `<@U02EG4YQ2UF>` `<@U01B6B0T831>` `<@U0A7E0JCNBU>`."
-- "This one's high-severity / partner-facing — `<@U021ZK0NW07>` flagging for you."
+- "This one needs a human — <@U02EG4YQ2UF> <@U01B6B0T831> <@U0A7E0JCNBU>, who can take this?"
+- "Refund exception here — flagging the SOS pod: <@U02EG4YQ2UF> <@U01B6B0T831> <@U0A7E0JCNBU>."
+- "This one's high-severity / partner-facing — <@U021ZK0NW07> flagging for you."
 
 Tag the whole pod rather than guessing one person — that shares the load so no single lead gets every SOS. Only tag when escalation is clearly warranted — don't tag for every "might be worth confirming" situation. If you're answering from the SOP and the specialist can handle it themselves, no tag is needed.
 
@@ -966,17 +1074,28 @@ def process_new_threads(state, slack_token, anthropic_key, airtable_key, base_id
             )
         except Exception as e:
             logging.error("Failed to generate response for %s: %s", ts, e)
+            log_reply_outcome(airtable_key, base_id, ts, reporter_name, issue_text,
+                              REPLY_STATUS_GEN_FAILED, str(e))
             continue
 
         # Post response directly in the live channel thread
-        reply_msg = bot_result["response"]
-        if bot_result.get("is_undocumented"):
-            reply_msg += "\n\n⚠️ _I don't have this in my SOP — flagging for the team._"
+        reply_msg, repairs = sanitize_slack_text(compose_reply(bot_result))
+        if repairs:
+            logging.warning("Repaired reply for %s: %s", ts, "; ".join(repairs))
+
+        if is_effectively_blank(reply_msg):
+            logging.error("Refusing to post blank reply for %s", ts)
+            log_reply_outcome(airtable_key, base_id, ts, reporter_name, issue_text,
+                              REPLY_STATUS_BLANK,
+                              "Composed reply was empty — nothing posted")
+            continue
 
         try:
             bot_reply_ts = slack_post_message(slack_token, LIVE_CHANNEL_ID, reply_msg, thread_ts=ts)
         except Exception as e:
             logging.error("Failed to post response to live channel: %s", e)
+            log_reply_outcome(airtable_key, base_id, ts, reporter_name, issue_text,
+                              REPLY_STATUS_POST_FAILED, str(e))
             continue
 
         # Track state
@@ -1017,6 +1136,10 @@ def process_new_threads(state, slack_token, anthropic_key, airtable_key, base_id
                     "Bot Priority": bot_result.get("priority", "Medium"),
                     "Source References": bot_result.get("source_references", ""),
                     "Is Undocumented": bot_result.get("is_undocumented", False),
+                    "Reply Status": (
+                        REPLY_STATUS_REPAIRED if repairs else REPLY_STATUS_POSTED
+                    ),
+                    "Reply Error": "; ".join(repairs),
                 }
                 airtable_request(
                     "PATCH",
@@ -1203,7 +1326,8 @@ def check_comparison_responses(state, slack_token, anthropic_key, airtable_key, 
 # Main
 # ---------------------------------------------------------------------------
 
-def check_followup_questions(state, slack_token, anthropic_key):
+def check_followup_questions(state, slack_token, anthropic_key,
+                             airtable_key=None, base_id=None):
     """Monitor active threads for follow-up questions and respond in-thread.
 
     Also rescues threads that were initially classified as 'skipped' (the
@@ -1396,16 +1520,27 @@ def check_followup_questions(state, slack_token, anthropic_key):
             )
         except Exception as e:
             logging.error("Failed to generate followup response for %s: %s", thread_ts, e)
+            log_reply_outcome(airtable_key, base_id, thread_ts, reporter_name,
+                              issue_text_for_bot, REPLY_STATUS_GEN_FAILED, str(e))
             continue
 
-        reply_msg = bot_result["response"]
-        if bot_result.get("is_undocumented"):
-            reply_msg += "\n\n⚠️ _I don't have this in my SOP — flagging for the team._"
+        reply_msg, repairs = sanitize_slack_text(compose_reply(bot_result))
+        if repairs:
+            logging.warning("Repaired followup reply for %s: %s", thread_ts, "; ".join(repairs))
+
+        if is_effectively_blank(reply_msg):
+            logging.error("Refusing to post blank followup reply for %s", thread_ts)
+            log_reply_outcome(airtable_key, base_id, thread_ts, reporter_name,
+                              issue_text_for_bot, REPLY_STATUS_BLANK,
+                              "Composed follow-up reply was empty — nothing posted")
+            continue
 
         try:
             posted_ts = slack_post_message(slack_token, LIVE_CHANNEL_ID, reply_msg, thread_ts=thread_ts)
         except Exception as e:
             logging.error("Failed to post followup response: %s", e)
+            log_reply_outcome(airtable_key, base_id, thread_ts, reporter_name,
+                              issue_text_for_bot, REPLY_STATUS_POST_FAILED, str(e))
             continue
 
         # Use the Slack-assigned ts of the bot's reply (authoritative time)
@@ -1674,7 +1809,7 @@ def main():
     backfill_airtable_from_state(state, airtable_key, base_id)
 
     process_new_threads(state, slack_token, anthropic_key, airtable_key, base_id)
-    check_followup_questions(state, slack_token, anthropic_key)
+    check_followup_questions(state, slack_token, anthropic_key, airtable_key, base_id)
     check_comparison_responses(state, slack_token, anthropic_key, airtable_key, base_id)
     check_reaction_scores(state, slack_token, airtable_key, base_id)
 

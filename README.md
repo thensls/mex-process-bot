@@ -169,6 +169,23 @@ Logs every question the bot answers.
 | Source References | Which SOP/KB file the bot cited |
 | Is Undocumented | True if bot flagged a gap |
 | Thread Link | Direct link to Slack thread |
+| Reply Status | Posted / Posted (repaired) / Blank — not posted / Generation failed / Post failed |
+| Reply Error | What went wrong, or what was repaired before posting |
+
+**Reply Status** is the health signal for the weekly report. Anything other
+than `Posted` means the person who asked did not get a usable answer:
+
+- `Posted (repaired)` — the reply contained markup Slack can't render (a
+  backtick-wrapped `<@mention>`, which blanks the whole message and suppresses
+  the notification). It was repaired automatically before posting; a run of
+  these means the prompt or a KB file has regressed.
+- `Blank — not posted` — the composed reply was empty, so nothing was sent.
+- `Blank in Slack (historical)` — backfill-only, 50 rows from 2026-06-11 to
+  2026-10-06. These were posted before the fix and rendered blank in Slack;
+  the bot never writes this value going forward.
+- `Generation failed` / `Post failed` — the Anthropic or Slack call raised.
+  Previously these were logged to stdout only and never reached Airtable, so
+  the weekly numbers silently over-counted answered questions.
 
 ### Table: Agent Audit
 

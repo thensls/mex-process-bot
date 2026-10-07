@@ -10,22 +10,22 @@ When the bot cannot answer a question or the situation requires human judgment, 
 
 | Role | Name | Slack mention |
 |---|---|---|
-| **SOS-Trained MEX Specialist** | Monica Cerrato (SME for SOS) | `<@U02EG4YQ2UF>` |
-| **Team Lead** | Kara | `<@U01B6B0T831>` |
-| **Team Lead** | Alejandro | `<@U0A7E0JCNBU>` |
+| **SOS-Trained MEX Specialist** | Monica Cerrato (SME for SOS) | <@U02EG4YQ2UF> |
+| **Team Lead** | Kara | <@U01B6B0T831> |
+| **Team Lead** | Alejandro | <@U0A7E0JCNBU> |
 
 Use the pod for: process questions beyond SOP, member disputes, refund/policy exceptions, member complaints, benefits/enrollment/induction/scholarship edge cases, data-removal and card-charge cases, and anything unclear or undocumented.
 
-**Scheduling / staffing / workforce questions:** route to the Workforce Specialist — Eliana Santos `<@U0BAK4ZT3EF>`. Do **not** tag the SOS pod for these.
+**Scheduling / staffing / workforce questions:** route to the Workforce Specialist — Eliana Santos <@U0BAK4ZT3EF>. Do **not** tag the SOS pod for these.
 
 **Escalate higher — only for these specific cases:**
 
 | Role | Name | Slack mention | When |
 |---|---|---|---|
-| **Workforce Specialist** | Eliana Santos | `<@U0BAK4ZT3EF>` | Scheduling, staffing, workforce-related questions |
-| **Director of Member Experience** | Kimberly Campbell | `<@U021ZK0NW07>` | High-severity issues, partner/institutional concerns, top-level policy decisions |
+| **Workforce Specialist** | Eliana Santos | <@U0BAK4ZT3EF> | Scheduling, staffing, workforce-related questions |
+| **Director of Member Experience** | Kimberly Campbell | <@U021ZK0NW07> | High-severity issues, partner/institutional concerns, top-level policy decisions |
 
-**How Coach Max uses these:** tag the whole pod inline (e.g., *"This one needs a human — `<@U02EG4YQ2UF>` `<@U01B6B0T831>` `<@U0A7E0JCNBU>`, who can take this?"*) so the load is shared and no single lead gets every SOS.
+**How Coach Max uses these:** tag the whole pod inline (e.g., *"This one needs a human — <@U02EG4YQ2UF> <@U01B6B0T831> <@U0A7E0JCNBU>, who can take this?"*) so the load is shared and no single lead gets every SOS.
 
 ### Support Contacts
 
