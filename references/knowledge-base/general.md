@@ -972,6 +972,41 @@ Maximum: **$2,200**. Credits only apply once $1,400 minimum is reached.
 ## Process: Summit Discount Code — Verification Protocol
 
 **Tags:** Summit, Leadership Summit, discount code, promo code, summit15, Summit registration, Summit enrollment, events@nsls.org
+## Process: Member Privacy Request — Information Sharing and Restriction
+
+**Tags:** privacy request, member privacy, data sharing, FERPA, personal safety, restrict account, hide information, public records, background report, familial retaliation, member information visibility
+
+**When this comes up:** A member contacts MEX (directly or via a specialist) requesting to know whether their name, school, membership, award information, or other account details can be restricted or hidden — including for personal safety reasons.
+
+**The short answer:** NSLS does *not* share member information with outside parties. We abide by *FERPA*. Here's what that means in practice:
+
+- Only the member's *chapter* has access to their information (as they currently do, in order to nominate members)
+- That access does *not* change based on a privacy request — and it's limited to the chapter context
+- NSLS does *not* share member data with background report aggregators, public records databases, or third parties
+
+**Scholarship public recognition — one exception to be aware of:**
+- If a member *won a scholarship*, their name may be publicly featured on the NSLS website
+- Members can *opt out* of being publicly shared in that context — if this applies, note the request and route it appropriately so the scholarship/marketing team can action it
+
+**What to say to the member:**
+
+> "Great news — NSLS doesn't share your information with outside parties. We follow FERPA guidelines, so the only people who have access to your account information are your chapter (for the purpose of nominations), and that doesn't change. Your name, school, and membership details are not shared publicly or with third parties like background report services."
+>
+> "The one thing worth noting: if you've received a scholarship and your name was shared on our website as part of that recognition, you do have the option to opt out of that public listing. Just let us know and we can get that taken care of!"
+
+**What MEX does NOT need to escalate (standard privacy concern):**
+- General concern about data visibility → reassure using the language above
+- Scholarship public listing opt-out → note the request and route to the appropriate internal team
+
+**What DOES need escalation:**
+- If the member is requesting full account deletion → follow *SOP_Data Removal Requests from Members*
+- If the member is requesting communications opt-out only → follow *SOP_Unsubscribe a Contact*
+- If there is a legal, compliance, or law enforcement dimension → route to MEX Leadership
+
+**Source:** Reviewer correction — MEX Leadership advisement via SOS Chat
+
+---
+
 
 ---
 
