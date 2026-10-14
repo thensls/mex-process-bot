@@ -198,52 +198,32 @@ If a general question is not covered, say so and escalate.
 
 ---
 
-## Process: How/When to Charge a Card in Authorize
+, Add Transaction"**
+   3. Scroll to the **CREATE TRANSACTION** box at the bottom
+   4. Package: select the appropriate item (Certificate, Enrollment, A&E, etc.)
+   5. Payment Method: choose **"Authorize (manual)"**
+   6. Click the red **"ADD PACKAGE TRANSACTION"** button
+   7. Verify the transaction appears on the member's Transactions page
 
-**Tags:** Authorize.net, charge a card, manual charge, how to charge in Authorize, Authorize transaction, Authorize & Capture, refund in Authorize, void in Authorize, international Authorize address blank, Authorize receipt PDF
+**Post-procedure — send the receipt:**
+1. Search for the transaction in Authorize.net (see MEx Handbook: How to look up a Transaction)
+2. Click "Print" on the Transaction Detail page → select "Save as PDF"
+3. Email the PDF receipt to the member with a brief note confirming the charge
 
-**When this comes up:** A manual card charge is required for a member through Authorize.net.
+**Common questions:**
 
-**⚠️ Critical rule:** Always confirm the member's approval before charging. Never charge without consent. Check with SOS if unsure whether a charge is appropriate.
+*Can I charge a member without their consent?*
+- No — always confirm member approval before charging.
 
-**When a manual charge is appropriate:**
-- Manually enrolling a member due to a technical issue (after troubleshooting or trying incognito)
-- Charging $10 for an additional certificate
-- Charging the $5.99 IKF when not previously added but required by the chapter
-- Charging for an enrollment plaque
-- Charging for a shipping fee upgrade (Graduation Set Early Shipping)
-- Manually enrolling a member into the membership or A&E Certification/Credit Recommended Courses
+*Card was declined — what now?*
+- Notify the member; ask if they want to try again or use a different card. They may need to contact their financial institution.
 
-**Definitions:**
-- **Authorize & Capture** — Processes the transaction and charges the card immediately
-- **Authorize (manual)** — Feather transaction type indicating the charge was manually added by MEX, not completed by the member
+*Can I process a refund through Authorize?*
+- No — refunds must follow SOP-Refund Exception MEx Policy or SOP_MEx ACH Refunds.
 
-**Steps:**
+**Last updated:** July 8, 2025 — Written by KK
 
-1. **Log in** to Authorize.net with your credentials
-
-2. **Navigate** to the Payment Tool → select **Tools**
-
-3. **Enter payment information** — confirm settings:
-   - Transaction Type: **Authorize & Capture**
-   - Payment Method: **Charge a Credit Card**
-   - Enter: Card Number (no spaces), Expiration Date (MMYY), CVV (3-digit on back; Amex uses 4-digit), Amount
-   - ⚠️ Before submitting: **read the card details and amount back to the member** to confirm accuracy. If declined, all information must be re-entered from scratch (deleted for security).
-
-4. **Add order description:**
-   - Invoice #: Leave blank
-   - Description: Brief description of what is being charged
-
-5. **Enter customer billing information:**
-   - First and last name
-   - Address (leave blank if international)
-   - Email address
-   - Leave all other fields (Shipping Info, Additional Info) blank
-   - Click **Submit** to process
-
-6. **Document in Feather:**
-   1. Open the member's Feather profile → go to **Transactions** tab
-   2. Select **"Add Transaction"**
+**Source:** MEX_SOP_How_When to Charge a Card in Authorize"Add Transaction"**
    3. Scroll to the **CREATE TRANSACTION** box at the bottom
    4. Package: select the appropriate item (Certificate, Enrollment, A&E, etc.)
    5. Payment Method: choose **"Authorize (manual)"**
