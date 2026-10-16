@@ -410,6 +410,32 @@ This file (`feather.md`) covers operations **inside the Feather admin platform**
 
 **Tags:** chapter leader dashboard, bulk email, CL bulk email, email not received, email inbox, chapter leader email, CSM, customer success manager, chapter leader sending emails, bulk email delivery, email only in dashboard
 
+## A&E Graduation Set — Purchase Access Blocked (Must Be Signed In to Shop)
+
+**Tags:** A&E graduation set, A&E grad set, graduation set blocked, can't purchase A&E grad set, must complete courses, shop access, sign in to shop, A&E purchase unlock
+
+**When this comes up:** A member completed both A&E courses but the system is still blocking them from purchasing the A&E Graduation Set.
+
+**Key rule:** Members *must be signed in to the NSLS shop* to unlock access to the A&E Graduation Set. This is the most common reason the purchase is blocked — even if course completion is confirmed.
+
+**Steps:**
+
+1. *Confirm the member is signed in to the shop* — Ask them to log in to the NSLS shop with their member credentials (same email as their Feather account) before attempting to purchase the A&E Graduation Set
+
+2. *Have them try the purchase again* — Once signed in, the A&E Graduation Set should be unlocked for eligible members
+
+3. *If it's still blocked after signing in* — Escalate via `#sos-escalation`; there may be a sync or eligibility issue that needs a team lead to review
+
+**Common questions:**
+
+*Why does signing in to the shop matter?*
+- The shop needs to verify the member's completion status against their account. Without being signed in, the system can't confirm eligibility and defaults to blocking the purchase.
+
+**Source:** Reviewer guidance — MEx team
+
+---
+
+
 **When this comes up:** A Chapter Leader (CL) reports an issue with the Chapter Leader Dashboard — including bulk email delivery questions, emails only appearing inside the dashboard inbox, or members not receiving emails sent through the dashboard.
 
 **Key rule:** Chapter Leader Dashboard questions are *not* handled directly by MEX. These should be routed to the *Customer Success Manager (CSM)* assigned to the chapter's school.
