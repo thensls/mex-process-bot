@@ -1233,6 +1233,21 @@ def _advance_awaiting_window(entry, slack_token, github_token, github_repo, chan
     current_content, current_sha = github_get_file(
         github_repo, entry["source_file"], github_token,
     )
+    # Already live (e.g. committed before state was lost)? Check before the
+    # SHA-conflict branch, which would otherwise re-apply an ADD on top of
+    # itself and commit the section twice.
+    if edit_is_live(current_content, entry["edit"]):
+        entry["status"] = "committed"
+        slack_post_message(
+            slack_token, channel_id,
+            f"{_tl_mentions(entry)} ✅ Confirmed this update is already live in "
+            f"`{os.path.basename(entry['source_file'])}`.",
+            thread_ts=entry["thread_ts"],
+        )
+        log_sop_update(airtable_key, base_id,
+                        _airtable_payload(entry, channel_id, entry.get("diff_render", "")))
+        return
+
     if current_sha != entry["source_file_sha"]:
         # Someone else edited the file mid-window — regenerate
         logging.info("Source file changed for %s — regenerating", entry["thread_ts"])
@@ -1259,18 +1274,6 @@ def _advance_awaiting_window(entry, slack_token, github_token, github_repo, chan
             return
 
     if "new_content" not in entry:  # rehydrated — rebuild from the live file
-        if edit_is_live(current_content, entry["edit"]):
-            # Already committed before state was lost; don't commit twice.
-            entry["status"] = "committed"
-            slack_post_message(
-                slack_token, channel_id,
-                f"{_tl_mentions(entry)} ✅ Confirmed this update is already live in "
-                f"`{os.path.basename(entry['source_file'])}`.",
-                thread_ts=entry["thread_ts"],
-            )
-            log_sop_update(airtable_key, base_id,
-                            _airtable_payload(entry, channel_id, entry.get("diff_render", "")))
-            return
         try:
             entry["new_content"] = apply_structured_edit(current_content, entry["edit"])
         except EditConflictError:
@@ -1450,12 +1453,22 @@ def _tl_mentions(entry):
 
 
 def edit_is_live(content, edit):
-    """True if the structured edit's result is present in `content`."""
+    """True if the structured edit has taken effect in `content`.
+
+    For REPLACE/EDIT the new text must be present AND the old text gone —
+    unless `old` is contained in `new` (an expansion), where finding `new`
+    is enough. Checking `new` alone gives a false positive when an edit
+    shortens text ("Do X and Y" -> "Do X"), since `new` is inside `old`.
+    """
     new = (edit.get("new") or "").strip()
-    if new:
-        return new in content
     old = (edit.get("old") or "").strip()
-    return bool(old) and old not in content
+    if not new:
+        return bool(old) and old not in content
+    if new not in content:
+        return False
+    if not old or old in new:
+        return True
+    return old not in content
 
 
 def _ensure_source_loaded(entry, github_repo, github_token, slack_token):
