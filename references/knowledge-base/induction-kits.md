@@ -208,7 +208,7 @@ When a member asks where their A&E (Advanced or Executive Leadership) certificat
    - Certificate: $10 fee, or offer a free PDF copy
    - T-shirt: $24.99
 
-2. **Process charge in Authorize** — Follow the How/When to Charge a Card in Authorize SOP. Use "Authorize (manual)" as the payment method in Feather. Always confirm the address before processing.
+2. **Send a secure invoice in Authorize.Net** — Follow Manual Invoicing (`general.md`); never take card details. Certificate/kit replacements use Item ID 1035 and are **not** added to Feather. Always confirm the address before sending.
 
 3. **Email the Inductions Team** — Use the `#inductions` HubSpot snippet to email inductions@nsls.org:
    - Member's Name
@@ -224,10 +224,10 @@ When a member asks where their A&E (Advanced or Executive Leadership) certificat
 **Common questions:**
 
 *Package sent to old address and is unobtainable?*
-- Charge the $10 replacement fee in Authorize, confirm the correct address, update the address in Feather, then email the Inductions Team.
+- Invoice the $10 replacement fee in Authorize.Net, confirm the correct address, update the address in Feather, then email the Inductions Team.
 
 *Member only wants a replacement t-shirt, not a whole kit?*
-- Charge the $24.99 fee in Authorize, confirm their current shipping address, then email the Inductions Team.
+- Invoice the $24.99 fee in Authorize.Net, confirm their current shipping address, then email the Inductions Team.
 
 *Item was never received but tracking says delivered?*
 - Confirm if the member contacted the carrier. If the issue was not due to the member's error, grant the $10 replacement fee. If over 12 months have passed, charge $60 for full kit replacement — or offer a free PDF certificate copy, $10 to ship certificate alone, or $24.99 for the t-shirt.
@@ -236,7 +236,7 @@ When a member asks where their A&E (Advanced or Executive Leadership) certificat
 
 **Resources:**
 - [Induction Pricing List](https://docs.google.com/document/d/1eV016T2bQprSkDZiRcRiAp5psQkQ9HYPVTMNteKCJ2Y/edit?usp=sharing)
-- Related SOP: How/When to Charge a Card in Authorize
+- Related SOP: Manual Invoicing (replaces How/When to Charge a Card in Authorize)
 - Inductions email: inductions@nsls.org
 
 **Escalation:** `#mex-sos-escalations` Slack channel or mex@nsls.org

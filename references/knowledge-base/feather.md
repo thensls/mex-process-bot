@@ -52,7 +52,7 @@ This file (`feather.md`) covers operations **inside the Feather admin platform**
 **Prerequisites:**
 - Chapter is active and accepting members
 - Invitation/nomination code confirmed
-- Payment ready (credit or debit card — no checks, money orders, or paper applications as of August 22, 2025)
+- Member can pay a secure Authorize.Net invoice themselves (credit or debit card — no checks, money orders, or paper applications as of August 22, 2025). Never take card details yourself.
 
 **Steps:**
 
@@ -84,12 +84,12 @@ This file (`feather.md`) covers operations **inside the Feather admin platform**
      - Core Package: select "LMS FOL $95" or "Lifetime Membership – $95" (unless member qualifies for free membership)
      - Plaque: leave blank if not purchasing
    - **Graduation Set:** Cannot be added in this manual enrollment screen
-     - Add the Grad Set cost to the Authorize total before charging
+     - Add the Grad Set cost to the invoice total
      - After creating the profile, go to the member's Transactions tab and manually add the Graduation Set as a separate transaction
 
-6. **Process payment in Authorize:**
-   - Under Payment Type, select "Authorize (manual)"
-   - Process payment using SOP: How/When to Charge a Card in Authorize
+6. **Process payment with a secure Authorize.Net invoice:**
+   - Send the member a manual invoice (see `general.md` → Manual Invoicing in Authorize.Net) — never take card details
+   - Once the invoice shows **paid**, under Payment Type select "Authorize (manual)"
    - Copy the Transaction ID and paste it into the **Transaction Approval box** in Feather
 
 7. **Ask about opt-outs:**
@@ -105,7 +105,7 @@ This file (`feather.md`) covers operations **inside the Feather admin platform**
 **Post-procedure checklist:**
 - [ ] Chapter is accepting members
 - [ ] Invitation code verified
-- [ ] Payment processed through Authorize
+- [ ] Invoice paid in Authorize.Net
 - [ ] Transaction added in Feather (including IKF if required and any add-ons)
 - [ ] Correct Core Package selected (FOL or LMS FOL)
 - [ ] Email the member a copy of the transaction receipt
@@ -122,7 +122,7 @@ This file (`feather.md`) covers operations **inside the Feather admin platform**
 - No. As of August 22, 2025, all payments must be made by debit/credit card, PayPal, Google Pay, or manually via Authorize. No checks, money orders, or paper applications.
 
 **Related resources:**
-- [SOP: How/When to Charge a Card in Authorize](https://drive.google.com/open?id=1v4iXjhyH-qXQs-EwFsMhavUaQpJF8EkHJkDO_78FsN4&usp=drive_copy)
+- SOP: Manual Invoicing (replaces How/When to Charge a Card in Authorize — see `general.md`)
 - [MEX_SOP_Chapter Transfer](https://drive.google.com/open?id=1X59UUF2Megg_ERmK3DwAuUpKHP60VZA_Yu7mbe0pwcg&usp=drive_copy)
 - [MEX_JobAid_Induction Pricing List](https://drive.google.com/open?id=1XVXlFfukESKw7IoWX7EI_0LLuWOo0yV8XwDc1Xoq3ko&usp=drive_copy)
 - [Quick Reference: Regular FOL 101 vs Pilot Program](https://docs.google.com/document/d/1dGWGZhUeOKGhq6hprCvTFTkhrQ6oV-p2kslNMN2Rtpk/edit?tab=t.0)

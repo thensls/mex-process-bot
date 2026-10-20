@@ -44,29 +44,25 @@ If an enrollment question is not covered, say so and escalate.
 
 **When this comes up:** A member enrolled but could not add the A&E (Advanced & Executive) courses during enrollment because the system froze, errored out, or timed out. They want to add it now at the enrollment price.
 
-**What to do:** This qualifies for a manual charge via Authorize.net. Follow these steps:
+**What to do:** This qualifies for a manual invoice via Authorize.Net. **Never take the member's card details** — send a secure invoice they pay themselves (see `general.md` → Manual Invoicing in Authorize.Net). Follow these steps:
 
 **Step 1 — Confirm consent and price**
-- Confirm the member still wants to add A&E and agrees to the charge (written consent required before charging)
-- Confirm the amount — typically $190 for A&E at enrollment price (verify current pricing)
+- Confirm the member still wants to add A&E and agrees to the charge (written consent required before invoicing)
+- Confirm the amount — typically $190 for A&E at enrollment price (verify current pricing in Feather)
 
-**Step 2 — Charge via Authorize.net**
-1. Log into Authorize.net
-2. Tools → Charge a Credit Card
-3. Transaction Type: **Authorize & Capture**
-4. Enter card number, expiration (MMYY), CVV, and amount
-5. Read back all details to the member before submitting
-6. Order Description: "A&E Add-On — enrollment technical issue"
-7. Enter member name and email → Submit
+**Step 2 — Send a secure invoice in Authorize.Net**
+- Payments → Invoicing → **CREATE INVOICE** (never "Accept Payment")
+- Use the A&E Item ID / Item Name and Wispr Flow phrase from the **MEx Invoicing - Package Catalog**; due date = today
+- Click **SEND INVOICE**
 
-**Step 3 — Enroll in Feather**
+**Step 3 — Enroll in Feather once paid**
+- **Only after the invoice shows paid** in Authorize.Net
 - Open the member's Feather profile
 - Manually enroll them into the A&E Certification and/or Credit Recommended course
 - Go to Transactions → Add Transaction → select the A&E package → Payment Method: **Authorize (manual)** → Add Package Transaction
 
-**Step 4 — Send receipt**
-- Find the transaction in Authorize.net → Print → Save as PDF
-- Email the PDF receipt to the member with a confirmation note
+**Step 4 — Log the ticket**
+- Create a HubSpot ticket with category **Manual Invoice** plus the A&E category, noting the enrollment technical issue
 
 **Escalation:** If unsure about current A&E pricing or enrollment setup, check with SOS before charging.
 
@@ -205,12 +201,12 @@ If an enrollment question is not covered, say so and escalate.
 - No — early shipping for Enrollment Graduation Sets does not require SOS approval.
 
 *How do I get the shipping cost before charging?*
-- Go to the Shop checkout, add the member's address, and note the estimated cost. Do not complete the purchase — use Authorize to charge.
+- Go to the Shop checkout, add the member's address, and note the estimated cost. Do not complete the purchase — send the member a secure manual invoice in Authorize.Net (Item ID 1030, Grad Set Shipping Fee; not added to Feather).
 
 **Related resources:**
 - Grad Set Management Dashboard User Guide
 - SOP: Communication with Shop (for Shopify comment/tagging protocol)
-- SOP: How/When to Charge a Card in Authorize
+- SOP: Manual Invoicing (see `general.md` → Manual Invoicing in Authorize.Net)
 
 **Last updated:** April 16, 2026 — Removed "needs it by" delivery deadline from Shopify comment guidance per Atrayu Polhemus (Shop has no control over carrier timing). Originally written July 10, 2025 by Atrayu Polhemus.
 
@@ -260,7 +256,7 @@ If an enrollment question is not covered, say so and escalate.
   3. Create the member profile — remind them their **primary email address will be their Member ID** going forward
   4. Enter shipping information (becomes their Home Address in Feather)
   5. Present the Wooden Certificate Plaque option and explain it
-  6. Read through the information above payment fields before entering card details
+  6. **Stop at the payment fields — never enter the member's card details.** Have the member enter their own payment (on their own device), or send them a secure manual invoice instead (see `general.md` → Manual Invoicing in Authorize.Net)
   7. Confirm Terms and Conditions, then submit
   8. Present A&E options — use "NO THANKS CONTINUE" if the member declines
   9. Create a password and confirm the member can log in before ending the call

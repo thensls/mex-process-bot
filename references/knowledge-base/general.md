@@ -15,7 +15,7 @@ If a general question is not covered, say so and escalate.
 
 - MEX_JobAid_Transcript Request
 - MEX_SOP_Data Removal Requests from Members
-- MEX_SOP_How_When to Charge a Card in Authorize
+- MEx_SOP_Manual Invoicing (replaces MEX_SOP_How_When to Charge a Card in Authorize)
 - MEX_SOP_Ignite MEx Support Plan
 - MEX_SOP_Unsubscribe a Contact
 - MEX_SOP_SNHU Spring 2026
@@ -36,7 +36,7 @@ If a general question is not covered, say so and escalate.
 |---|---|---|
 | Member transcript request (NSC) | Transcript Request | (stay here) |
 | Data removal / GDPR / "delete my data" | Data Removal Requests from Members | (stay here) |
-| How to charge a card in Authorize.net | How/When to Charge a Card in Authorize | (stay here) |
+| How to charge a member / take a payment / manual invoice in Authorize.net | Manual Invoicing in Authorize.Net | (stay here) |
 | Ignite (MEX support plan) | Ignite MEX Support Plan | (stay here) |
 | Unsubscribe a contact | Unsubscribe a Contact | (stay here) |
 | SNHU members / SNHU spring 2026 / SNHU grad set distinction | SNHU Partnership — Spring 2026 | also `shop.md` for SNHU grad set distinction |
@@ -198,57 +198,96 @@ If a general question is not covered, say so and escalate.
 
 ---
 
-, Add Transaction"**
-   3. Scroll to the **CREATE TRANSACTION** box at the bottom
-   4. Package: select the appropriate item (Certificate, Enrollment, A&E, etc.)
-   5. Payment Method: choose **"Authorize (manual)"**
-   6. Click the red **"ADD PACKAGE TRANSACTION"** button
-   7. Verify the transaction appears on the member's Transactions page
+## Process: Manual Invoicing in Authorize.Net (Secure Payment — No Card Details)
 
-**Post-procedure — send the receipt:**
-1. Search for the transaction in Authorize.net (see MEx Handbook: How to look up a Transaction)
-2. Click "Print" on the Transaction Detail page → select "Save as PDF"
-3. Email the PDF receipt to the member with a brief note confirming the charge
+**Tags:** manual invoice, secure invoice, Authorize.Net invoice, send invoice, charge a card, manual charge, how to charge in Authorize, take payment over the phone, member reads card number, card over phone, credit card form, PCI, PCI DSS, Wispr Flow, Package Catalog, Quick Reference Card, Item ID, Authorize (manual), Manual Invoice ticket category, Accept Payment
+
+**When this comes up:** A member needs to pay for something they can't complete on their own — an enrollment tech or card issue, an enrollment-only discount added within the first 30 days, a parent package, or a shipping/replacement/reshipment charge they can't self-serve. Only do a manual invoice if the member cannot pay themselves.
+
+**⚠️ Critical rule — we never handle card details (effective 10/14/26):**
+- **Never ask a member for their credit card number.** If a member starts reading one out, stop them right away and explain that we protect their privacy and security by sending a secure payment link instead.
+- **We do not take payments over the phone, by chat, text, or email.** The old process of keying card details into Authorize (and any credit card form) is retired.
+- Instead, send the member a **secure invoice** they pay themselves on Authorize.Net. Their card never passes through us — this keeps NSLS PCI DSS compliant.
+- In Authorize.Net, **never click "Accept Payment"** — that screen is for keying in card details by hand.
+
+**Prerequisites:**
+- Your own Authorize.Net login (verification code goes to your NSLS email — never use someone else's login)
+- Graduated MEx new hire **and** invoicing training. **Until then, post the request in SOS** — a team lead, the Director of Member Experience, or a senior agent will send the invoice for you.
+- The member's confirmed name and email
+- The correct price from **Feather** (source of truth — if Feather and a guide disagree, use Feather and tell your team lead)
+
+**Quick Reference — common charges:**
+
+| What the member bought | Item ID | Item Name (type exactly) | Price | Add to Feather? |
+|---|---|---|---|---|
+| FOL membership | 1010 | FOL | $95.00 | Yes, after full payment |
+| FOL membership + Induction Kit | 1001 | FOL+IKF | $100.99 | Yes, after full payment |
+| Induction Kit | 1025 | IKF | $5.99 | Yes, after full payment |
+| Certificate or kit replacement | 1035 | Certificate Replacement Fee | Varies | **No** |
+| Grad Set expedited / select shipping | 1030 | Grad Set Shipping Fee | Varies | **No** — Shopify handles it |
+| One-off shipping / payment adjustment | 1061 | Shipping/Payment Adjustment | Varies | Ask a lead |
+| Other agreed charge (NOT shipping) | 1039 | Other Charge | Varies | Ask a lead |
+
+- For the Description, say **"manual invoice description [Item ID]"** to Wispr Flow (e.g., "manual invoice description 1010" for FOL membership).
+- Shipping: use **1030** for Grad Set expedited and **1061** for any other shipping or payment adjustment — **never 1039** (its description doesn't mention shipping).
+- Anything else: check the **MEx Invoicing - Package Catalog** (all 62 approved charges). **Not on the list? Stop, post in SOS, and get team lead approval before sending.**
+- Prices above are as of the Quick Reference Card (8/13/26) — always confirm the current price in Feather.
+
+**Steps:**
+
+1. **Log in to Authorize.Net** with your NSLS email and password → enter the verification code sent to your NSLS email (check spam if it doesn't arrive within a minute) → confirm the **"New Authorize.Net"** toggle at the top is **ON**.
+
+2. **Go to Invoicing:** left menu → **Payments** → **Invoicing** → click the blue **CREATE INVOICE** button (top right). **Never click "Accept Payment."**
+
+3. **Fill in the invoice** while you're still on the phone/chat with the member (if working by email, use the contact info in Feather). Confirm out loud everything that identifies them or affects what they pay:
+   1. **Bill To:** member's first and last name — verify the spelling
+   2. **Email:** the email they use (or will use) for their NSLS account; read it back. A parent/guardian's email is OK for the invoice, but the **member account must be in the student's name with the student's email**.
+   3. **Invoice Number:** leave it — it auto-populates
+   4. **Due date:** change to **today** (it defaults to 30 days out — update it every time) and confirm they plan to pay today
+   5. **Item ID** and **Item Name:** from the Quick Reference Card / Package Catalog, exactly as written
+   6. **Quantity:** 1
+   7. **Price:** confirm in Feather first, then type it
+   8. **Description:** never type it — click the box and say the Wispr Flow phrase. For a custom charge, edit the amount in the description to match.
+   9. Leave Discount, Shipping and Tax blank; leave **Allow Partial Payments unchecked**
+   10. **Verify everything** — name, email, today's due date, Item ID, Item Name, quantity, price, grand total
+
+4. **Send:** click **SEND INVOICE** (not Save as Draft — a draft never reaches the member). The member gets an email with a secure link and pays on Authorize.Net.
+
+5. **Confirm payment, log it, open the ticket:**
+   1. You don't have to keep the member on the line — tell them the invoice is on its way and what to expect. If they pay later, **it's your responsibility to check back** in Payments → Invoicing.
+   2. Find the invoice by Bill To name and amount and confirm the status shows **paid**. Note the transaction ID (that and the status are all we receive — never card details).
+   3. **Never enter the package in Feather until the invoice shows paid** (entering it early records money we haven't received).
+   4. If the Quick Reference says Feather = Yes: open the member's Feather record (double-check it's the right member) → **TRANSACTIONS** tab → red **ADD TRANSACTION** button → **CREATE TRANSACTION** form → select the package → Payment Method: **Authorize (manual)** → **ADD PACKAGE TRANSACTION**.
+   5. **Create a HubSpot ticket** for the payment with category **Manual Invoice** plus the category for what the member bought, and explain in the description why a manual invoice was needed.
 
 **Common questions:**
 
-*Can I charge a member without their consent?*
-- No — always confirm member approval before charging.
+*Can I take the member's card number over the phone if they ask?*
+- No. Stop them and send a secure invoice instead. We don't take payments by phone, chat, text, or email.
 
-*Card was declined — what now?*
-- Notify the member; ask if they want to try again or use a different card. They may need to contact their financial institution.
+*What if a member says they can't pay online?*
+- Reassure them the invoice is a simple, secure link and offer to walk them through it.
 
-*Can I process a refund through Authorize?*
-- No — refunds must follow SOP-Refund Exception MEx Policy or SOP_MEx ACH Refunds.
+*Do certificate replacements or grad set shipping go into Feather?*
+- No. A certificate replacement in Feather would wrongly trigger a new kit shipment, and grad set shipping is handled by Shopify.
 
-**Last updated:** July 8, 2025 — Written by KK
-
-**Source:** MEX_SOP_How_When to Charge a Card in Authorize"Add Transaction"**
-   3. Scroll to the **CREATE TRANSACTION** box at the bottom
-   4. Package: select the appropriate item (Certificate, Enrollment, A&E, etc.)
-   5. Payment Method: choose **"Authorize (manual)"**
-   6. Click the red **"ADD PACKAGE TRANSACTION"** button
-   7. Verify the transaction appears on the member's Transactions page
-
-**Post-procedure — send the receipt:**
-1. Search for the transaction in Authorize.net (see MEx Handbook: How to look up a Transaction)
-2. Click "Print" on the Transaction Detail page → select "Save as PDF"
-3. Email the PDF receipt to the member with a brief note confirming the charge
-
-**Common questions:**
-
-*Can I charge a member without their consent?*
-- No — always confirm member approval before charging.
-
-*Card was declined — what now?*
-- Notify the member; ask if they want to try again or use a different card. They may need to contact their financial institution.
+*Does invoicing take longer than taking a card over the phone?*
+- No — with the Wispr Flow snippet it takes about the same time, and it's far safer.
 
 *Can I process a refund through Authorize?*
-- No — refunds must follow SOP-Refund Exception MEx Policy or SOP_MEx ACH Refunds.
+- No — refunds are a separate process. Follow SOP-Refund Exception MEx Policy or SOP_MEx ACH Refunds.
 
-**Last updated:** July 8, 2025 — Written by KK
+**Resources:**
+- MEx SOP — Manual Invoicing (Kimberly J. Campbell, 9/17/26)
+- MEx Manual Invoice — Quick Reference Card (8/13/26)
+- MEx Invoicing - Package Catalog (all 62 approved charges)
+- MEx Invoicing - Wispr Flow Snippet Setup
+- Member Payments: A Safer Process (PCI Compliance Update)
+- Snippets: Email template "NSLS Invoice Request Confirmation"; Chat "Secure Payment Invoice (confirm details)" and "Secure Payment Invoice (Invoice Sent)"
 
-**Source:** MEX_SOP_How_When to Charge a Card in Authorize
+**Last updated:** September 17, 2026 — Written by Kimberly J. Campbell. Replaces "How/When to Charge a Card in Authorize" (retired 10/14/26).
+
+**Source:** MEx_SOP_Manual Invoicing; MEx Manual Invoice - Quick Reference Card
 
 ---
 
@@ -421,7 +460,7 @@ For any out-of-scope question: send a summary email to the member, CC Kevin, and
 
 **Etiquette:**
 - If a member wants cords but did not opt for them in their induction kit, direct them to [purchase cords from the shop](https://shop.nsls.org/collections/graduation/products/nsls-graduation-cords) and provide code **MEx10**
-- If a member wants to purchase the induction T-shirt, charge in Authorize and submit the request to Inductions based on the [pricing guide](https://docs.google.com/document/d/1eV016T2bQprSkDZiRcRiAp5psQkQ9HYPVTMNteKCJ2Y/edit?tab=t.0)
+- If a member wants to purchase the induction T-shirt, send a secure manual invoice (see Manual Invoicing in Authorize.Net — never take card details) and submit a Shop Product Request Form, using the [pricing guide](https://docs.google.com/document/d/1eV016T2bQprSkDZiRcRiAp5psQkQ9HYPVTMNteKCJ2Y/edit?tab=t.0)
 
 **Resources:**
 - [MEX_SOP_Refund Exception MEx Policy](https://drive.google.com/open?id=12e4FKyr2IeoXq-SN1XKuR7GaY4lNQF6D818stU0erTw&usp=drive_copy)
