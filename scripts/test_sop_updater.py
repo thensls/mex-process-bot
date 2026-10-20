@@ -1394,3 +1394,140 @@ class TestCheckDiffApproval(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestDurableState(unittest.TestCase):
+    """Regression for the lost Shop Product Request Form update: a KB commit
+    redeploys Railway, wiping state.json and orphaning other in-flight entries."""
+
+    def _entry(self, **kw):
+        e = {
+            "thread_ts": "1791979257.998229",
+            "status": "awaiting_approval",
+            "diff_msg_ts": "1791979851.338489",
+            "confirmed_type": "ADD",
+            "source_file": "references/knowledge-base/general.md",
+            "source_file_sha": "sha1",
+            "source_file_content": "x" * 10,
+            "new_content": "y" * 10,
+            "pdf_blocks": [{"type": "document"}],
+            "edit": {"change_type": "ADD", "create_new_section": True, "new": "## New\nBody"},
+            "reviewer_user_id": "U_KARA",
+        }
+        e.update(kw)
+        return e
+
+    def test_serialize_drops_heavy_keys(self):
+        from scripts.sop_updater import serialize_entry
+        data = json.loads(serialize_entry(self._entry()))
+        for k in ("pdf_blocks", "source_file_content", "new_content"):
+            self.assertNotIn(k, data)
+        self.assertEqual(data["edit"]["new"], "## New\nBody")
+
+    def test_serialize_returns_empty_when_too_large(self):
+        from scripts.sop_updater import serialize_entry
+        self.assertEqual(serialize_entry(self._entry(bot_answer="z" * 200000)), "")
+
+    @patch("scripts.sop_updater.airtable_request")
+    def test_rehydrate_restores_missing_entries_only(self, mock_airtable):
+        from scripts.sop_updater import rehydrate_sop_updates, serialize_entry
+        lost = self._entry()
+        known = self._entry(thread_ts="111.000001")
+        mock_airtable.return_value = {"records": [
+            {"id": "r1", "fields": {"State JSON": serialize_entry(lost)}},
+            {"id": "r2", "fields": {"State JSON": serialize_entry(known)}},
+            {"id": "r3", "fields": {"State JSON": "{not json"}},
+        ]}
+        state = {"sop_updates": [{"thread_ts": "111.000001"}]}
+        self.assertEqual(rehydrate_sop_updates(state, "KEY", "BASE"), 1)
+        self.assertEqual(state["sop_updates"][1]["thread_ts"], "1791979257.998229")
+        self.assertTrue(state["sop_updates"][1]["rehydrated"])
+        self.assertIn("listRecords", mock_airtable.call_args[0][1])
+
+    def test_rehydrate_noop_without_airtable(self):
+        from scripts.sop_updater import rehydrate_sop_updates
+        state = {"sop_updates": []}
+        self.assertEqual(rehydrate_sop_updates(state, None, None), 0)
+
+    def test_edit_is_live(self):
+        from scripts.sop_updater import edit_is_live
+        self.assertTrue(edit_is_live("a\n## New\nBody\n", {"new": "## New\nBody"}))
+        self.assertFalse(edit_is_live("a\n", {"new": "## New\nBody"}))
+
+    def _run_window(self, entry, file_contents, mock_gh_get, mock_put, mock_post):
+        from scripts.sop_updater import _advance_awaiting_window
+        mock_gh_get.side_effect = [(c, "sha1") for c in file_contents]
+        mock_put.return_value = "abc1234def"
+        with patch("scripts.sop_updater.slack_request",
+                   return_value={"message": {"reactions": []}}), \
+             patch("scripts.sop_updater._snapshot_source_file", return_value=""), \
+             patch("scripts.sop_updater.log_sop_update"):
+            _advance_awaiting_window(entry, "TOK", "GH", "org/repo", "C1",
+                                     {"U_KARA"}, "KEY", "BASE")
+        return mock_post.call_args[0][2]
+
+    @patch("scripts.sop_updater.slack_post_message")
+    @patch("scripts.sop_updater.github_put_file")
+    @patch("scripts.sop_updater.github_get_file")
+    def test_rehydrated_entry_commits_verifies_and_tags_tl(self, mock_get, mock_put, mock_post):
+        entry = self._entry(status="awaiting_window", approved_by="U_TL",
+                            window_expires_at="2000-01-01T00:00:00+00:00")
+        for k in ("new_content", "source_file_content", "pdf_blocks"):
+            entry.pop(k)
+        msg = self._run_window(entry, ["old\n", "old\n\n## New\nBody\n"],
+                               mock_get, mock_put, mock_post)
+        self.assertEqual(entry["status"], "committed")
+        self.assertTrue(entry["verified"])
+        self.assertIn("<@U_TL> <@U_KARA>", msg)
+        self.assertIn("verified", msg)
+        self.assertIn("## New\nBody", mock_put.call_args[0][2])
+
+    @patch("scripts.sop_updater.slack_post_message")
+    @patch("scripts.sop_updater.github_put_file")
+    @patch("scripts.sop_updater.github_get_file")
+    def test_unverified_commit_warns_tl(self, mock_get, mock_put, mock_post):
+        entry = self._entry(status="awaiting_window", approved_by="U_TL",
+                            window_expires_at="2000-01-01T00:00:00+00:00")
+        msg = self._run_window(entry, ["x" * 10, "unchanged"], mock_get, mock_put, mock_post)
+        self.assertFalse(entry["verified"])
+        self.assertIn("⚠️", msg)
+        self.assertIn("<@U_TL>", msg)
+
+    @patch("scripts.sop_updater.slack_post_message")
+    @patch("scripts.sop_updater.github_put_file")
+    @patch("scripts.sop_updater.github_get_file")
+    def test_rehydrated_entry_already_live_is_not_recommitted(self, mock_get, mock_put, mock_post):
+        entry = self._entry(status="awaiting_window", approved_by="U_TL",
+                            window_expires_at="2000-01-01T00:00:00+00:00")
+        entry.pop("new_content")
+        self._run_window(entry, ["a\n## New\nBody\n"], mock_get, mock_put, mock_post)
+        mock_put.assert_not_called()
+        self.assertEqual(entry["status"], "committed")
+
+    @patch("scripts.sop_updater.slack_post_message")
+    def test_stuck_alert_fires_once(self, mock_post):
+        from scripts.sop_updater import _alert_if_stuck
+        entry = self._entry(status="awaiting_window", approved_by="U_TL",
+                            window_expires_at="2000-01-01T00:00:00+00:00")
+        _alert_if_stuck(entry, "TOK", "C1")
+        _alert_if_stuck(entry, "TOK", "C1")
+        mock_post.assert_called_once()
+        self.assertIn("hasn't been committed", mock_post.call_args[0][2])
+
+    @patch("scripts.sop_updater.slack_post_message")
+    def test_stuck_alert_waits_for_grace_period(self, mock_post):
+        from datetime import timezone
+        from scripts.sop_updater import _alert_if_stuck
+        recent = (datetime.now(timezone.utc) - timedelta(minutes=5)).isoformat()
+        _alert_if_stuck(self._entry(status="awaiting_window", window_expires_at=recent),
+                        "TOK", "C1")
+        mock_post.assert_not_called()
+
+    @patch("scripts.sop_updater.log_sop_update")
+    @patch("scripts.sop_updater._advance_awaiting_approval")
+    def test_advance_funnel_persists_in_flight_entries(self, mock_step, mock_log):
+        from scripts.sop_updater import advance_funnel
+        state = {"sop_updates": [self._entry(), self._entry(thread_ts="2.0", status="committed")]}
+        advance_funnel(state, "TOK", "AK", "KEY", "BASE", "GH", "org/repo", "C1", set())
+        self.assertEqual(mock_log.call_count, 1)
+        self.assertTrue(mock_log.call_args[0][2]["state_json"])
