@@ -135,6 +135,62 @@ def apply_structured_edit(original_content, edit):
     raise ValueError(f"Unknown change_type: {change_type!r}")
 
 
+# Below this share of `old`'s length, a block REPLACE is treated as a likely
+# truncation rather than a deliberate rewrite.
+MIN_REPLACE_LENGTH_RATIO = 0.30
+
+_HEADING_RE = re.compile(r"#{1,6} ")
+_FRAGMENT_START_RE = re.compile(r"[,.;:!?)\]}]")
+
+
+def validate_structured_edit(original_content, edit):
+    """Return a list of reasons a REPLACE/EDIT would corrupt the file ([] = safe).
+
+    Guards against the b9e252e failure: the LLM's `old` started at a section
+    heading but ended mid-line, and its `new` began with a sentence fragment
+    and no heading — so the section lost its title, tags and first steps,
+    and the tail of `old`'s line was left dangling after the replacement.
+
+    Single-line `old` blocks are in-line EDITs (a number, a date, a phrase)
+    and are allowed to start and end mid-line.
+    """
+    if edit.get("change_type") not in ("REPLACE", "EDIT"):
+        return []
+    old = edit.get("old") or ""
+    new = edit.get("new") or ""
+    idx = original_content.find(old)
+    if not old or idx < 0:
+        return []  # apply_structured_edit reports these as conflicts
+
+    problems = []
+    multiline = "\n" in old.rstrip("\n")
+    starts_at_line = idx == 0 or original_content[idx - 1] == "\n"
+    end = idx + len(old)
+    ends_at_line = (old.endswith("\n") or end == len(original_content)
+                    or original_content[end] == "\n")
+
+    if _HEADING_RE.match(old.lstrip()) and not _HEADING_RE.match(new.lstrip()):
+        problems.append(
+            "the text being replaced starts with a section heading, "
+            "but the replacement has no heading"
+        )
+    if multiline and not ends_at_line:
+        problems.append(
+            "the text being replaced stops in the middle of a line, "
+            "which would leave a broken fragment behind"
+        )
+    if starts_at_line and _FRAGMENT_START_RE.match(new.lstrip()):
+        problems.append(
+            f"the replacement starts mid-sentence ({new.lstrip()[:30]!r})"
+        )
+    if multiline and new.strip() and len(new) < MIN_REPLACE_LENGTH_RATIO * len(old):
+        problems.append(
+            f"the replacement is {len(new) * 100 // len(old)}% of the original "
+            f"length — content would be lost"
+        )
+    return problems
+
+
 def render_diff_for_slack(old_text, new_text):
     """Render a minimal `-/+` diff wrapped in a Slack diff code fence."""
     old_lines = old_text.splitlines() if old_text else []
@@ -556,6 +612,16 @@ def format_conflict_aborted():
         "File changed since I proposed this — regenerating diff. "
         "New 30-min countdown starts now."
     )
+
+
+def format_edit_rejected(mentions, problems):
+    reasons = "\n".join(f"• {p}" for p in problems)
+    return (
+        f"{mentions} 🛑 I stopped this update before it reached the KB — the edit "
+        f"I generated looks like it would damage the section:\n{reasons}\n"
+        f"Nothing was committed. Please make this change by hand, or re-reply "
+        f"in the thread with the full corrected section to retry."
+    ).lstrip()
 
 
 def format_not_an_update():
@@ -1021,6 +1087,11 @@ def _advance_awaiting_confirm(entry, slack_token, anthropic_key, github_token,
         log_sop_update(airtable_key, base_id, _airtable_payload(entry, channel_id, ""))
         return
 
+    entry["edit"] = edit
+    if _reject_unsafe_edit(entry, entry["source_file_content"], slack_token,
+                           channel_id, airtable_key, base_id):
+        return
+
     # Compute the displayable diff
     if edit["change_type"] == "ADD" and edit.get("create_new_section"):
         diff_render = render_diff_for_slack("", edit["new"])
@@ -1038,12 +1109,27 @@ def _advance_awaiting_confirm(entry, slack_token, anthropic_key, github_token,
         slack_token, channel_id, diff_text, thread_ts=entry["thread_ts"],
     )
 
-    entry["edit"] = edit
     entry["new_content"] = new_content
     entry["diff_render"] = diff_render
     entry["diff_msg_ts"] = diff_msg_ts
     # NOTE: window_expires_at is NOT set yet — it starts only after ✅ approval.
     entry["status"] = "awaiting_approval"
+
+
+def _reject_unsafe_edit(entry, content, slack_token, channel_id, airtable_key, base_id):
+    """Abort the entry if its edit fails validate_structured_edit. Returns True if aborted."""
+    problems = validate_structured_edit(content, entry["edit"])
+    if not problems:
+        return False
+    logging.warning("Rejected unsafe edit for %s: %s", entry["thread_ts"], problems)
+    entry["status"] = "conflict_aborted"
+    entry["notes"] = "Edit validation failed: " + "; ".join(problems)
+    slack_post_message(slack_token, channel_id,
+                       format_edit_rejected(_tl_mentions(entry), problems),
+                       thread_ts=entry["thread_ts"])
+    log_sop_update(airtable_key, base_id,
+                   _airtable_payload(entry, channel_id, entry.get("diff_render", "")))
+    return True
 
 
 def _advance_awaiting_approval(entry, slack_token, channel_id, approved_reviewers,
@@ -1199,6 +1285,11 @@ def _advance_awaiting_window(entry, slack_token, github_token, github_repo, chan
                             _airtable_payload(entry, channel_id, entry.get("diff_render", "")))
             return
 
+    # Last check against the file we're about to overwrite.
+    if _reject_unsafe_edit(entry, current_content, slack_token, channel_id,
+                           airtable_key, base_id):
+        return
+
     # COMMIT
     # 1. Snapshot via doc_versioner (run locally — file is in repo)
     snapshot_path = _snapshot_source_file(entry["source_file"], entry.get("confirmed_type", ""))
@@ -1278,7 +1369,7 @@ def _airtable_payload(entry, channel_id, diff_render):
         "bot_answer": entry.get("bot_answer", ""),
         "reviewer_correction": entry.get("reviewer_text", ""),
         "final_diff": diff_render,
-        "notes": "",
+        "notes": entry.get("notes", ""),
         "state_json": serialize_entry(entry),
     }
 

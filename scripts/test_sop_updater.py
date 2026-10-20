@@ -2,6 +2,7 @@
 
 import base64
 import json
+import os
 import unittest
 from datetime import datetime, timedelta
 from io import BytesIO
@@ -1531,3 +1532,154 @@ class TestDurableState(unittest.TestCase):
         advance_funnel(state, "TOK", "AK", "KEY", "BASE", "GH", "org/repo", "C1", set())
         self.assertEqual(mock_log.call_count, 1)
         self.assertTrue(mock_log.call_args[0][2]["state_json"])
+
+
+_FIXTURES = os.path.join(os.path.dirname(os.path.abspath(__file__)), "fixtures")
+
+
+def _load_b9e252e():
+    with open(os.path.join(_FIXTURES, "b9e252e_authorize_replace.json")) as f:
+        return json.load(f)
+
+
+class TestValidateStructuredEdit(unittest.TestCase):
+    """Regression for b9e252e: a REPLACE that started at the Authorize heading
+    but ended mid-line, with a `new` that began ', Add Transaction"**'."""
+
+    SECTION = (
+        "---\n\n"
+        "## Process: Charge a Card\n\n"
+        "**Tags:** card, charge\n\n"
+        "**Steps:**\n"
+        "1. Log in to Authorize.net\n"
+        "2. Charge the card for $10\n"
+        "3. Document in Feather\n"
+        "\n---\n\n## Next Section\n"
+    )
+
+    def _check(self, old, new, change_type="REPLACE", content=None):
+        from scripts.sop_updater import validate_structured_edit
+        return validate_structured_edit(
+            content or self.SECTION, {"change_type": change_type, "old": old, "new": new},
+        )
+
+    def test_b9e252e_real_edit_is_rejected(self):
+        fx = _load_b9e252e()
+        # Sanity: this is the edit that produced the corrupted commit.
+        self.assertTrue(fx["old"].startswith("## Process: How/When to Charge a Card in Authorize"))
+        self.assertTrue(fx["new"].startswith(', Add Transaction"**'))
+        problems = self._check(fx["old"], fx["new"], content=fx["file_content"])
+        joined = " ".join(problems)
+        self.assertIn("heading", joined)
+        self.assertIn("middle of a line", joined)
+        self.assertIn("mid-sentence", joined)
+
+    def test_full_section_replace_passes(self):
+        old = self.SECTION[5:self.SECTION.index("\n---\n\n## Next")]
+        new = "## Process: Charge a Card\n\n**Tags:** card\n\n1. Use manual invoicing instead\n2. Send the invoice"
+        self.assertEqual(self._check(old, new), [])
+
+    def test_heading_dropped(self):
+        old = "## Process: Charge a Card\n\n**Tags:** card, charge\n"
+        problems = self._check(old, "**Tags:** card, charge, invoice\n")
+        self.assertTrue(any("heading" in p for p in problems))
+
+    def test_old_ending_mid_line(self):
+        old = "1. Log in to Authorize.net\n2. Charge the"
+        problems = self._check(old, "1. Log in to Authorize.net\n2. Invoice the")
+        self.assertTrue(any("middle of a line" in p for p in problems))
+
+    def test_old_ending_at_line_end_passes(self):
+        old = "1. Log in to Authorize.net\n2. Charge the card for $10"
+        self.assertEqual(self._check(old, "1. Log in to Feather\n2. Send an invoice for $10"), [])
+
+    def test_new_starting_with_fragment(self):
+        old = "1. Log in to Authorize.net\n2. Charge the card for $10\n"
+        problems = self._check(old, ", then charge the card\n2. Charge the card for $10\n")
+        self.assertTrue(any("mid-sentence" in p for p in problems))
+
+    def test_large_shrink_flagged(self):
+        old = "1. Log in to Authorize.net\n2. Charge the card for $10\n3. Document in Feather\n"
+        problems = self._check(old, "1. Invoice.\n")
+        self.assertTrue(any("% of the original" in p for p in problems))
+
+    def test_deliberate_deletion_not_flagged_as_shrink(self):
+        old = "2. Charge the card for $10\n3. Document in Feather\n"
+        self.assertEqual(self._check(old, ""), [])
+
+    def test_inline_edit_allowed_mid_line(self):
+        self.assertEqual(self._check("$10", "$12", change_type="EDIT"), [])
+        self.assertEqual(self._check("Charge the card", "Invoice", change_type="EDIT"), [])
+
+    def test_add_is_not_validated(self):
+        from scripts.sop_updater import validate_structured_edit
+        self.assertEqual(validate_structured_edit(
+            self.SECTION, {"change_type": "ADD", "anchor_after": "## Next Section", "new": ", x"},
+        ), [])
+
+
+class TestUnsafeEditIsStopped(unittest.TestCase):
+    def _entry(self, **kw):
+        fx = _load_b9e252e()
+        e = {
+            "thread_ts": "1791976912.860409",
+            "confirm_msg_ts": "1791977000.000001",
+            "created_at": datetime.now().isoformat(),
+            "source_file": fx["source_file"],
+            "source_file_sha": "sha1",
+            "source_file_content": fx["file_content"],
+            "original_question": "q", "bot_answer": "a", "reviewer_text": "r",
+            "reviewer_user_id": "U_KARA",
+        }
+        e.update(kw)
+        return e
+
+    @patch("scripts.sop_updater.log_sop_update")
+    @patch("scripts.sop_updater._load_style_guide", return_value="")
+    @patch("scripts.sop_updater.generate_structured_edit")
+    @patch("scripts.sop_updater.get_classification_choice", return_value=("REPLACE", "U_TL"))
+    @patch("scripts.sop_updater.slack_request", return_value={"message": {"reactions": []}})
+    @patch("scripts.sop_updater.slack_post_message")
+    def test_confirm_stops_b9e252e_before_posting_diff(
+        self, mock_post, _req, _choice, mock_gen, _style, mock_log,
+    ):
+        from scripts.sop_updater import _advance_awaiting_confirm
+        fx = _load_b9e252e()
+        mock_gen.return_value = {"change_type": "REPLACE", "old": fx["old"], "new": fx["new"]}
+        entry = self._entry(status="awaiting_confirm")
+        _advance_awaiting_confirm(entry, "TOK", "AK", "GH", "org/repo", "C1",
+                                  {"U_KARA"}, "KEY", "BASE")
+        self.assertEqual(entry["status"], "conflict_aborted")
+        self.assertNotIn("diff_msg_ts", entry)
+        mock_post.assert_called_once()
+        msg = mock_post.call_args[0][2]
+        self.assertIn("<@U_KARA>", msg)
+        self.assertIn("Nothing was committed", msg)
+        payload = mock_log.call_args[0][2]
+        self.assertEqual(payload["status"], "conflict_aborted")
+        self.assertIn("Edit validation failed", payload["notes"])
+
+    @patch("scripts.sop_updater.log_sop_update")
+    @patch("scripts.sop_updater._snapshot_source_file", return_value="")
+    @patch("scripts.sop_updater.slack_request", return_value={"message": {"reactions": []}})
+    @patch("scripts.sop_updater.slack_post_message")
+    @patch("scripts.sop_updater.github_put_file")
+    @patch("scripts.sop_updater.github_get_file")
+    def test_window_refuses_to_commit_unsafe_edit(
+        self, mock_get, mock_put, mock_post, _req, _snap, _log,
+    ):
+        from scripts.sop_updater import _advance_awaiting_window
+        fx = _load_b9e252e()
+        mock_get.return_value = (fx["file_content"], "sha1")
+        entry = self._entry(
+            status="awaiting_window", diff_msg_ts="1791977100.000001",
+            approved_by="U_TL", confirmed_type="REPLACE",
+            window_expires_at="2000-01-01T00:00:00+00:00",
+            edit={"change_type": "REPLACE", "old": fx["old"], "new": fx["new"]},
+            new_content="corrupted",
+        )
+        _advance_awaiting_window(entry, "TOK", "GH", "org/repo", "C1",
+                                 {"U_KARA"}, "KEY", "BASE")
+        mock_put.assert_not_called()
+        self.assertEqual(entry["status"], "conflict_aborted")
+        self.assertIn("<@U_TL> <@U_KARA>", mock_post.call_args[0][2])
