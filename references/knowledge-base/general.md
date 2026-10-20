@@ -1156,3 +1156,61 @@ MEX agents are able to inform advisors and students that through an *open record
 
 
 
+
+## Process: Shop Product Request Form
+
+**Tags:** shop product request, shop request form, replacement kit, damaged kit, certificate replacement, honorary kit, free shop items, induction kit replacement, damaged induction kit, replacement certificate, shop team, inductions replacement
+
+**When this comes up:** A member needs a replacement induction kit, a damaged kit replaced, a certificate reprint, an honorary kit, or a free shop item. This is also the process for any one-off shop product request that doesn't have an existing order.
+
+*Important process update (effective 9/18/26):* MEX no longer reaches out to the Inductions team for assistance with replacement kits, damaged kits, certificate replacements, etc. All of these requests now go through the *Shop Product Request Form*. The handbook and pertinent resources have been updated to reflect this change.
+
+---
+
+**Use Cases:**
+- Damaged Induction Kit
+- Replacement Certificate Request
+- Honorary Kit *(TL Approval required)*
+- Free Shop Items *(TL Approval required)*
+
+---
+
+**Before you fill out the form — checklist:**
+
+1. *Confirm payment has been received* for any products being requested (if applicable). If it's an honorary item or kit, confirm you have *TL approval* before proceeding.
+2. *Gather all member information ahead of time* — don't start the form without it:
+   - For replacement kits: shirt size + date to be printed on the certificate
+   - Always confirm the member's current mailing address for anything being shipped
+3. *Set the requested arrival date* to one week from the date of your request — unless a TL has approved expedited processing
+4. Complete the form as designed — it's user-friendly and walks you through all required fields
+
+If you're unsure whether a situation calls for this form, check with your TL!
+
+---
+
+**Important notes:**
+- This form does *not* replace current Shopify processes — it's specifically for one-off or new items that don't have an existing order (e.g., induction kit replacements, free items)
+- This also does *not* replace or affect the standard kit process (1st & 15th of the month)
+
+---
+
+**Steps:**
+
+1. *Confirm eligibility and approvals* — payment received (if applicable); TL approval obtained if honorary/free item
+2. *Gather member info* — shirt size, cert date, confirmed mailing address
+3. *Complete the Shop Product Request Form* — fill out all required fields including your name, email, request title, department (Member Experience), and manager approval
+4. *Set requested arrival date* — default is one week out unless TL-approved for expedite
+5. *Submit the form*
+
+---
+
+**Resources:**
+- Shop Product Request Form (link to be added when available)
+- Manual Invoicing SOP
+- Induction Pricing Guide
+
+**Last updated:** September 18, 2026 — Written by KK & AG
+
+**Source:** MEX_JobAid_Shop Product Request Form
+
+---
