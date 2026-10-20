@@ -1122,11 +1122,13 @@ def _reject_unsafe_edit(entry, content, slack_token, channel_id, airtable_key, b
     if not problems:
         return False
     logging.warning("Rejected unsafe edit for %s: %s", entry["thread_ts"], problems)
-    entry["status"] = "conflict_aborted"
-    entry["notes"] = "Edit validation failed: " + "; ".join(problems)
+    # Notify before going terminal: if the post raises, the entry keeps its
+    # status and the next tick retries instead of abandoning it silently.
     slack_post_message(slack_token, channel_id,
                        format_edit_rejected(_tl_mentions(entry), problems),
                        thread_ts=entry["thread_ts"])
+    entry["status"] = "conflict_aborted"
+    entry["notes"] = "Edit validation failed: " + "; ".join(problems)
     log_sop_update(airtable_key, base_id,
                    _airtable_payload(entry, channel_id, entry.get("diff_render", "")))
     return True

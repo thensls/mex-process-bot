@@ -1713,3 +1713,16 @@ class TestUnsafeEditIsStopped(unittest.TestCase):
         mock_put.assert_not_called()
         self.assertEqual(entry["status"], "conflict_aborted")
         self.assertIn("<@U_TL> <@U_KARA>", mock_post.call_args[0][2])
+
+
+class TestRejectUnsafeEditRetry(unittest.TestCase):
+    @patch("scripts.sop_updater.log_sop_update")
+    @patch("scripts.sop_updater.slack_post_message", side_effect=RuntimeError("slack down"))
+    @patch("scripts.sop_updater.validate_structured_edit", return_value=["drops heading"])
+    def test_failed_notification_leaves_entry_retryable(self, _v, _post, mock_log):
+        from scripts.sop_updater import _reject_unsafe_edit
+        entry = {"thread_ts": "1.0", "status": "awaiting_window", "edit": {}}
+        with self.assertRaises(RuntimeError):
+            _reject_unsafe_edit(entry, "content", "TOK", "C1", "KEY", "BASE")
+        self.assertEqual(entry["status"], "awaiting_window")
+        mock_log.assert_not_called()
