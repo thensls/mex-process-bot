@@ -57,6 +57,15 @@ EMOJI_TO_TYPE = {
 QUIET_WINDOW_MINUTES = 30
 STALE_BUMP_HOURS = 24
 STALE_CLOSE_HOURS = 48
+# Ping the TL if an approved update still hasn't committed this long after its
+# veto window closed (e.g. GitHub errors on every tick).
+STUCK_ALERT_MINUTES = 60
+
+# Entry keys too large (or re-derivable) to persist to Airtable. They are
+# rebuilt on demand after a rehydrate — see _ensure_source_loaded and the
+# commit path in _advance_awaiting_window.
+NON_PERSISTED_KEYS = ("pdf_blocks", "source_file_content", "new_content")
+AIRTABLE_LONG_TEXT_LIMIT = 100000
 
 GITHUB_API_BASE = "https://api.github.com"
 
@@ -509,11 +518,32 @@ def format_diff_post(source_file, diff, window_minutes):
     )
 
 
-def format_commit_success(source_file, commit_sha, snapshot_path):
+def format_commit_success(source_file, commit_sha, snapshot_path, mentions=""):
     short_file = source_file.split("/")[-1]
+    prefix = f"{mentions} " if mentions else ""
     return (
-        f"✅ Committed to `{short_file}` (`{commit_sha[:7]}`). "
-        f"Live in Coach Max in ~3 min. Snapshot: `{snapshot_path}`."
+        f"{prefix}✅ Committed to `{short_file}` (`{commit_sha[:7]}`) and verified "
+        f"the new text is in the file. Live in Coach Max in ~3 min. "
+        f"Snapshot: `{snapshot_path}`."
+    )
+
+
+def format_commit_unverified(source_file, commit_sha, mentions=""):
+    short_file = source_file.split("/")[-1]
+    prefix = f"{mentions} " if mentions else ""
+    return (
+        f"{prefix}⚠️ I committed to `{short_file}` (`{commit_sha[:7]}`) but couldn't "
+        f"find the new text in the file afterward. Please check the KB before "
+        f"relying on this update."
+    )
+
+
+def format_commit_stuck(mentions=""):
+    prefix = f"{mentions} " if mentions else ""
+    return (
+        f"{prefix}⚠️ This update was approved but *hasn't been committed yet* — "
+        f"it is not live in Coach Max. I'll keep retrying; if this doesn't "
+        f"resolve, ping the bot owner."
     )
 
 
@@ -782,6 +812,8 @@ def log_sop_update(airtable_key, base_id, entry):
         "Final Diff": (entry.get("final_diff") or "")[:10000],
         "Notes": entry.get("notes", ""),
     }
+    if entry.get("state_json"):
+        fields["State JSON"] = entry["state_json"]
 
     record_data = {
         "records": [{"fields": fields}],
@@ -844,6 +876,14 @@ def advance_funnel(state, slack_token, anthropic_key, airtable_key, base_id,
                 entry.get("thread_ts"), status, e,
             )
             # Leave entry in current state; next tick retries.
+        try:
+            _alert_if_stuck(entry, slack_token, channel_id)
+        except Exception as e:
+            logging.error("Stuck alert failed for %s: %s", entry.get("thread_ts"), e)
+        # Persist every in-flight step so a redeploy can't orphan it.
+        if entry.get("status") not in FINISHED_STATUSES:
+            log_sop_update(airtable_key, base_id,
+                            _airtable_payload(entry, channel_id, entry.get("diff_render", "")))
 
 
 def _advance_awaiting_proposal(entry, slack_token, anthropic_key, github_token,
@@ -951,6 +991,8 @@ def _advance_awaiting_confirm(entry, slack_token, anthropic_key, github_token,
         entry["status"] = "not_an_update"
         log_sop_update(airtable_key, base_id, _airtable_payload(entry, channel_id, ""))
         return
+
+    _ensure_source_loaded(entry, github_repo, github_token, slack_token)
 
     # Generate the actual structured edit
     style_guide = _load_style_guide()
@@ -1105,6 +1147,21 @@ def _advance_awaiting_window(entry, slack_token, github_token, github_repo, chan
     current_content, current_sha = github_get_file(
         github_repo, entry["source_file"], github_token,
     )
+    # Already live (e.g. committed before state was lost)? Check before the
+    # SHA-conflict branch, which would otherwise re-apply an ADD on top of
+    # itself and commit the section twice.
+    if edit_is_live(current_content, entry["edit"]):
+        entry["status"] = "committed"
+        slack_post_message(
+            slack_token, channel_id,
+            f"{_tl_mentions(entry)} ✅ Confirmed this update is already live in "
+            f"`{os.path.basename(entry['source_file'])}`.",
+            thread_ts=entry["thread_ts"],
+        )
+        log_sop_update(airtable_key, base_id,
+                        _airtable_payload(entry, channel_id, entry.get("diff_render", "")))
+        return
+
     if current_sha != entry["source_file_sha"]:
         # Someone else edited the file mid-window — regenerate
         logging.info("Source file changed for %s — regenerating", entry["thread_ts"])
@@ -1130,6 +1187,21 @@ def _advance_awaiting_window(entry, slack_token, github_token, github_repo, chan
                             _airtable_payload(entry, channel_id, entry.get("diff_render", "")))
             return
 
+    if "new_content" not in entry:  # rehydrated — rebuild from the live file
+        try:
+            entry["new_content"] = apply_structured_edit(current_content, entry["edit"])
+        except EditConflictError:
+            entry["status"] = "conflict_aborted"
+            slack_post_message(
+                slack_token, channel_id,
+                f"{_tl_mentions(entry)} File changed and the approved edit no longer "
+                f"applies — aborting. Nothing was committed.",
+                thread_ts=entry["thread_ts"],
+            )
+            log_sop_update(airtable_key, base_id,
+                            _airtable_payload(entry, channel_id, entry.get("diff_render", "")))
+            return
+
     # COMMIT
     # 1. Snapshot via doc_versioner (run locally — file is in repo)
     snapshot_path = _snapshot_source_file(entry["source_file"], entry.get("confirmed_type", ""))
@@ -1146,11 +1218,21 @@ def _advance_awaiting_window(entry, slack_token, github_token, github_repo, chan
         commit_message, entry["source_file_sha"], github_token,
     )
 
-    slack_post_message(
-        slack_token, channel_id,
-        format_commit_success(entry["source_file"], commit_sha, snapshot_path or "n/a"),
-        thread_ts=entry["thread_ts"],
-    )
+    # 3. Verify the change actually landed, then tell the TL either way.
+    try:
+        live_content, _ = github_get_file(github_repo, entry["source_file"], github_token)
+        verified = edit_is_live(live_content, entry["edit"])
+    except Exception as e:
+        logging.warning("Post-commit verify failed for %s: %s", entry["thread_ts"], e)
+        verified = False
+    mentions = _tl_mentions(entry)
+    if verified:
+        message = format_commit_success(entry["source_file"], commit_sha,
+                                        snapshot_path or "n/a", mentions)
+    else:
+        message = format_commit_unverified(entry["source_file"], commit_sha, mentions)
+    slack_post_message(slack_token, channel_id, message, thread_ts=entry["thread_ts"])
+    entry["verified"] = verified
     entry["status"] = "committed"
     entry["commit_sha"] = commit_sha
     entry["snapshot_path"] = snapshot_path
@@ -1200,7 +1282,131 @@ def _airtable_payload(entry, channel_id, diff_render):
         "reviewer_correction": entry.get("reviewer_text", ""),
         "final_diff": diff_render,
         "notes": "",
+        "state_json": serialize_entry(entry),
     }
+
+
+def serialize_entry(entry):
+    """JSON-encode an in-flight entry for durable storage in Airtable.
+
+    state.json does not survive Railway redeploys — and every KB commit
+    triggers one — so Airtable is the copy we rehydrate from. Returns "" if
+    the entry is too large to store intact (truncated JSON is useless).
+    """
+    slim = {k: v for k, v in entry.items() if k not in NON_PERSISTED_KEYS}
+    encoded = json.dumps(slim, ensure_ascii=False)
+    if len(encoded) > AIRTABLE_LONG_TEXT_LIMIT:
+        logging.warning("Entry %s too large to persist (%d chars)",
+                         entry.get("thread_ts"), len(encoded))
+        return ""
+    return encoded
+
+
+def rehydrate_sop_updates(state, airtable_key, base_id):
+    """Restore in-flight sop_updates entries lost with state.json.
+
+    Reads every non-terminal row from the SOP Updates table and re-adds any
+    entry whose thread isn't already tracked. Returns the number restored.
+    """
+    if not airtable_key or not base_id:
+        return 0
+    finished = ",".join(f"{{Status}}='{s}'" for s in sorted(FINISHED_STATUSES))
+    body = {
+        "filterByFormula": f"AND({{State JSON}}!='', NOT(OR({finished})))",
+        "fields": ["Thread ID", "State JSON"],
+    }
+    known = {u.get("thread_ts") for u in state["sop_updates"]}
+    restored = 0
+    offset = None
+    while True:
+        if offset:
+            body["offset"] = offset
+        try:
+            result = airtable_request(
+                "POST", f"{base_id}/SOP%20Updates/listRecords",
+                data=body, api_key=airtable_key,
+            )
+        except Exception as e:
+            logging.error("rehydrate_sop_updates: Airtable read failed: %s", e)
+            return restored
+        for rec in result.get("records", []):
+            raw = rec.get("fields", {}).get("State JSON", "")
+            try:
+                entry = json.loads(raw)
+            except ValueError:
+                logging.warning("rehydrate_sop_updates: bad State JSON on %s", rec.get("id"))
+                continue
+            if entry.get("thread_ts") in known:
+                continue
+            entry["rehydrated"] = True
+            state["sop_updates"].append(entry)
+            known.add(entry.get("thread_ts"))
+            restored += 1
+        offset = result.get("offset")
+        if not offset:
+            break
+    if restored:
+        logging.warning("rehydrate_sop_updates: restored %d in-flight entries "
+                        "(state.json was lost — likely a redeploy)", restored)
+    return restored
+
+
+def _tl_mentions(entry):
+    """Slack mentions for the people who need to know an update's outcome:
+    the approver (TL) and the reviewer who triggered it."""
+    ids = []
+    for uid in (entry.get("approved_by"), entry.get("reviewer_user_id")):
+        if uid and uid not in ids:
+            ids.append(uid)
+    return " ".join(f"<@{u}>" for u in ids)
+
+
+def edit_is_live(content, edit):
+    """True if the structured edit has taken effect in `content`.
+
+    For REPLACE/EDIT the new text must be present AND the old text gone —
+    unless `old` is contained in `new` (an expansion), where finding `new`
+    is enough. Checking `new` alone gives a false positive when an edit
+    shortens text ("Do X and Y" -> "Do X"), since `new` is inside `old`.
+    """
+    new = (edit.get("new") or "").strip()
+    old = (edit.get("old") or "").strip()
+    if not new:
+        return bool(old) and old not in content
+    if new not in content:
+        return False
+    if not old or old in new:
+        return True
+    return old not in content
+
+
+def _ensure_source_loaded(entry, github_repo, github_token, slack_token):
+    """Re-fetch data dropped by serialize_entry when an entry was rehydrated."""
+    if "source_file_content" not in entry:
+        content, sha = github_get_file(github_repo, entry["source_file"], github_token)
+        entry["source_file_content"] = content
+        entry["source_file_sha"] = sha
+    if not entry.get("pdf_blocks") and entry.get("attached_files"):
+        blocks, _, _ = build_pdf_content_blocks(entry["attached_files"], slack_token)
+        entry["pdf_blocks"] = blocks or []
+
+
+def _alert_if_stuck(entry, slack_token, channel_id):
+    """Tell the TL once if an approved update is long past its window but
+    still not committed."""
+    if entry.get("status") != "awaiting_window" or entry.get("stuck_alerted_at"):
+        return
+    try:
+        expires = datetime.fromisoformat(entry["window_expires_at"])
+    except (KeyError, ValueError):
+        return
+    if datetime.now(timezone.utc) < expires + timedelta(minutes=STUCK_ALERT_MINUTES):
+        return
+    slack_post_message(
+        slack_token, channel_id, format_commit_stuck(_tl_mentions(entry)),
+        thread_ts=entry["thread_ts"],
+    )
+    entry["stuck_alerted_at"] = datetime.now(timezone.utc).isoformat()
 
 
 FINISHED_STATUSES = {"committed", "vetoed", "stale", "conflict_aborted", "not_an_update"}
@@ -1226,6 +1432,7 @@ def run_sop_updater(state, slack_token, anthropic_key, airtable_key, base_id,
                      github_token, github_repo, channel_id, approved_reviewers, bot_user_id):
     """Top-level SOP-updater pass: scan (both paths), advance, prune."""
     ensure_sop_state_keys(state)
+    rehydrate_sop_updates(state, airtable_key, base_id)
     # Path A: thread corrections
     scan_for_corrections(
         state, slack_token, anthropic_key, channel_id, approved_reviewers, bot_user_id,
