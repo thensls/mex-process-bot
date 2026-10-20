@@ -179,11 +179,11 @@ When a member asks where their A&E (Advanced or Executive Leadership) certificat
 
 ## Process: Induction Pricing — Replacement & Additional Items
 
-**Tags:** induction pricing, induction t-shirt, induction tshirt, additional t-shirt, replacement t-shirt, second t-shirt, member wants another t-shirt, member wants induction shirt, $24.99, 24.99, t-shirt cost, kit replacement cost, certificate replacement, plaque replacement, induction shirt not in shop, locked behind steps, purchase induction merch, old member induction shirt, replacement charge, IKF charge, Authorize.net induction charge, Inductions Team contact
+**Tags:** induction pricing, induction t-shirt, induction tshirt, additional t-shirt, replacement t-shirt, second t-shirt, member wants another t-shirt, member wants induction shirt, $24.99, 24.99, t-shirt cost, kit replacement cost, certificate replacement, plaque replacement, induction shirt not in shop, locked behind steps, purchase induction merch, old member induction shirt, replacement charge, IKF charge, Authorize.net induction charge, Shop Product Request Form, replacement kit request
 
 **When this comes up:**
 - A member contacts MEX wanting a replacement or additional induction item (kit, certificate, or t-shirt) and needs to be charged.
-- A member (often an inducted member from years ago) wants to **purchase another induction t-shirt** — note: the induction t-shirt is **locked behind induction steps and is NOT sold in the public NSLS Shop**. Direct charge through Authorize at **$24.99**, then submit to Inductions Team.
+- A member (often an inducted member from years ago) wants to **purchase another induction t-shirt** — note: the induction t-shirt is **locked behind induction steps and is NOT sold in the public NSLS Shop**. Send a secure manual invoice in Authorize.Net at **$24.99**, then submit a **Shop Product Request Form** (see `general.md` → Process: Shop Product Request Form).
 - A MEx specialist asks: *"How much does an induction t-shirt cost?"* / *"Member wants to buy a new induction shirt"* / *"Replacement induction kit price"* / *"Is the induction t-shirt in the shop?"* (No.)
 
 **⚠️ Critical rules:**
@@ -210,12 +210,10 @@ When a member asks where their A&E (Advanced or Executive Leadership) certificat
 
 2. **Send a secure invoice in Authorize.Net** — Follow Manual Invoicing (`general.md`); never take card details. Certificate/kit replacements use Item ID 1035 and are **not** added to Feather. Always confirm the address before sending.
 
-3. **Email the Inductions Team** — Use the `#inductions` HubSpot snippet to email inductions@nsls.org:
-   - Member's Name
-   - Member's Chapter
-   - Feather link
-   - Issue/Situation
-   - Send the member an email with the receipt or payment confirmation
+3. **Submit a Shop Product Request Form** — MEX no longer emails the Inductions Team for replacement kits, damaged kits, or certificate replacements (effective 9/18/26). See `general.md` → Process: Shop Product Request Form:
+   - Confirm the invoice shows paid first (or that you have TL approval for honorary/free items)
+   - Have the shirt size, certificate date, and confirmed mailing address ready
+   - Set the requested arrival date to one week out (unless a TL approved an expedite)
 
 **Exceptions — do NOT charge:**
 - **Wrong size / shipping errors:** If the kit or t-shirt was shipped incorrectly, do not charge. Use snippet `#shop return/exchange-Email` to request a fix
@@ -224,10 +222,10 @@ When a member asks where their A&E (Advanced or Executive Leadership) certificat
 **Common questions:**
 
 *Package sent to old address and is unobtainable?*
-- Invoice the $10 replacement fee in Authorize.Net, confirm the correct address, update the address in Feather, then email the Inductions Team.
+- Invoice the $10 replacement fee in Authorize.Net, confirm the correct address, update the address in Feather, then submit a Shop Product Request Form.
 
 *Member only wants a replacement t-shirt, not a whole kit?*
-- Invoice the $24.99 fee in Authorize.Net, confirm their current shipping address, then email the Inductions Team.
+- Invoice the $24.99 fee in Authorize.Net, confirm their current shipping address, then submit a Shop Product Request Form.
 
 *Item was never received but tracking says delivered?*
 - Confirm if the member contacted the carrier. If the issue was not due to the member's error, grant the $10 replacement fee. If over 12 months have passed, charge $60 for full kit replacement — or offer a free PDF certificate copy, $10 to ship certificate alone, or $24.99 for the t-shirt.
@@ -237,7 +235,7 @@ When a member asks where their A&E (Advanced or Executive Leadership) certificat
 **Resources:**
 - [Induction Pricing List](https://docs.google.com/document/d/1eV016T2bQprSkDZiRcRiAp5psQkQ9HYPVTMNteKCJ2Y/edit?usp=sharing)
 - Related SOP: Manual Invoicing (replaces How/When to Charge a Card in Authorize)
-- Inductions email: inductions@nsls.org
+- Shop Product Request Form (see `general.md` → Process: Shop Product Request Form)
 
 **Escalation:** `#mex-sos-escalations` Slack channel or mex@nsls.org
 
