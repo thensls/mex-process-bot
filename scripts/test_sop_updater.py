@@ -1449,6 +1449,36 @@ class TestDurableState(unittest.TestCase):
         state = {"sop_updates": []}
         self.assertEqual(rehydrate_sop_updates(state, None, None), 0)
 
+    def test_edit_is_live_shortening_replace_not_live_on_unchanged_file(self):
+        from scripts.sop_updater import edit_is_live
+        edit = {"change_type": "REPLACE", "old": "Do X and Y", "new": "Do X"}
+        self.assertFalse(edit_is_live("Step: Do X and Y.\n", edit))
+        self.assertTrue(edit_is_live("Step: Do X.\n", edit))
+
+    def test_edit_is_live_expanding_replace(self):
+        from scripts.sop_updater import edit_is_live
+        edit = {"change_type": "REPLACE", "old": "Do X", "new": "Do X and Y"}
+        self.assertTrue(edit_is_live("Step: Do X and Y.\n", edit))
+        self.assertFalse(edit_is_live("Step: Do X.\n", edit))
+
+    @patch("scripts.sop_updater.slack_post_message")
+    @patch("scripts.sop_updater.github_put_file")
+    @patch("scripts.sop_updater.github_get_file")
+    def test_rehydrated_add_with_stale_sha_is_not_committed_twice(self, mock_get, mock_put, mock_post):
+        from scripts.sop_updater import _advance_awaiting_window
+        entry = self._entry(status="awaiting_window", approved_by="U_TL",
+                            window_expires_at="2000-01-01T00:00:00+00:00",
+                            source_file_sha="old-sha")
+        entry.pop("new_content")
+        mock_get.return_value = ("a\n## New\nBody\n", "new-sha")
+        with patch("scripts.sop_updater.slack_request",
+                   return_value={"message": {"reactions": []}}), \
+             patch("scripts.sop_updater.log_sop_update"):
+            _advance_awaiting_window(entry, "TOK", "GH", "org/repo", "C1",
+                                     {"U_KARA"}, "KEY", "BASE")
+        mock_put.assert_not_called()
+        self.assertEqual(entry["status"], "committed")
+
     def test_edit_is_live(self):
         from scripts.sop_updater import edit_is_live
         self.assertTrue(edit_is_live("a\n## New\nBody\n", {"new": "## New\nBody"}))
