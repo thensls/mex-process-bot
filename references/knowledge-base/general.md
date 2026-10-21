@@ -223,6 +223,8 @@ If a general question is not covered, say so and escalate.
 | FOL membership | 1010 | FOL | $95.00 | Yes, after full payment |
 | FOL membership + Induction Kit | 1001 | FOL+IKF | $100.99 | Yes, after full payment |
 | Induction Kit | 1025 | IKF | $5.99 | Yes, after full payment |
+| A&E Bundle | 1004 | A&E | $190.00 | Yes, after full payment |
+| A&E Bundle (Credit-Rec) | 1037 | A&ECredit | $315.00 | Yes, after full payment |
 | Certificate or kit replacement | 1035 | Certificate Replacement Fee | Varies | **No** |
 | Grad Set expedited / select shipping | 1030 | Grad Set Shipping Fee | Varies | **No** — Shopify handles it |
 | One-off shipping / payment adjustment | 1061 | Shipping/Payment Adjustment | Varies | Ask a lead |
@@ -230,8 +232,9 @@ If a general question is not covered, say so and escalate.
 
 - For the Description, say **"manual invoice description [Item ID]"** to Wispr Flow (e.g., "manual invoice description 1010" for FOL membership).
 - Shipping: use **1030** for Grad Set expedited and **1061** for any other shipping or payment adjustment — **never 1039** (its description doesn't mention shipping).
-- Anything else: check the **MEx Invoicing - Package Catalog** (all 62 approved charges). **Not on the list? Stop, post in SOS, and get team lead approval before sending.**
-- Prices above are as of the Quick Reference Card (8/13/26) — always confirm the current price in Feather.
+- Anything else: check the [MEx Invoicing - Package Catalog](https://docs.google.com/document/d/1HNhBu6z9CQZAyYeqJ2jdcOuQVeAFHsGaxXnm7TfyxYM/edit) (all 62 approved charges). **Not on the list? Stop, post in SOS, and get team lead approval before sending.**
+- Prices above are from the Quick Reference Card (8/13/26) and Package Catalog — always confirm the current price in Feather.
+- Phone/chat enrollments: when it comes time for payment, it is **invoice only** (confirmed by Kara, 10/21/26).
 
 **Steps:**
 
@@ -280,7 +283,7 @@ If a general question is not covered, say so and escalate.
 **Resources:**
 - MEx SOP — Manual Invoicing (Kimberly J. Campbell, 9/17/26)
 - MEx Manual Invoice — Quick Reference Card (8/13/26)
-- MEx Invoicing - Package Catalog (all 62 approved charges)
+- [MEx Invoicing - Package Catalog](https://docs.google.com/document/d/1HNhBu6z9CQZAyYeqJ2jdcOuQVeAFHsGaxXnm7TfyxYM/edit) (all 62 approved charges)
 - MEx Invoicing - Wispr Flow Snippet Setup
 - Member Payments: A Safer Process (PCI Compliance Update)
 - Snippets: Email template "NSLS Invoice Request Confirmation"; Chat "Secure Payment Invoice (confirm details)" and "Secure Payment Invoice (Invoice Sent)"

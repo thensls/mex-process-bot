@@ -52,7 +52,9 @@ If an enrollment question is not covered, say so and escalate.
 
 **Step 2 — Send a secure invoice in Authorize.Net**
 - Payments → Invoicing → **CREATE INVOICE** (never "Accept Payment")
-- Use the A&E Item ID / Item Name and Wispr Flow phrase from the **MEx Invoicing - Package Catalog**; due date = today
+- **A&E Bundle:** Item ID **1004**, Item Name **A&E**, **$190.00** — say "manual invoice description 1004" to Wispr Flow
+- **A&E Bundle (Credit-Rec):** Item ID **1037**, Item Name **A&ECredit**, **$315.00** — say "manual invoice description 1037"
+- Confirm the price in Feather first; due date = today. Other A&E combos (with kit, grad set, parent package, frame) are in the [MEx Invoicing - Package Catalog](https://docs.google.com/document/d/1HNhBu6z9CQZAyYeqJ2jdcOuQVeAFHsGaxXnm7TfyxYM/edit)
 - Click **SEND INVOICE**
 
 **Step 3 — Enroll in Feather once paid**
@@ -256,7 +258,7 @@ If an enrollment question is not covered, say so and escalate.
   3. Create the member profile — remind them their **primary email address will be their Member ID** going forward
   4. Enter shipping information (becomes their Home Address in Feather)
   5. Present the Wooden Certificate Plaque option and explain it
-  6. **Stop at the payment fields — never enter the member's card details.** Have the member enter their own payment (on their own device), or send them a secure manual invoice instead (see `general.md` → Manual Invoicing in Authorize.Net)
+  6. **Stop at the payment fields — payment is invoice only.** Never enter the member's card details. Send the member a secure manual invoice (see `general.md` → Manual Invoicing in Authorize.Net)
   7. Confirm Terms and Conditions, then submit
   8. Present A&E options — use "NO THANKS CONTINUE" if the member declines
   9. Create a password and confirm the member can log in before ending the call
